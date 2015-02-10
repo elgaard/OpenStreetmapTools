@@ -1,0 +1,27 @@
+<!--
+Niels Elgaard Larsen
+elgaard@agol.dk
+This query looks for nodes, ways for rowing clubs and activities
+with the given key/value combination.
+Choose your region and hit the Run button above!
+-->
+<osm-script output="json" timeout="25">
+  <!-- gather results -->
+  <union>
+    <!-- query part for: “sport=rowing” -->
+    <query type="node">
+      <has-kv k="sport" regv="rowing"/>
+       <has-kv k="leisure" v="sports_centre"/>
+      <bbox-query {{bbox}}/>
+    </query>
+    <query type="way">
+      <has-kv k="sport" regv="rowing"/>
+      <has-kv k="leisure" v="sports_centre"/>
+      <bbox-query {{bbox}}/>
+    </query>
+  </union>
+  <!-- print results -->
+  <print mode="body"/>
+  <recurse type="down"/>
+  <print mode="skeleton" order="quadtile"/>
+</osm-script>
