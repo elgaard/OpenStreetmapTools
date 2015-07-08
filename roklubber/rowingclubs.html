@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
+<html>
+
+  <head>
+<META name="keywords" content="rowing clubs map">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="//code.jquery.com/jquery-latest.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+<script src="map.js"></script>
+
+ <meta name="DC.title" content="Rowing clubs">
+<title>Rowing clubs</title>
+  <script>
+    var map, ids = {};
+    $(function () {
+      map = POImap.init();
+      map.zoomIn();
+      loadPoi();
+      map.on('moveend', loadPoi);
+    });
+
+    function loadPoi() {
+      if (map.getZoom() < 7) {
+        return;
+      }
+      var rowIcon = L.icon({
+        iconUrl: 'boat.png',
+        iconSize: new L.Point(100, 66),
+        iconAnchor: new L.Point(50, 62),
+        shadowSize: new L.Point(0, 0)
+      });
+
+      var poiUrl = '//overpass-api.de/api/interpreter?data=[out:json];(way(BBOX)["sport"~"rowing"]["leisure"="sports_centre"];node(BBOX)["sport"~"rowing"]["leisure"="sports_centre"];);out center qt;'.replace(/(BBOX)/g, map.getBounds().toOverpassBBoxString());
+
+      var poiInfo = function(tags) {
+          var r = $('<table>');
+	  var raddr=[];
+	  for (var key in tags) {
+              if (key != "club" && key !="leisure" && key !="sport" && key!="source" && key!="building" && key.indexOf("uuid")!=0 && key.indexOf("gst:")!=0 && key!="website") {
+		  if (key=="name") {
+		      var txt=tags[key];
+		      if (tags['website']) {
+			  txt='<a href="'+tags['website']+'">'+txt+'</a>';
+		      }
+		      r.prepend($('<tr>').append($('<h3>').html(txt)));
+	      } else {
+		  var rtag=tags[key];
+		  var rkey=key;
+		  if (rkey=="alt_name") rkey="også";
+		  if (rkey=="contact:email") rkey="email";
+		  if (rkey=="dffr:network") rkey="DFFR-netværk";
+		  if (rkey.indexOf("addr:")==0) {
+		      raddr[rkey]=rtag;
+		  } else {
+		      r.append($('<tr>').append($('<th>').text(rkey)).append($('<td>').text(rtag)));
+		  }
+	      }
+	      }
+	  }
+
+	  if (raddr['addr:street'] && raddr['addr:housenumber']) {
+	      r.append($('<tr>').append($('<td>').html(raddr['addr:street']+'&nbsp;'+raddr['addr:housenumber'])));
+	      r.append($('<tr>').append($('<td>').html(raddr['addr:postcode']+'&nbsp;'+raddr['addr:city'])));
+	      
+	  }
+        return $('<div>').append(r).html();
+      };
+
+      $.getJSON(poiUrl, function(data) {
+        $.each(data.elements, function(ign, i) {
+          if (i.id in ids) return;
+	    ids[i.id] = true;
+	    var lat;var lon;
+	    if (i.lat) {
+		lat=i.lat;
+		lon=i.lon
+	    } else  {
+		lat=i.center.lat;
+		lon=i.center.lon;
+	    }
+			  
+          L.marker([lat, lon], {
+            icon: rowIcon,
+            title: i.tags.name
+	  }).bindPopup(poiInfo(i.tags)).addTo(map);
+		  
+        });
+      });
+    }
+
+  </script>
+  <link rel="stylesheet"
+  href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    html, body, #map {
+      height: 99%;
+    }
+  </style>
+
+  </head>
+
+  <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
+    Roklubber i Danmark (Niels Elgaard Larsen, elgaard@agol.dk)
+  <div id="map"></div>
+
+    
+  </body>
+  </html>
+
