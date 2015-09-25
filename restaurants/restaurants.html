@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+  <html>
+    <!--viser restauranter i fødevarekontrollens smiley ordning på OSM -->
+    <!-- Der skal være en map.js fra leaflet i folderen -->
+    <!-- Niels Elgaard Larsen -->
+  <head>
+<META name="keywords" content="restauranter smiley">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="//code.jquery.com/jquery-latest.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+<script src="map.js"></script>
+<title>Restauranter i Danmark med Smiley</title>
+  <script>
+    var map, ids = {};
+
+      var resIcon = L.icon({
+        iconUrl: 'res.png',
+        iconSize: new L.Point(20, 20),
+        iconAnchor: new L.Point(10, 10),
+        shadowSize: new L.Point(0, 0)
+      });
+
+    $(function () {
+      map = POImap.init();
+      map.zoomIn();
+      loadPoi();
+      //map.on('moveend', loadPoi);
+    });
+
+    function loadPoi() {
+      var poiUrl = '//agol.dk/elgaard/restauranter/r.json';
+      var poiInfo = function(tags) {
+          var r = $('<table>');
+	  for (var key in tags) {
+	    if (key=="name") {
+	      var txt=tags[key];
+	      r.prepend($('<tr>').append($('<h3>').html(txt)));
+	    } 
+	  }
+        return $('<div>').append(r).html();
+      };
+
+      $.getJSON(poiUrl, function(data) {
+        $.each(data.elements, function(ign, i) {
+          if (i.id in ids) return;
+	  ids[i.id] = true;
+	  var lat;var lon;
+	  lat=i.lat;
+	  lon=i.lon
+          L.marker([lat, lon], {
+            icon: resIcon,
+            title: i.tags.name
+	  }).bindPopup(poiInfo(i.tags)).addTo(map);		  
+        });
+      });
+    }
+
+  </script>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    html, body, #map {
+      height: 99%;
+    }
+  </style>
+
+  </head>
+
+  <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
+    Fødevarekontrollerede restauranter i Danmark (Niels Elgaard Larsen, elgaard@agol.dk)
+  <div id="map"></div>
+
+    
+  </body>
+  </html>
+
