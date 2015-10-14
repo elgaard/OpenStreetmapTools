@@ -33,7 +33,8 @@
       var poiUrl = 'http://agol.dk/elgaard/restauranter/miss.json';
       var poiInfo = function(pi) {
 	var r = $('<table>');
-	r.append($('<tr>').html($('<a>',{text: 'fvst:navnelbnr: '+pi.id, href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'})));
+	  r.append($('<tr>').html($('<a>',{text: 'fvst:navnelbnr: '+pi.id, href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'})));
+// TODO	    http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?virk=557057
 	  for (var key in pi.tags) {
 	    if (key=="name") {
 	      var txt=pi.tags[key];

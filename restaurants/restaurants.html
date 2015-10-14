@@ -8,11 +8,12 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="//code.jquery.com/jquery-latest.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+  <!-- script src="leaflet.label.js"></script -->
 <script src="map.js"></script>
 <title>Restauranter i Danmark med Smiley</title>
   <script>
-    var map, ids = {};
+    var map;
 
       var resIcon = L.icon({
         iconUrl: 'res.png',
@@ -30,11 +31,12 @@
 
     function loadPoi() {
       var poiUrl = 'http://agol.dk/elgaard/restauranter/r.json';
-      var poiInfo = function(tags) {
-          var r = $('<table>');
-	  for (var key in tags) {
+      var poiInfo = function(pi) {
+	var r = $('<table>');
+	r.append($('<tr>').html($('<a>',{text: 'lbnr: '+pi.id, href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'})));
+	  for (var key in pi.tags) {
 	    if (key=="name") {
-	      var txt=tags[key];
+	      var txt=pi.tags[key];
 	      r.prepend($('<tr>').append($('<h3>').html(txt)));
 	    } 
 	  }
@@ -43,15 +45,10 @@
 
       $.getJSON(poiUrl, function(data) {
         $.each(data.elements, function(ign, i) {
-          if (i.id in ids) return;
-	  ids[i.id] = true;
-	  var lat;var lon;
-	  lat=i.lat;
-	  lon=i.lon
-          L.marker([lat, lon], {
+          L.marker([i.lat, i.lon], {
             icon: resIcon,
             title: i.tags.name
-	  }).bindPopup(poiInfo(i.tags)).addTo(map);		  
+	  }).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
         });
       });
     }
