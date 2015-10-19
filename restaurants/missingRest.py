@@ -42,7 +42,6 @@ smilres=open('data/r.json').read()
 smildata = json.loads(smilres)['elements']
 out={'elements':[],'info':'missing restaurants'}
 
-print(fvst)
 for smil in smildata:
     tags=smil['tags']
     if smil['id'] == 'dummy':
