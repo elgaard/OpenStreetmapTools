@@ -2,8 +2,11 @@ import json
 from pprint import pprint
 import re
 import string
+blacklist=json.loads(open('blacklist.json').read())['blacklist']
+
 osmres=open('data/osmres.json').read()
 osmdata = json.loads(osmres)
+
 
 def canonicalname(nm):
       nm1=nm.lower().translate(str.maketrans(u'éäö–\'-´.,’+&"', 'eæø          ')) +' '
@@ -53,13 +56,12 @@ for smil in smildata:
     found=False
     if str(smil['id']) in fvst:
           continue
+    if str(smil['id']) in blacklist:
+          continue
     if cn!='':
         if cn in osminfo:
             for ores in osminfo[cn]:
                 d = (smil['lat']-ores['lat'])*(smil['lat']-ores['lat'])+(smil['lon']-ores['lon'])*(smil['lon']-ores['lon'])
-                # print('diff= (%7f,%7f)-(%7f,%7f)' %(smil['lat'],smil['lon'],ores['lat'],ores['lon']))
-                # print('XXmatch '+tags['name']+' d=%5f cn=%s' % (d,cn))
-                # print('d== %6f' %(d))
                 if (d<0.000001):
                     found=True
     if not found:
