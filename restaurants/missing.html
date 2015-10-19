@@ -30,10 +30,10 @@
     });
 
     function loadPoi() {
-      var poiUrl = 'http://agol.dk/elgaard/restauranter/miss.json';
+      var poiUrl = 'http://agol.dk/elgaard/restauranter/data/miss.json';
       var poiInfo = function(pi) {
 	var r = $('<table>');
-	r.append($('<tr>').html($('<a>',{text: 'fvst:navnelbnr: '+pi.id, href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'})));
+	r.append($('<tr>').html($('<a target="_blank">',{text: 'fvst:navnelbnr: '+pi.id, href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'})));
 	  for (var key in pi.tags) {
 	    if (key=="name") {
 	      var txt=pi.tags[key];

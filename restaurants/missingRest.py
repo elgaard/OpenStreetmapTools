@@ -3,45 +3,44 @@ from pprint import pprint
 import re
 import string
 osmres=open('data/osmres.json').read()
-data = json.loads(osmres)
+osmdata = json.loads(osmres)
 
 def canonicalname(nm):
       nm1=nm.lower().translate(str.maketrans(u'éäö–\'-´.,’+&"', 'eæø          ')) +' '
       nm2=nm1.replace('pizzaria','pizza')
-      nmc=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('(cafe |i/s|v/.*| a/s|pizzeria |restaurant| pizza |the |kafe |cafe |hotel| spisehus| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| aps)','',nm2))).replace('/','')
+      nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('(cafe |i/s|v/.*| a/s|pizzeria |restaurant|bryggeriet| house| and | pizza |the |kafe |cafe |hotel| spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| take away| aps)','',nm2))).replace('/','')
+      nmc=re.sub(' 2','',nm3)
 #      print('xx  '+nmc)
       return nmc.replace(' ','')
 def canonical(res):
   nm='UNDEFINED'
-  if 'name' in res['properties']:
-      nm=canonicalname(res['properties']['name'])
-  if (res['geometry']['type']=='Point'):
-    cn=res['geometry']['coordinates']
-  else:
-    cn=res['geometry']['coordinates'][0][0]
+  nm=canonicalname(res['tags']['name'])
+  posob=res
+  if 'center' in res:
+        posob=res['center']
   return {'id': res['id'],
           'name':nm,
-          'lat':cn[1],
-          'lon':cn[0],
+          'lat':posob['lat'],
+          'lon':posob['lon']
   }
 
 smilinfo={}
 osminfo={}
-for res in list(data['features']):
-    cn=canonical(res)
-    if (cn['name'] not in osminfo):
+for res in list(osmdata['elements']):
+    if 'tags' in res and 'name' in res['tags']:
+      cn=canonical(res)
+      if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
-    osminfo[cn['name']].append(cn)
-
+      osminfo[cn['name']].append(cn)
 smilres=open('data/r.json').read()
 smildata = json.loads(smilres)['elements']
-out={'elements':[]}
+out={'elements':[],'info':'missing restaurants'}
 
 for smil in smildata:
     tags=smil['tags']
-    cn=canonicalname(tags['name'])
     if smil['id'] == 'dummy':
         break
+    cn=canonicalname(tags['name'])
     if (cn not in smilinfo):
         smilinfo[cn]=[]
     smilinfo[cn].append(smil)
@@ -58,4 +57,5 @@ for smil in smildata:
     if not found:
         out['elements'].append(smil)
 
-print(json.dumps(out))
+#print(out)
+print(json.dumps(out,indent=2))

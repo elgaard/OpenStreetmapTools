@@ -11,7 +11,7 @@
 {
   "elements": [ 
     <xsl:apply-templates/>
-{"id":"dummy","lat":12,"lon":56}  ]
+{"id":"dummy","lat":12,"lon":56,"tags":{}}  ]
 }
 <!-- XSLT til at udtrække restauranter fra http://www.findsmiley.dk/xml/allekontrolresultater.xml og generere JSON -->
 <!-- Niels Elgaard Larsen elgaard@agol.dk -->
