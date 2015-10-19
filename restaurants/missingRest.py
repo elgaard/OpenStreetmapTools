@@ -12,6 +12,7 @@ def canonicalname(nm):
       nmc=re.sub(' 2','',nm3)
 #      print('xx  '+nmc)
       return nmc.replace(' ','')
+
 def canonical(res):
   nm='UNDEFINED'
   nm=canonicalname(res['tags']['name'])
@@ -21,10 +22,12 @@ def canonical(res):
   return {'id': res['id'],
           'name':nm,
           'lat':posob['lat'],
-          'lon':posob['lon']
+          'lon':posob['lon'],
+          'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
   }
 
 smilinfo={}
+fvst={}
 osminfo={}
 for res in list(osmdata['elements']):
     if 'tags' in res and 'name' in res['tags']:
@@ -32,10 +35,14 @@ for res in list(osmdata['elements']):
       if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
       osminfo[cn['name']].append(cn)
+      if 'fvst:navnelbnr' in res['tags']:
+            fvst[res['tags']['fvst:navnelbnr']]=res
+            
 smilres=open('data/r.json').read()
 smildata = json.loads(smilres)['elements']
 out={'elements':[],'info':'missing restaurants'}
 
+print(fvst)
 for smil in smildata:
     tags=smil['tags']
     if smil['id'] == 'dummy':
@@ -45,6 +52,8 @@ for smil in smildata:
         smilinfo[cn]=[]
     smilinfo[cn].append(smil)
     found=False
+    if str(smil['id']) in fvst:
+          continue
     if cn!='':
         if cn in osminfo:
             for ores in osminfo[cn]:

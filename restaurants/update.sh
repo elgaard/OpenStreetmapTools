@@ -29,6 +29,5 @@ curl -G --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > osm
 wget --timestamping  http://www.findsmiley.dk/xml/allekontrolresultater.xml
 xsltproc ../smilres.xslt allekontrolresultater.xml > r.json
 cd ..
-python3 missingRest.py > data/m.json
-scp data/m.json gombert.agol.dk:/var/www/agol.dk/elgaard/restauranter/data/miss.json
-#saxon-xslt  allekontrolresultater.xml  smilres.xslt > r.json
+python3 missingRest.py > data/miss.json
+
