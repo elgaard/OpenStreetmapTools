@@ -1,6 +1,4 @@
 #!/bin/sh -x
-#xalan -text -in data/allekontrolresultater.xml -out data/r.json -xsl smilres.xslt
-
 BBOX="(54.54020652089137,8.009033203125,57.76279865944121,12.81005859375)"
 #undskyld Bornholm
 
@@ -16,7 +14,9 @@ q="[timeout:120] [out:json];\
   way["amenity"="bar"]$BBOX;\
   node["amenity"="pub"]$BBOX;\
   node["shop"="farm"]$BBOX;\
-  way["amenity"="pub"]$BBOX;\
+  node["shop"="butcher"]$BBOX;\
+  node["amenity"="pub"]$BBOX;\
+  node[\"fvst:navnelbnr\" ~ \".\"]$BBOX;\
 );\
 (._;>;);\
 out center;\
