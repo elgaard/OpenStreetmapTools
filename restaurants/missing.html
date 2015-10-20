@@ -32,14 +32,13 @@
     function loadPoi() {
       var poiUrl = 'http://agol.dk/elgaard/restauranter/data/miss.json';
       var poiInfo = function(pi) {
+	var name=pi.tags["name"];
 	var r = $('<table>');
-	r.append($('<tr>').html($('<a>',{ target:'_blank', text: 'fvst:navnelbnr: '+pi.id, href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'})));
-	  for (var key in pi.tags) {
-	    if (key=="name") {
-	      var txt=pi.tags[key];
-	      r.prepend($('<tr>').append($('<h3>').html(txt)));
-	    } 
-	  }
+	r.append($('<tr>').append($('<th>').html(name)));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'add in josm ',
+							   href:'http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags=amenity=fast_food|name='+encodeURIComponent(pi.tags["name"])+'|fvst%3Anavnelbnr='+pi.id}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id: fvst:navnelbnr: '+pi.id, href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
+
         return $('<div>').append(r).html();
       };
 
@@ -68,7 +67,7 @@
   </head>
 
   <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
-    Fødevarekontrollerede restauranter i Danmark (Niels Elgaard Larsen, elgaard@agol.dk)
+    Fødevarekontrollerede restauranter i Danmark V2 (Niels Elgaard Larsen, elgaard@agol.dk)
   <div id="map"></div>
 
     
