@@ -33,7 +33,7 @@ smilinfo={}
 fvst={}
 osminfo={}
 for res in list(osmdata['elements']):
-    if 'tags' in res and 'name' in res['tags']:
+    if res['type'] in ['way','node','relation'] and 'tags' in res and 'name' in res['tags']:
       cn=canonical(res)
       if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
