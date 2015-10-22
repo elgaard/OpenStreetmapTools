@@ -1,9 +1,12 @@
 {
   "blacklist": {
+    "509710":"Blomsterparkens/Vest Modtagerkøkken-Vest",
     "110248507":"deltek kantine",
     "111015367":"Freezone-Catering",
     "110250813":"AP Pension",
     "10745985":"Auberge, renamed",
-    "110248205":"Nordisk Kollegium"
+    "110248205":"Nordisk Kollegium",
+    "534968":"Food Arena Produktionskøkken"
+
   }
 }
