@@ -35,7 +35,7 @@
     function loadPoi() {
       var poiUrl = 'http://agol.dk/elgaard/restauranter/data/miss.json';
       var poiInfo = function(pi) {
-	var name=pi.tags["name"].replace(/v\/.*/,"").trim().replace("&"," og ");
+	var name=pi.tags["name"].replace(/v\/.*/i,"").replace("ApS","").replace("&"," og ").trim();
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html(name)));
 	
