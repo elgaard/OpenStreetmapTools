@@ -19,6 +19,7 @@ q="[timeout:180] [out:json];\
   node["shop"="butcher"](area.sa);\
   node["amenity"="pub"](area.sa);\
   node[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
+  way[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
 );\
 (._;>;);\
 out center;\
