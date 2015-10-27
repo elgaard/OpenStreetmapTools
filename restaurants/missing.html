@@ -39,7 +39,7 @@
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html(name)));
 	
-	var js="javascript:void $.ajax({url:'"+'http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags=amenity=fast_food|name='+encodeURIComponent($("<div />").text(name).html()).replace("'","")+'|fvst%3Anavnelbnr='+pi.id+"'})"
+	var js="javascript:void $.ajax({url:'"+'http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags=amenity=fast_food%7Cname='+encodeURIComponent($("<div />").text(name).html()).replace("'","")+'%7Cfvst%3Anavnelbnr='+pi.id+"'})"
 	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM',  href:js }))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+pi.id}))));
