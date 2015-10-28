@@ -38,7 +38,7 @@
 	var name=pi.tags["name"].replace(/v\/.*/i,"").replace("ApS","").replace("&"," og ").trim();
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html(name)));
-	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags=amenity=fast_food%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
+	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags=amenity=fast_food%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
 	var js="javascript:void $.get('"+jsurl+"')";
 	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM',  href:js }))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
