@@ -52,6 +52,7 @@ for smil in smildata:
     cn=canonicalname(tags['name'])
     if (cn not in smilinfo):
         smilinfo[cn]=[]
+    tags['name']=tags['name'].replace("`","")
     smilinfo[cn].append(smil)
     found=False
     if str(smil['id']) in fvst:
