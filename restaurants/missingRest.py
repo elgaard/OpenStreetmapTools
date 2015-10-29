@@ -9,7 +9,7 @@ osmdata = json.loads(osmres)
 
 
 def canonicalname(nm):
-      nm1=nm.lower().translate(str.maketrans(u'éäö–\'-´.,’+&"', 'eæø          ')) +' '
+      nm1=nm.lower().translate(str.maketrans(u'éäö–\'-´.,’+&"`', 'eæø           ')) +' '
       nm2=nm1.replace('pizzaria','pizza')
       nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('(cafe |i/s|v/.*| a/s|pizzeria |restaurant|bryggeriet| house| and | pizza |the |kafe |cafe |hotel| spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| take away| aps)','',nm2))).replace('/','')
       nmc=re.sub(' 2','',nm3)
