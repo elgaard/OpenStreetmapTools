@@ -20,6 +20,7 @@ q="[timeout:180] [out:json];\
   node["amenity"="pub"](area.sa);\
   node[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
   way[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
+  relation[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
 );\
 (._;>;);\
 out center;\
