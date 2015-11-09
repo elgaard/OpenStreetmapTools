@@ -35,3 +35,4 @@ fi
 cd ..
 python3 missingRest.py > data/miss.json
 
+grep amenity data/miss.json |wc
