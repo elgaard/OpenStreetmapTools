@@ -6,6 +6,7 @@ blacklist=json.loads(open('blacklist.json').read())['blacklist']
 
 osmres=open('data/osmres.json').read()
 osmdata = json.loads(osmres)
+missing=open('data/miss.json',mode="w")
 
 
 def canonicalname(nm):
@@ -38,8 +39,8 @@ for res in list(osmdata['elements']):
       if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
       osminfo[cn['name']].append(cn)
-      if 'fvst:navnelbnr' in res['tags']:
-            fvst[res['tags']['fvst:navnelbnr']]=res
+    if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
+          fvst[res['tags']['fvst:navnelbnr']]=res
             
 smilres=open('data/r.json').read()
 smildata = json.loads(smilres)['elements']
@@ -69,4 +70,4 @@ for smil in smildata:
         out['elements'].append(smil)
 
 #print(out)
-print(json.dumps(out,indent=2))
+print(json.dumps(out,indent=2),file=missing)
