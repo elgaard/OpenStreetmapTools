@@ -34,6 +34,6 @@ if wget --timestamping  http://www.findsmiley.dk/xml/allekontrolresultater.xml; 
        xsltproc ../smilres.xslt allekontrolresultater.xml > r.json
 fi
 cd ..
-python3 missingRest.py > data/miss.json
+python3 missingRest.py 
 
 grep amenity data/miss.json |wc
