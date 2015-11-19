@@ -28,8 +28,8 @@
 	  "lat":<xsl:value-of select="@Geo_Lat"/>,
 	  "lon":<xsl:value-of select="@Geo_Lng"/>,
 	  "tags": {
-	  "amenity":"restaurant",
-	  "name":"<xsl:value-of select="translate(normalize-space(@navn1),'&quot;','')"/>"
+	    "amenity":"restaurant",
+	    "name":"<xsl:value-of select="translate(normalize-space(@navn1),'&quot;','')"/>"
 	  }
 	  },
 	</xsl:if>
