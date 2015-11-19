@@ -70,9 +70,6 @@ for smil in smildata:
                 d = (smil['lat']-ores['lat'])*(smil['lat']-ores['lat'])+(smil['lon']-ores['lon'])*(smil['lon']-ores['lon'])
                 if (d<0.000001):
                     found=True
-                    print("smil",smil)
-                    print("FVtags",fvsttags)
-                    print("ores",ores)
                     match.append({"fvst:navnelbnr":smil['id'], "id":ores["id"], "osm:name":ores["orgname"],"fvst:name":fvsttags['name']})
     if not found:
         out['elements'].append(smil)
