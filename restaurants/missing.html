@@ -36,9 +36,18 @@
       var poiUrl = 'data/miss.json';
       var poiInfo = function(pi) {
 	var name=pi.tags["name"].replace(/v\/.*/i,"").replace("ApS","").replace("&"," og ").trim();
+	var addtags="amenity=fast_food";
+	var nl=name.toLowerCase();
+	if (nl.match(/pleje|botilbud|bosted/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
+	else if (nl.match(/cafe/)!=null) addtags="amenity=cafe";
+	if (nl.toLowerCase().match(/sushi/)!=null) addtags+="%257Ccuisine=sushi";
+	else if (nl.toLowerCase().match(/pizza/)!=null) addtags+="%257Ccuisine=pizza";
+	else if (nl.toLowerCase().match(/burger/)!=null) addtags+="%257Ccuisine=burger";
+	if (nl.toLowerCase().match(/takeawayi|take away/)!=null) addtags+="%257Ctakeaway=yes";
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html(name)));
-	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags=amenity=fast_food%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
+	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
 	var js="javascript:void $.get('"+jsurl+"')";
 	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM',  href:js }))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
