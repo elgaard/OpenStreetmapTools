@@ -42,6 +42,8 @@
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
 	else if (nl.match(/cafe/)!=null) addtags="amenity=cafe";
 	else if (nl.match(/ pub/)!=null) addtags="amenity=pub";
+	else if (nl.match(/bodega/)!=null) addtags="amenity=bar";
+	else if (nl.match(/feriekoloni/)!=null) addtags="leisure=summer_camp";
 	if (nl.toLowerCase().match(/sushi/)!=null) addtags+="%257Ccuisine=sushi";
 	else if (nl.toLowerCase().match(/pizza/)!=null) addtags+="%257Ccuisine=pizza";
 	else if (nl.toLowerCase().match(/burger/)!=null) addtags+="%257Ccuisine=burger";
