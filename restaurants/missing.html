@@ -38,7 +38,7 @@
 	var name=pi.tags["name"].replace(/v\/.*/i,"").replace("ApS","").replace("&"," og ").trim();
 	var addtags="amenity=fast_food";
 	var nl=name.toLowerCase();
-	if (nl.match(/pleje|botilbud|bosted/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+	if (nl.match(/pleje|botilbud|bosted|hjemmet/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
 	else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
 	else if (nl.match(/cafe|café/)!=null) addtags="amenity=cafe";
