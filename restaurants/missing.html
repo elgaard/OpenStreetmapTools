@@ -39,8 +39,9 @@
 	var addtags="amenity=fast_food";
 	var nl=name.toLowerCase();
 	if (nl.match(/pleje|botilbud|bosted/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+	else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
-	else if (nl.match(/cafe/)!=null) addtags="amenity=cafe";
+	else if (nl.match(/cafe|café/)!=null) addtags="amenity=cafe";
 	else if (nl.match(/ pub/)!=null) addtags="amenity=pub";
 	else if (nl.match(/bodega/)!=null) addtags="amenity=bar";
 	else if (nl.match(/feriekoloni/)!=null) addtags="leisure=summer_camp";
@@ -49,6 +50,7 @@
 	if (nl.toLowerCase().match(/sushi/)!=null) addtags+="%257Ccuisine=sushi";
 	else if (nl.toLowerCase().match(/pizza/)!=null) addtags+="%257Ccuisine=pizza";
 	else if (nl.toLowerCase().match(/burger/)!=null) addtags+="%257Ccuisine=burger";
+	else if (nl.toLowerCase().match(/steak/)!=null) addtags+="%257Ccuisine=steak";
 	if (nl.toLowerCase().match(/takeawayi|take away/)!=null) addtags+="%257Ctakeaway=yes";
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html(name)));
