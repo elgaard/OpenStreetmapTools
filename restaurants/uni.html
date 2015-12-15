@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+  <html>
+    <!--viser restauranter i fødevarekontrollens smiley ordning på OSM -->
+    <!-- Der skal være en map.js fra leaflet i folderen -->
+    <!-- Niels Elgaard Larsen -->
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF8">
+<META name="keywords" content="restauranter smiley">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="//code.jquery.com/jquery-latest.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+  <!-- script src="leaflet.label.js"></script -->
+<script src="map.js"></script>
+<title>Unify OSM og Fødevarestyrelses kontrolrapporter based on geo/name matching</title>
+<script>L_PREFER_CANVAS = true;</script>
+<script>
+    var map;
+    $(function () {
+      map = POImap.init();
+      map.zoomIn();
+      loadPoi();
+    });
+
+    function loadPoi() {
+      var poiUrl = 'data/match.json';
+      var poiInfo = function(pi) {
+	var fvstname=pi["fvst:name"]
+    	var osmname=pi["osm:name"]
+	var id=pi["id"]
+	var typeF=pi["type"].charAt(0);
+	var fvstid=pi["fvst:navnelbnr"]
+	var r = $('<table>');
+	r.append($('<tr>').append($('<th>').html('fvst name :'+fvstname)));
+	r.append($('<tr>').append($('<th>').html('psm name :'+osmname)));
+	
+	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid;
+	var js="javascript:void $.get('"+jsurl+"')";
+	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge at blue point in JOSM',  href:js }))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+pi.id}))));
+	
+        return $('<div>').append(r).html();
+      };
+
+      $.getJSON(poiUrl, function(data) {
+        $.each(data, function(ign, i) {
+	  var osmll=new L.LatLng(i.lat, i.lon);
+	  var fvstll=new L.LatLng(i.slat, i.slon);
+	  L.circle(osmll,3,{color: 'blue'}).addTo(map);
+	  var pl = L.polyline([osmll,fvstll], {color: 'red'}).addTo(map);
+          pl.bindPopup(poiInfo(i)).addTo(map);
+        });
+      });
+    }
+
+  </script>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    html, body, #map {
+      height: 99%;
+    }
+  </style>
+
+  </head>
+
+  <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
+  fvst:navnelbnr import tool (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM
+  <div id="map"></div>
+
+    
+  </body>
+  </html>
+
