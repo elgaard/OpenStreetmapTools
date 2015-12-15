@@ -30,7 +30,7 @@ printf "$q"
 
 cd data
 curl -v -G --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > osmres.json
-if wget --timestamping  http://www.findsmiley.dk/xml/allekontrolresultater.xml; then
+if wget --quiet --timestamping  http://www.findsmiley.dk/xml/allekontrolresultater.xml; then
        xsltproc ../smilres.xslt allekontrolresultater.xml > r.json
 fi
 cd ..

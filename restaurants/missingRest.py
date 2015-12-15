@@ -27,6 +27,7 @@ def canonical(res):
   return {'id': res['id'],
           'name':nm,
           'orgname':res['tags']['name'],
+          'type':res['type'],
           'lat':posob['lat'],
           'lon':posob['lon'],
           'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
@@ -70,7 +71,7 @@ for smil in smildata:
                 d = (smil['lat']-ores['lat'])*(smil['lat']-ores['lat'])+(smil['lon']-ores['lon'])*(smil['lon']-ores['lon'])
                 if (d<0.000001):
                     found=True
-                    match.append({"fvst:navnelbnr":smil['id'], "id":ores["id"], "osm:name":ores["orgname"],"fvst:name":fvsttags['name']})
+                    match.append({"fvst:navnelbnr":smil['id'], "type":ores["type"],"id":ores["id"], "osm:name":ores["orgname"],"fvst:name":fvsttags['name']})
     if not found:
         out['elements'].append(smil)
 
