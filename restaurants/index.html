@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+  <html>
+    <!--viser restauranter i fødevarekontrollens smiley ordning på OSM -->
+    <!-- Der skal være en map.js fra leaflet i folderen -->
+    <!-- Niels Elgaard Larsen -->
+  <head>
+<META name="keywords" content="restauranter smiley">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF8">
+  <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
+    <h1>Elgaard DK restaurant and food instection report tools</h1>
+    These tools use the Danish food inspection reports (the "smiley" reports) which has a name, a postion and a unique id (fvst:navnelbnr) for all danish restaurants, cafes, canteens, etc.
+<p>
+The tool have links to the food inspection reports and to JOSM Remote Control actions (also works in Merkaartor/git)
+    
+    <ul>
+      <li><a href="missing.html">Food places that is in FVST but not in OSM</a><br>
+      The Remote Control link creates the node in OSM, at the "fvst:navnelbnr" and also "amenity", "cuisine", etc based on the FVST name.
+      </li>
+      
+      <li><a href="uni.html">Food places that is in both OSM and FVST but missing fvst:navnelbnr id in OSM</a><br>
+	List both the FVST and the OSM name. Draws a red line between the FVST and OSM location - the OSM end is marked with a blue dot.<br>
+	The Remote Control link add the fvst:navnelbnr to the OSM node. But please verify that the OSM name and position is correct and edit it in JOSM if not.
+      </li>
+      
+
+	    
+    </ul>
+
+    
+</body>
+</html>
