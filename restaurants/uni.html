@@ -33,15 +33,12 @@
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html('fvst name: '+fvstname)));
 	r.append($('<tr>').append($('<th>').html('osm  name: '+osmname)));
-	
 	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid;
 	var js="javascript:void $.get('"+jsurl+"')";
 	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge at blue point in JOSM',  href:js }))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+pi.id}))));
-	
         return $('<div>').append(r).html();
       };
-
       $.getJSON(poiUrl, function(data) {
         $.each(data, function(ign, i) {
 	  var osmll=new L.LatLng(i.lat, i.lon);
@@ -64,14 +61,10 @@
       height: 99%;
     }
   </style>
-
   </head>
-
   <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
   fvst:navnelbnr import tool based on name and location matching (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM
-  <div id="map"></div>
-
-    
+  <div id="map"></div>  
   </body>
   </html>
-
+  
