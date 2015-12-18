@@ -36,7 +36,7 @@
 	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid;
 	var js="javascript:void $.get('"+jsurl+"')";
 	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge at blue point in JOSM',  href:js }))));
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'FVST: fvst:navnelbnr: '+fvst.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+fvst.id}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+fvstid}))));
         return $('<div>').append(r).html();
       };
       $.getJSON(poiUrl, function(data) {
