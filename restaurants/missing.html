@@ -41,6 +41,7 @@
 	if (nl.match(/pleje|botilbud|bosted|hjemmet/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
 	else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
+	else if (nl.match(/catering/)!=null) addtags="shop=craft%257Ccraft=catering";
 	else if (nl.match(/cafe|café/)!=null) addtags="amenity=cafe";
 	else if (nl.match(/ pub/)!=null) addtags="amenity=pub";
 	else if (nl.match(/bodega/)!=null) addtags="amenity=bar";
