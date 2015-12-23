@@ -27,6 +27,7 @@
           "id":<xsl:value-of select="@navnelbnr"/>,    
 	  "lat":<xsl:value-of select="@Geo_Lat"/>,
 	  "lon":<xsl:value-of select="@Geo_Lng"/>,
+	  "city":"<xsl:value-of select="@By"/>",
 	  "tags": {
 	    "amenity":"restaurant",
 	    "name":"<xsl:value-of select="translate(normalize-space(@navn1),'&quot;','')"/>"
