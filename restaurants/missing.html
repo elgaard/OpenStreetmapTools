@@ -62,7 +62,7 @@
 	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM',  href:js }))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+pi.id}))));
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'search for it: '+pi.id, href:'https://duckduckgo.com/?'+name+"%20"+pi.city}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'search for it: ', href:'https://duckduckgo.com/?q='+name+"%20"+pi.city.trim()}))));
 	
         return $('<div>').append(r).html();
       };
