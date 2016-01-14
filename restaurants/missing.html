@@ -61,7 +61,7 @@
 	if (nl.toLowerCase().match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html(name)));
-	r.append($('<tr>').append($('<th>').html("check: by="+pi.city.trim)));
+	r.append($('<tr>').append($('<th>').html("check: by="+pi.city)));
 	   
 	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
 	var js="javascript:void $.get('"+jsurl+"')";
