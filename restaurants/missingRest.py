@@ -2,12 +2,21 @@ import json
 from pprint import pprint
 import re
 import string
+import sys
+
+fullmatch=False;
+fvstfile='data/r.json';
+print("start")
+print("a0 "+sys.argv[1])
+if (len(sys.argv)>1 and sys.argv[1]=="match"):
+      fullmatch=True
+      fvstfile='data/rfull.json'
+      print("fullmatch")
+
 blacklist=json.loads(open('blacklist.json').read())['blacklist']
 
 osmres=open('data/osmres.json').read()
 osmdata = json.loads(osmres)
-missing=open('data/miss.json',mode="w")
-matchfile=open('data/match.json',mode="w")
 
 
 def canonicalname(nm):
@@ -33,7 +42,7 @@ def canonical(res):
           'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
   }
 
-smilinfo={} #holds all FVST objects, not used yet
+smilinfo={} 
 fvst={} # holds OSM object with a fvst:navnelbnr tag
 osminfo={} # holds OSM restaurants, cafes, fast_food, etc
 match=[] # holds matches based on name and location, i.e. FVST objects already in OSM, but without fvst:navnelbnr tag
@@ -47,7 +56,7 @@ for res in list(osmdata['elements']):
     if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
           fvst[res['tags']['fvst:navnelbnr']]=res
             
-smilres=open('data/r.json').read()
+smilres=open(fvstfile).read()
 smildata = json.loads(smilres)['elements']
 out={'elements':[],'info':'missing restaurants'}
 
@@ -84,5 +93,9 @@ for smil in smildata:
         out['elements'].append(smil)
 
 #print(out)
-print(json.dumps(out,indent=2),file=missing)
-print(json.dumps(match,indent=2),file=matchfile)
+if fullmatch:
+      matchfile=open('data/match.json',mode="w")
+      print(json.dumps(match,indent=2),file=matchfile)
+else:
+      missing=open('data/miss.json',mode="w")
+      print(json.dumps(out,indent=2),file=missing)

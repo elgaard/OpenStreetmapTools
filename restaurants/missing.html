@@ -53,6 +53,7 @@
         else if (nl.match(/pizza/)!=null) addtags+="%257Ccuisine=pizza";
         else if (nl.match(/pizzeri/)!=null) addtags+="%257Ccuisine=pizza";
         else if (nl.match(/indian/)!=null) addtags+="%257Ccuisine=indian";
+        else if (nl.match(/india/)!=null) addtags+="%257Ccuisine=indian";
 	else if (nl.match(/thai/)!=null) addtags+="%257Ccuisine=thai";
 	else if (nl.match(/burger/)!=null) addtags+="%257Ccuisine=burger";
 	else if (nl.match(/chine /)!=null) addtags+="%257Ccuisine=chinese";
@@ -70,7 +71,7 @@
 	var js="javascript:void $.get('"+jsurl+"')";
 	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM',  href:js }))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+pi.id}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+pi.id}))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ',
 	href:'https://duckduckgo.com/?q='+name+'%20"'+pi.city.trim()+'"'}))));
 	

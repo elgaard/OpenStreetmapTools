@@ -31,10 +31,12 @@ printf "$q"
 cd data
 curl -v -G --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > osmres.json
 if wget --quiet --timestamping  http://www.findsmiley.dk/xml/allekontrolresultater.xml; then
-       xsltproc ../smilres.xslt allekontrolresultater.xml > r.json
+    xsltproc ../smilres.xslt allekontrolresultater.xml > r.json
+    xsltproc ../smilresfull.xslt allekontrolresultater.xml > rfull.json
 fi
 cd ..
-python3 missingRest.py 
+python3 missingRest.py
+python3 missingRest.py match
 
 echo misses
 grep amenity data/miss.json |wc
