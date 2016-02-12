@@ -81,6 +81,7 @@ for smil in smildata:
                     match.append({"fvst:navnelbnr":smil['id'],
                                   "type":ores["type"],"id":ores["id"],
                                   "osm:name":ores["orgname"],
+                                  "osm:navnelbnr":ores["fvst:navnelbnr"],
                                   "fvst:name":fvsttags['name'],
                                   'lat':ores['lat'],
                                   'lon':ores['lon'],
