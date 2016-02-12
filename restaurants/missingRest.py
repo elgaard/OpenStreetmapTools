@@ -6,8 +6,6 @@ import sys
 
 fullmatch=False;
 fvstfile='data/r.json';
-print("start")
-print("a0 "+sys.argv[1])
 if (len(sys.argv)>1 and sys.argv[1]=="match"):
       fullmatch=True
       fvstfile='data/rfull.json'
