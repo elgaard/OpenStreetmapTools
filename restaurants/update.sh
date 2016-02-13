@@ -2,10 +2,11 @@
 
 
 # {{geocodeArea:\"Denmark\"}}->.sa;\
+#  area(3600050046)->.sa;\
 
-q="[timeout:180] [out:json];\
+q="[timeout:300] [out:json];\
 ( \
-  area(3600050046)->.sa;\
+  area["name"="Denmark"]->.sa;\
   node["amenity"="restaurant"](area.sa);\
   way["amenity"="restaurant"](area.sa);\
   node["amenity"="cafe"](area.sa);\
