@@ -56,7 +56,7 @@ for res in list(osmdata['elements']):
             
 smilres=open(fvstfile).read()
 smildata = json.loads(smilres)['elements']
-out={'elements':[],'info':'missing restaurants'}
+missingItems={'elements':[],'info':'missing restaurants'}
 
 for smil in smildata:
     fvsttags=smil['tags']
@@ -89,7 +89,7 @@ for smil in smildata:
                                   'slon':smil['lon']
                     })
     if not found:
-        out['elements'].append(smil)
+        missingItems['elements'].append(smil)
 
 #print(out)
 if fullmatch:
@@ -97,4 +97,4 @@ if fullmatch:
       print(json.dumps(match,indent=2),file=matchfile)
 else:
       missing=open('data/miss.json',mode="w")
-      print(json.dumps(out,indent=2),file=missing)
+      print(json.dumps(missingItems,indent=2),file=missing)
