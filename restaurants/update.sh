@@ -1,12 +1,12 @@
 #!/bin/bash -x
 
 
-# {{geocodeArea:\"Denmark\"}}->.sa;\
-#  area(3600050046)->.sa;\
 
+#  area["name"="Denmark"]->.sa;\
+# {{geocodeArea:\"Denmark\"}}->.sa;\
 q="[timeout:300] [out:json];\
 ( \
-  area["name"="Denmark"]->.sa;\
+  area(3600050046)->.sa;\
   node["amenity"="restaurant"](area.sa);\
   way["amenity"="restaurant"](area.sa);\
   node["amenity"="cafe"](area.sa);\
