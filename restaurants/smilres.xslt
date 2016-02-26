@@ -17,6 +17,10 @@
     <!-- Niels Elgaard Larsen elgaard@agol.dk -->
     <!-- GPL3 -->
 
+    <!-- todo Branche: 56.10.00.C Servering: Restauranter mv. - åbent op til 6 måneder om året
+         Branche: 56.10.00.A Servering: Restauranter mv
+    -->
+    
   </xsl:template>
   <xsl:template match="row">
     <xsl:if test="@pixibranche='Restauranter, pizzeriaer, kantiner m.m.'">

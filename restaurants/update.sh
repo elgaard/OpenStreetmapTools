@@ -8,6 +8,7 @@ q="[timeout:300] [out:json];\
 ( \
   area(3600050046)->.sa;\
   node["amenity"="restaurant"](area.sa);\
+  node["amenity"="events_venue"](area.sa);\
   way["amenity"="restaurant"](area.sa);\
   node["amenity"="cafe"](area.sa);\
   way["amenity"="cafe"](area.sa);\
