@@ -17,7 +17,8 @@ POImap.init = function () {
     // Default Denmark
       center: new L.LatLng(56,12.5),
       zoom: 8,
-      layers: [osm,mapbox]
+      layers: [osm]
+//      layers: [osm,mapbox]      
   });
 
   map.getControl = function () {

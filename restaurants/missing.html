@@ -41,25 +41,39 @@
 	if (nl.match(/pleje|botilbud|bosted|hjemmet/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
 	else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
+	else if (nl.match(/catering/)!=null) addtags="shop=craft%257Ccraft=catering";
 	else if (nl.match(/cafe|café/)!=null) addtags="amenity=cafe";
 	else if (nl.match(/ pub/)!=null) addtags="amenity=pub";
 	else if (nl.match(/bodega/)!=null) addtags="amenity=bar";
 	else if (nl.match(/feriekoloni/)!=null) addtags="leisure=summer_camp";
 	else if (nl.match(/bowling/)!=null) addtags="leisure=bowling_alley";
 	else if (nl.match(/bingo|banko/)!=null) addtags="amenity=gambling";
+	else if (nl.toLowerCase().match(/gelateria/)!=null) addtags+="%257Camenity=ice_cream";	
 	if (nl.toLowerCase().match(/sushi/)!=null) addtags+="%257Ccuisine=sushi";
-	else if (nl.toLowerCase().match(/pizza/)!=null) addtags+="%257Ccuisine=pizza";
-	else if (nl.toLowerCase().match(/thai/)!=null) addtags+="%257Ccuisine=thai";
-	else if (nl.toLowerCase().match(/burger/)!=null) addtags+="%257Ccuisine=burger";
-	else if (nl.toLowerCase().match(/steak/)!=null) addtags+="%257Ccuisine=steak";
-	if (nl.toLowerCase().match(/takeawayi|take away/)!=null) addtags+="%257Ctakeaway=yes";
+        else if (nl.match(/pizza/)!=null) addtags+="%257Ccuisine=pizza";
+        else if (nl.match(/pizzeri/)!=null) addtags+="%257Ccuisine=pizza";
+        else if (nl.match(/indian/)!=null) addtags+="%257Ccuisine=indian";
+        else if (nl.match(/india/)!=null) addtags+="%257Ccuisine=indian";
+	else if (nl.match(/thai/)!=null) addtags+="%257Ccuisine=thai";
+	else if (nl.match(/burger/)!=null) addtags+="%257Ccuisine=burger";
+	else if (nl.match(/chine /)!=null) addtags+="%257Ccuisine=chinese";
+        else if (nl.match(/asian /)!=null) addtags+="%257Ccuisine=asian";
+	else if (nl.match(/chinese/)!=null) addtags+="%257Ccuisine=chinese";
+        else if (nl.match(/china/)!=null) addtags+="%257Ccuisine=chinese";
+        else if (nl.match(/kebab/)!=null) addtags+="%257Ccuisine=kebab";
+	else if (nl.match(/steak/)!=null) addtags+="%257Ccuisine=steak";
+	if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html(name)));
+	r.append($('<tr>').append($('<th>').html("check: by="+pi.city)));
+	   
 	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
 	var js="javascript:void $.get('"+jsurl+"')";
 	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM',  href:js }))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+pi.id}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+pi.id}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ',
+	href:'https://duckduckgo.com/?q='+name+'%20"'+pi.city.trim()+'"'}))));
 	
         return $('<div>').append(r).html();
       };
