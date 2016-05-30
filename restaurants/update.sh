@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 
 
@@ -28,10 +28,10 @@ q="[timeout:300] [out:json];\
 out center;\
 >;"
 
-printf "$q"
+#printf "$q"
 
 cd data
-curl -G --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > osmres.json
+curl -G --silent --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > osmres.json
 if wget --quiet --timestamping  http://www.findsmiley.dk/xml/allekontrolresultater.xml; then
     xsltproc ../smilres.xslt allekontrolresultater.xml > r.json
     xsltproc ../smilresfull.xslt allekontrolresultater.xml > rfull.json
