@@ -15,6 +15,7 @@ blacklist=json.loads(open('blacklist.json').read())['blacklist']
 
 osmres=open('data/osmres.json').read()
 osmdata = json.loads(osmres)
+osmlbnr=[]
 
 
 def canonicalname(nm):
@@ -22,7 +23,6 @@ def canonicalname(nm):
       nm2=nm1.replace('pizzaria','pizza')
       nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('(cafe |i/s| v/.*| a/s|pizzeria |ristorante|restaurant|bryggeriet| house| and | pizza |the |kafe |cafe |hotel| spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
       nmc=re.sub(' 2','',nm3)
-#      print('xx  '+nmc)
       return nmc.replace(' ','')
 
 def canonical(res):
@@ -40,7 +40,7 @@ def canonical(res):
           'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
   }
 
-smilinfo={} 
+smilinfo={}
 fvst={} # holds OSM object with a fvst:navnelbnr tag
 osminfo={} # holds OSM restaurants, cafes, fast_food, etc
 match=[] # holds matches based on name and location, i.e. FVST objects already in OSM, but without fvst:navnelbnr tag
@@ -56,8 +56,14 @@ for res in list(osmdata['elements']):
             
 smilres=open(fvstfile).read()
 smildata = json.loads(smilres)['elements']
-missingItems={'elements':[],'info':'missing restaurants'}
 
+missingItems={'elements':[],'info':'missing restaurants'}
+for smil in smildata:
+  osmlbnr.append(str(smil['id']));
+
+#print(json.dumps(osmlbnr,indent=2))
+
+      
 for smil in smildata:
     fvsttags=smil['tags']
     if smil['id'] == 'dummy':
@@ -78,10 +84,13 @@ for smil in smildata:
                 d = (smil['lat']-ores['lat'])*(smil['lat']-ores['lat'])+(smil['lon']-ores['lon'])*(smil['lon']-ores['lon'])
                 if (d<0.000001):
                     found=True
+                    olbnr=ores["fvst:navnelbnr"]
+                    if (olbnr and not (olbnr in osmlbnr)):
+                          olbnr=""
                     match.append({"fvst:navnelbnr":smil['id'],
                                   "type":ores["type"],"id":ores["id"],
                                   "osm:name":ores["orgname"],
-                                  "osm:navnelbnr":ores["fvst:navnelbnr"],
+                                  "osm:navnelbnr":olbnr,
                                   "fvst:name":fvsttags['name'],
                                   'lat':ores['lat'],
                                   'lon':ores['lon'],
