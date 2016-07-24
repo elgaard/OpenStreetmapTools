@@ -35,15 +35,18 @@
     function loadPoi() {
       var poiUrl = 'data/miss.json';
       var poiInfo = function(pi) {
-	var name=pi.tags["name"].replace(/v\/.*/i,"").replace("ApS","").replace("&"," og ").trim();
+	var
+	name=pi.tags["name"].replace(/v\/.*/i,"").replace("ApS","").replace(" IVS","").replace("&"," og ").trim();
 	var addtags="amenity=fast_food";
 	var nl=name.toLowerCase();
 	if (nl.match(/pleje|botilbud|bosted|hjemmet/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
-	else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
+    else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
+    	else if (nl.match(/varmestue/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
 	else if (nl.match(/catering/)!=null) addtags="shop=craft%257Ccraft=catering";
 	else if (nl.match(/cafe|café/)!=null) addtags="amenity=cafe";
-	else if (nl.match(/ pub/)!=null) addtags="amenity=pub";
+    else if (nl.match(/ pub/)!=null) addtags="amenity=pub";
+    	else if (nl.match(/iscafe/)!=null) addtags="amenity=ice_cream";
 	else if (nl.match(/bodega/)!=null) addtags="amenity=bar";
 	else if (nl.match(/feriekoloni/)!=null) addtags="leisure=summer_camp";
 	else if (nl.match(/bowling/)!=null) addtags="leisure=bowling_alley";
@@ -79,11 +82,16 @@
       };
 
       $.getJSON(poiUrl, function(data) {
-        $.each(data.elements, function(ign, i) {
-          L.marker([i.lat, i.lon], {
-            icon: resIcon,
-            title: i.tags.name
-	  }).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	  $.each(data.elements, function(ign, i) {
+	      if (i.branchekode=='56.10.00.B') {
+		  var osmll=new L.LatLng(i.lat, i.lon);
+		  L.circle(osmll,8,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	      } else {
+		  L.marker([i.lat, i.lon], {
+		      icon: resIcon,
+		      title: i.tags.name
+		  }).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	      }
         });
       });
     }
@@ -103,7 +111,7 @@
   </head>
 
   <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
-    Fødevarekontrollerede restauranter i Danmark V4 (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM
+    Fødevarekontrollerede restauranter i Danmark V4 (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM. Red: Grillbarer, pølsevogne m.m., Icon: restaurants
   <div id="map"></div>
 
     

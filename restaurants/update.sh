@@ -4,7 +4,7 @@
 
 #  area["name"="Denmark"]->.sa;\
 # {{geocodeArea:\"Denmark\"}}->.sa;\
-q="[timeout:300] [out:json];\
+q="[timeout:600] [out:json];\
 ( \
   area(3600050046)->.sa;\
   node["amenity"="restaurant"](area.sa);\
