@@ -21,7 +21,7 @@ osmlbnr=[]
 def canonicalname(nm):
       nm1=nm.lower().translate(str.maketrans(u'éäö–\'-´.,’+&"`|', 'eæø            ')) +' '
       nm2=nm1.replace('pizzaria','pizza')
-      nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('(cafe |i/s| v/.*| a/s|pizzeria |ristorante|restaurant|bryggeriet| house| and | pizza |the |kafe |cafe |hotel| spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
+      nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('(cafe |Café|i/s| v/.*| v\. .*| a/s|pizzeria |ristorante|restaurant|bryggeriet| house| and | pizza |the |kafe |cafe |hotel| spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
       nmc=re.sub(' 2','',nm3)
       return nmc.replace(' ','')
 
@@ -71,7 +71,7 @@ for smil in smildata:
     cn=canonicalname(fvsttags['name'])
     if (cn not in smilinfo):
         smilinfo[cn]=[]
-    fvsttags['name']=fvsttags['name'].replace("`","").replace("|","").replace(",","")
+    fvsttags['name']=fvsttags['name'].replace("`","").replace("|","").replace(",","").replace("'","")
     smilinfo[cn].append(smil)
     found=False
     if str(smil['id']) in fvst:
