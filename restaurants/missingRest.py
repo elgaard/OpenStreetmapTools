@@ -19,6 +19,8 @@ osmlbnr=[]
 
 
 def canonicalname(nm):
+      if not nm:
+            return nm
       nm1=nm.lower().translate(str.maketrans(u'éäö–\'-´.,’+&"`|', 'eæø            ')) +' '
       nm2=nm1.replace('pizzaria','pizza')
       nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('(cafe | Kro|Café|i/s| v/.*| v\. .*| a/s|pizzeria |ristorante|restaurant|bryggeriet| house| and | pizza |the |kafe |cafe |hotel| spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
@@ -31,14 +33,17 @@ def canonical(res):
   posob=res
   if 'center' in res:
         posob=res['center']
-  return {'id': res['id'],
-          'name':nm,
-          'orgname':res['tags']['name'],
-          'type':res['type'],
-          'lat':posob['lat'],
-          'lon':posob['lon'],
-          'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
+  rv={'id': res['id'],
+      'name':nm,
+      'orgname':res['tags']['name'],
+      'type':res['type'],
+      'lat':posob['lat'],
+      'lon':posob['lon'],
+      'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
   }
+  if 'fvst:name' in res:
+        rv['fvstname']=canonicalname(res['tags']['fvst:name'])
+  return rv 
 
 smilinfo={}
 fvst={} # holds OSM object with a fvst:navnelbnr tag
@@ -51,7 +56,12 @@ for res in list(osmdata['elements']):
       if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
       osminfo[cn['name']].append(cn)
-    if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
+      if 'fvstname' in cn:
+            if (cn['fvstname'] not in osminfo):
+                  osminfo[cn['fvstname']]=[]
+            osminfo[cn['fvstname']].append(cn)
+            
+      if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
           fvst[res['tags']['fvst:navnelbnr']]=res
             
 smilres=open(fvstfile).read()
