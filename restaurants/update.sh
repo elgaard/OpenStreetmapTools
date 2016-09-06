@@ -31,13 +31,15 @@ out center;\
 
 #printf "$q"
 
-cd data
-curl -G --silent --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > osmres.json
-if wget --quiet --timestamping  http://www.findsmiley.dk/xml/allekontrolresultater.xml; then
-    xsltproc ../smilres.xslt allekontrolresultater.xml > r.json
-    xsltproc ../smilresfull.xslt allekontrolresultater.xml > rfull.json
+
+curl -G --silent --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > data/osmres.json
+
+
+## http://www.findsmiley.dk/xml/allekontrolresultater.xml
+if wget -O data/allekontrolresultater.xml --quiet --timestamping  https://www.foedevarestyrelsen.dk/_layouts/15/sdata/smiley_xml.xml; then
+    xsltproc smilres.xslt data/allekontrolresultater.xml > data/r.json
+    xsltproc smilresfull.xslt data/allekontrolresultater.xml > data/rfull.json
 fi
-cd ..
 python3 missingRest.py
 python3 missingRest.py match
 
