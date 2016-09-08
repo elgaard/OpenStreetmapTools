@@ -16,14 +16,39 @@
 <script>L_PREFER_CANVAS = true;</script>
 <script>
     var map;
-    $(function () {
+    var data;
+    var poiUrl = 'data/match.json';
+    var markers = new L.FeatureGroup();
+
+   $(function () {
       map = POImap.init();
+      map.addLayer(markers);
       map.zoomIn();
-      loadPoi();
+      $.getJSON(poiUrl).then(function (d) {
+        data=d;
+        loadPoi();
+      })
     });
+      
+    function do_batch() {
+      var max=100;
+      var done=0;
+      var i=0;
+      while (done<max && i<data.length) {
+        r=data[i];
+        if (!r.done && !r["osm:navnelbnr"] && r["fvst:navnelbnr"]  ) {
+          var jsurl='http://localhost:8111/load_object?objects='+r["type"].charAt(0)+r.id+'&addtags=fvst%3Anavnelbnr='+r["fvst:navnelbnr"];
+	  var js=$.get(jsurl);
+          r.done=true;
+          done++;
+        }
+        i++;
+      }
+      markers.clearLayers();
+      loadPoi();
+    };
 
     function loadPoi() {
-      var poiUrl = 'data/match.json';
       var poiInfo = function(pi) {
 	var fvstname=pi["fvst:name"];
     	var osmname=pi["osm:name"];
@@ -44,24 +69,23 @@
         }
         return $('<div>').append(r).html();
       };
-      $.getJSON(poiUrl, function(data) {
-        $.each(data, function(ign, i) {
-	  var osmll=new L.LatLng(i.lat, i.lon);
+	$.each(data, function(ign, i) {
+          if (!i.done) {
+	    var osmll=new L.LatLng(i.lat, i.lon);
 	    var fvstll=new L.LatLng(i.slat, i.slon);
 	    if (i["osm:navnelbnr"]) {
-		L.circle(osmll,5,{color: 'blue'}).addTo(map);
-		}
-	    else if (!i["fvst:navnelbnr"]) {
-		L.circle(osmll,4,{color: 'red'}).addTo(map);
-	    } else {
-		L.circle(osmll,7,{color: 'orange'}).addTo(map);
+	      L.circle(osmll,5,{color: 'blue'}).addTo(markers);
 	    }
-	  var pl = L.polyline([osmll,fvstll], {color: 'red'}).addTo(map);
-          pl.bindPopup(poiInfo(i)).addTo(map);
+	    else if (!i["fvst:navnelbnr"]) {
+	      L.circle(osmll,5,{color: 'red'}).addTo(markers);
+	    } else {
+	      L.circle(osmll,7,{color: 'orange'}).addTo(markers);
+	    }
+	    var pl = L.polyline([osmll,fvstll], {color: 'red'}).addTo(markers);
+            pl.bindPopup(poiInfo(i)).addTo(markers);
+	  }
         });
-      });
     }
-
   </script>
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
   <style>
@@ -74,7 +98,9 @@
     }
   </style>
   </head>
-  <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
+    <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">
+  <button OnClick="do_batch()" >batch</button>
+
   <a href="index.html">Back</a>  fvst:navnelbnr import tool based on name and location matching (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM
   <div id="map"></div>  
   </body>
