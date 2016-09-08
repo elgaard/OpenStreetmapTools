@@ -21,8 +21,8 @@ osmlbnr=[]
 def canonicalname(nm):
       if not nm:
             return nm
-      nm1=nm.lower().translate(str.maketrans(u'éäö–\'-´.,’+&"`|', 'eæø            ')) +' '
-      nm2=nm1.replace('pizzaria','pizza')
+      nm1=nm.lower().replace("&","og").split(" v. ")[0].split(" v/")[0].split(" APS")[0].translate(str.maketrans(u'éäö–\'-´.,’+&"`|', 'eæø            ')) +' '
+      nm2=nm1.replace('pizzaria','pizza').replace('pizzabar','')
       nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('(cafe | Kro|Café|i/s| v/.*| v\. .*| a/s|pizzeria |ristorante|restaurant|bryggeriet| house| and | pizza |the |kafe |cafe |hotel| spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
       nmc=re.sub(' 2','',nm3)
       return nmc.replace(' ','')
