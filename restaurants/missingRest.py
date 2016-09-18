@@ -8,7 +8,7 @@ fullmatch=False;
 fvstfile='data/r.json';
 if (len(sys.argv)>1 and sys.argv[1]=="match"):
       fullmatch=True
-      fvstfile='data/rfull.json'
+#      fvstfile='data/rfull.json'
       print("fullmatch")
 
 blacklist=json.loads(open('blacklist.json').read())['blacklist']
@@ -21,9 +21,10 @@ osmlbnr=[]
 def canonicalname(nm):
       if not nm:
             return nm
-      nm1=nm.lower().replace("&","og").split(" v. ")[0].split(" v/")[0].split(" APS")[0].translate(str.maketrans(u'éäö–\'-´.,’+&"`|', 'eæø            ')) +' '
-      nm2=nm1.replace('pizzaria','pizza').replace('pizzabar','')
-      nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('(cafe | Kro|Café|i/s| v/.*| v\. .*| a/s|pizzeria |ristorante|restaurant|bryggeriet| house| and | pizza |the |kafe |cafe |hotel| spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
+      nm0=nm.replace(" AB","").replace(" P/S","").replace("Gl ","Gammel ")
+      nm1=nm0.lower().replace("&","og").replace("å","aa").split(" v. ")[0].split(" v/")[0].split(" /")[0].split(" -")[0].split(" i/s")[0].split(" aps")[0].split(" ved ")[0].split(" c/o")[0].translate(str.maketrans(u'ñèéäöúá–\'-´.,’+&"`|', 'neeæøua            ')) +' '
+      nm2=nm1.replace('pizzeria','pizza').replace('pizzaria','pizza').replace('pizzabar','pizza').replace('pizza bar','pizza')
+      nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('( og cafe| og bar|cafe | Kro|Café| v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
       nmc=re.sub(' 2','',nm3)
       return nmc.replace(' ','')
 
@@ -48,6 +49,7 @@ def canonical(res):
 smilinfo={}
 fvst={} # holds OSM object with a fvst:navnelbnr tag
 osminfo={} # holds OSM restaurants, cafes, fast_food, etc
+osminfo_by_pos={} # holds OSM restaurants, cafes, fast_food, etc by position
 match=[] # holds matches based on name and location, i.e. FVST objects already in OSM, but without fvst:navnelbnr tag
 
 for res in list(osmdata['elements']):
@@ -56,6 +58,7 @@ for res in list(osmdata['elements']):
       if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
       osminfo[cn['name']].append(cn)
+      osminfo_by_pos["p"+str(cn['lat'])+","+str(cn['lon'])]=cn
       if 'fvstname' in cn:
             if (cn['fvstname'] not in osminfo):
                   osminfo[cn['fvstname']]=[]
@@ -92,13 +95,14 @@ for smil in smildata:
         if cn in osminfo:
             for ores in osminfo[cn]:
                 d = (smil['lat']-ores['lat'])*(smil['lat']-ores['lat'])+(smil['lon']-ores['lon'])*(smil['lon']-ores['lon'])
-                if (d<0.000001):
+                if (d<0.000025 or 'fvst:fixme' in ores):
                     found=True
                     olbnr=ores["fvst:navnelbnr"]
                     if (olbnr and not (olbnr in osmlbnr)):
                           olbnr=""
                     match.append({"fvst:navnelbnr":smil['id'],
-                                  "type":ores["type"],"id":ores["id"],
+                                  "type":ores["type"],
+                                  "id":ores["id"],
                                   "osm:name":ores["orgname"],
                                   "osm:navnelbnr":olbnr,
                                   "fvst:name":fvsttags['name'],
@@ -108,6 +112,23 @@ for smil in smildata:
                                   'slon':smil['lon']
                     })
     if not found:
+      pos="p"+str(smil['lat'])+","+str(smil['lon'])
+      if (pos in osminfo_by_pos):
+            ores=osminfo_by_pos[pos]
+#            print("exact pos "+ores['name'])
+            match.append({"fvst:navnelbnr":smil['id'],
+                          "type":ores["type"],
+                          "exact":1,
+                          "id":ores["id"],
+                          "osm:name":ores["orgname"],
+                          "osm:navnelbnr":ores["fvst:navnelbnr"],
+                          "fvst:name":fvsttags['name'],
+                          'lat':ores['lat'],
+                          'lon':ores['lon'],
+                          'slat':smil['lat'],
+                          'slon':smil['lon']
+                          })
+      else:
         missingItems['elements'].append(smil)
 
 #print(out)
