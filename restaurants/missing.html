@@ -15,7 +15,11 @@
 <title>Diff mellem OSM og Fødevarestyrelses kontrolrapporter</title>
 <script>L_PREFER_CANVAS = true;</script>
 <script>
-    var map;
+  var map;
+  var ignores={};
+  var ignore=function(id,name) {
+    ignores[id]=name;
+  };
 
       var resIcon = L.icon({
         iconUrl: 'res.png',
@@ -31,15 +35,14 @@
     });
 
 
-// NN
     function loadPoi() {
       var poiUrl = 'data/miss.json';
       var poiInfo = function(pi) {
 	var
-	name=pi.tags["name"].replace(/v\/.*/i,"").replace("ApS","").replace(" IVS","").replace("&"," og ").trim();
+	name=pi.tags["name"].replace(/v\. .*/i,"").replace(/v\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("&"," og ").trim();
 	var addtags="amenity=fast_food";
 	var nl=name.toLowerCase();
-	if (nl.match(/pleje|botilbud|bosted|hjemmet/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+	if (nl.match(/pleje|botilbud|bosted|Ældrebolig|hjemmet/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
     else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
     	else if (nl.match(/varmestue/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
@@ -51,7 +54,8 @@
 	else if (nl.match(/feriekoloni/)!=null) addtags="leisure=summer_camp";
 	else if (nl.match(/bowling/)!=null) addtags="leisure=bowling_alley";
 	else if (nl.match(/bingo|banko/)!=null) addtags="amenity=gambling";
-	else if (nl.toLowerCase().match(/gelateria/)!=null) addtags+="%257Camenity=ice_cream";	
+	else if (nl.toLowerCase().match(/gelateria/)!=null) addtags="amenity=ice_cream";
+	else if (nl.toLowerCase().match(/ isbar/)!=null) addtags="amenity=ice_cream";	
 	if (nl.toLowerCase().match(/sushi/)!=null) addtags+="%257Ccuisine=sushi";
         else if (nl.match(/pizza/)!=null) addtags+="%257Ccuisine=pizza";
         else if (nl.match(/pizzeri/)!=null) addtags+="%257Ccuisine=pizza";
@@ -64,8 +68,16 @@
 	else if (nl.match(/chinese/)!=null) addtags+="%257Ccuisine=chinese";
         else if (nl.match(/china/)!=null) addtags+="%257Ccuisine=chinese";
         else if (nl.match(/kebab/)!=null) addtags+="%257Ccuisine=kebab";
-	else if (nl.match(/steak/)!=null) addtags+="%257Ccuisine=steak";
-	if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
+        else if (nl.match(/steak/)!=null) addtags+="%257Ccuisine=steak";
+        else if (nl.match(/sandwich/)!=null) addtags+="%257Ccuisine=sandwich";
+    else if (nl.match(/bagel/)!=null) addtags+="%257Ccuisine=bagel";
+    else if (nl.match(/donut/)!=null) addtags+="%257Ccuisine=donut";
+    else if (nl.match(/coffee/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
+    else if (nl.match(/joe  og  the juice/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
+    else if (nl.match(/kiosken/)!=null) addtags="shop=kiosk";
+
+      	  else if (nl.match(/Kaffe/)!=null) addtags+="%257Camenity=cafe%257Ccuisine=coffee_shop";
+    if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html(name)));
 	r.append($('<tr>').append($('<th>').html("check: by="+pi.city)));
@@ -74,9 +86,9 @@
 	var js="javascript:void $.get('"+jsurl+"')";
 	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM',  href:js }))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/da-DK/Searching/DetailsView.htm?searchstring=&virk='+pi.id}))));
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ',
-	href:'https://duckduckgo.com/?q='+name+'%20"'+pi.city.trim()+'"'}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ',	href:'https://duckduckgo.com/?q='+name+'%20"'+pi.city.trim()+'"'}))));
+        r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ pi.id+',\''+name+'\')" >ignore</button>'))));
 	
         return $('<div>').append(r).html();
       };
@@ -111,7 +123,8 @@
   </head>
 
   <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
-    Fødevarekontrollerede restauranter i Danmark V4 (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM. Red: Grillbarer, pølsevogne m.m., Icon: restaurants
+  <a href="index.html">Back</a>  Fødevarekontrollerede restauranter i Danmark V5 (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM. Red: Grillbarer, pølsevogne m.m., Icon: restaurants
+    <button onclick="prompt('copy this to blacklist.json, git push, reload this page',JSON.stringify(ignores))">ignores</button>
   <div id="map"></div>
 
     
