@@ -42,7 +42,7 @@ def canonical(res):
       'lon':posob['lon'],
       'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
   }
-  if 'fvst:name' in res:
+  if 'fvst:name' in res['tags']:
         rv['fvstname']=canonicalname(res['tags']['fvst:name'])
   return rv 
 
@@ -73,6 +73,7 @@ smildata = json.loads(smilres)['elements']
 missingItems={'elements':[],'info':'missing restaurants'}
 for smil in smildata:
   osmlbnr.append(str(smil['id']));
+#  print(str(smil['id']))
 
 #print(json.dumps(osmlbnr,indent=2))
 
@@ -95,7 +96,7 @@ for smil in smildata:
         if cn in osminfo:
             for ores in osminfo[cn]:
                 d = (smil['lat']-ores['lat'])*(smil['lat']-ores['lat'])+(smil['lon']-ores['lon'])*(smil['lon']-ores['lon'])
-                if (d<0.000025 or 'fvst:fixme' in ores):
+                if (d<0.000005 or 'fvst:fixme' in ores):
                     found=True
                     olbnr=ores["fvst:navnelbnr"]
                     if (olbnr and not (olbnr in osmlbnr)):
@@ -115,13 +116,15 @@ for smil in smildata:
       pos="p"+str(smil['lat'])+","+str(smil['lon'])
       if (pos in osminfo_by_pos):
             ores=osminfo_by_pos[pos]
-#            print("exact pos "+ores['name'])
+            olbnr=ores["fvst:navnelbnr"]
+            if (olbnr and not (olbnr in osmlbnr)):
+                  olbnr=""
             match.append({"fvst:navnelbnr":smil['id'],
                           "type":ores["type"],
                           "exact":1,
                           "id":ores["id"],
                           "osm:name":ores["orgname"],
-                          "osm:navnelbnr":ores["fvst:navnelbnr"],
+                          "osm:navnelbnr":olbnr,
                           "fvst:name":fvsttags['name'],
                           'lat':ores['lat'],
                           'lon':ores['lon'],
