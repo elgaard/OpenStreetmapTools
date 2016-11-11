@@ -25,6 +25,7 @@ q="[timeout:600] [out:json];\
   node["shop"="kiosk"](area.sa);\
   node["amenity"="pub"](area.sa);\
   node["tourism"="hotel"](area.sa);\
+  node["tourism"="museum"](area.sa);\
   way["tourism"="hotel"](area.sa);\
   node["tourism"="guest_house"](area.sa);\
   way["tourism"="guest_house"](area.sa);\
