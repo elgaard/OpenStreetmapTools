@@ -84,7 +84,7 @@
 	   
 	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
 	var js="javascript:void $.get('"+jsurl+"')";
-	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM',  href:js }))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
 	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ',	href:'https://duckduckgo.com/?q='+name+'%20"'+pi.city.trim()+'"'}))));
@@ -123,7 +123,7 @@
   </head>
 
   <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
-  <a href="index.html">Back</a>  Fødevarekontrollerede restauranter i Danmark V5 (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM. Red: Grillbarer, pølsevogne m.m., Icon: restaurants
+  <a href="index.html">Menu</a>  Fødevarekontrollerede restauranter i Danmark V5 (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM. Red: Grillbarer, pølsevogne m.m., Icon: restaurants
     <button onclick="prompt('copy this to blacklist.json, git push, reload this page',JSON.stringify(ignores))">ignores</button>
   <div id="map"></div>
 
