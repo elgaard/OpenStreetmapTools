@@ -26,7 +26,7 @@ def canonicalname(nm):
             return nm
       nm0=nm.replace(" AB","").replace(" P/S","").replace("Gl ","Gammel ")
 
-      nm1=nm0.split(" ApS")[0].lower().replace('air group a/s restaurants,','').replace("&","og").replace("å","aa").split(" v. ")[0].split(" v/")[0].split(" /")[0].split(" -")[0].split(" i/s")[0].split(" aps")[0].split(" ved ")[0].split(" c/o")[0].translate(str.maketrans(u'ñèéäöúá–\'-´.,’+&"`|', 'neeæøua            ')) +' '
+      nm1=nm0.split(" - ")[0].split(" ApS")[0].lower().replace('air group a/s restaurants,','').replace("&","og").replace("å","aa").split(" v. ")[0].split(" v/")[0].split(" /")[0].split(" -")[0].split(" i/s")[0].split(" aps")[0].split(" ved ")[0].split(" c/o")[0].translate(str.maketrans(u'ñèéäöúá–\'-´.,’+&"`|', 'neeæøua            ')) +' '
       nm2=nm1.replace('pizzeria','pizza').replace('pizzaria','pizza').replace('pizzabar','pizza').replace('pizza bar','pizza')
       nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('( og cafe| og bar|cafe | Kro|Café| v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
       nmc=re.sub(' 2','',nm3)
@@ -96,12 +96,32 @@ for smil in smildata:
           continue
     if str(smil['id']) in blacklist:
           continue
+#    print("cn "+cn)
     if (not smil['lat'] or not smil['lon'] or int(smil['lat']) < 54 or int(smil['lat'])> 57 or int(smil['lon'])<8 or int(smil['lon']) > 15):
           print(json.dumps(smil,indent=2,ensure_ascii=False),file=fvsterr)
-          continue
     if cn!='':
-        if cn in osminfo:
-            for ores in osminfo[cn]:
+          if cn in osminfo:
+            # print("tze "+cn+" "+str(smil['lat'])+","+str(smil['lon']))
+            if (smil['lat']==0.0 or smil['lon']==0.0):
+                  # print("ze "+cn)
+                  if (len(osminfo[cn])==1): # there is only one global match, so we go with it
+                        ores=osminfo[cn][0]
+                        olbnr=ores["fvst:navnelbnr"]
+                        if (not "fvst:navnelbnr" in ores or ores["fvst:navnelbnr"]==""):
+                              # FIXME TODO, also only if ores["fvst:navnelbnr"] still exists in FVST
+                              found=True
+                              match.append({"fvst:navnelbnr":smil['id'],
+                                      "category":"fvst:no_pos",
+                                      "type":ores["type"],
+                                      "id":ores["id"],
+                                      "osm:name":ores["orgname"],
+                                      "osm:navnelbnr":olbnr,
+                                      "fvst:name":fvsttags['name'],
+                                      'lat':ores['lat'],
+                                      'lon':ores['lon']
+                        })
+            else:
+              for ores in osminfo[cn]:
                 d = (smil['lat']-ores['lat'])*(smil['lat']-ores['lat'])+(smil['lon']-ores['lon'])*(smil['lon']-ores['lon'])
                 if (d<0.000005 or 'fvst:fixme' in ores):
                     found=True
@@ -119,7 +139,7 @@ for smil in smildata:
                                   'slat':smil['lat'],
                                   'slon':smil['lon']
                     })
-    if not found:
+    if not found and smil['lat']>0 and smil['lon']>0:
       pos="p"+str(smil['lat'])+","+str(smil['lon'])
       if (pos in osminfo_by_pos):
             ores=osminfo_by_pos[pos]
@@ -128,6 +148,7 @@ for smil in smildata:
                   olbnr=""
             match.append({"fvst:navnelbnr":smil['id'],
                           "type":ores["type"],
+                          "category":"exact",
                           "exact":1,
                           "id":ores["id"],
                           "osm:name":ores["orgname"],

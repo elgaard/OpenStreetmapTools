@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 
 git pull
@@ -62,3 +62,5 @@ echo misses
 grep amenity data/miss.json |wc
 echo matches
 grep osm:name data/match.json |wc
+echo errors
+grep tags data/fvsterror.txt |wc
