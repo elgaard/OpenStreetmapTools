@@ -7,26 +7,104 @@
 <META name="keywords" content="restauranter smiley">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF8">
   <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
-    <h1>Elgaard DK restaurant and food instection report tools</h1>
+    <h1>Elgaard DK restaurant and food inspection report tools</h1>
     These tools use the Danish food inspection reports (the "smiley" reports) which has a name, a postion and a unique id (fvst:navnelbnr) for all danish restaurants, cafes, canteens, etc.
 <p>
 The tool have links to the food inspection reports and to JOSM Remote Control actions (also works in Merkaartor/git)
     
     <ul>
-      <li><a href="missing.html">Food places that is in FVST but not in OSM</a><br>
+      <li><a href="missing.html">Food places that is in FVST but not in OSM (Missing)</a><br>
       The Remote Control link creates the node in OSM, at the "fvst:navnelbnr" and also "amenity", "cuisine", etc based on the FVST name.
       </li>
       
-      <li><a href="uni.html">Food places that is in both OSM and FVST but missing fvst:navnelbnr id in OSM</a><br>
+      <li><a href="uni.html">Food places that is in both OSM and FVST but missing fvst:navnelbnr id in OSM (Unify)</a><br>
 	List both the FVST and the OSM name. Draws a red line between the FVST and OSM location - the OSM end is marked with a blue dot.<br>
 	The Remote Control link add the fvst:navnelbnr to the OSM node. But please verify that the OSM name and position is correct and edit it in JOSM if not.
       </li>
       
-     <li> <a href="http://overpass-turbo.eu/s/cd9">Foodplaces with wrong locations in FVST</a>
-     <li> <a href="http://overpass-turbo.eu/s/eVU">Restaurants witout FVST tag</a>	
+     <li> <a href="http://overpass-turbo.eu/s/eVU">Restaurants without FVST tag</a>	
      <li> <a href="http://overpass-turbo.eu/s/hIu">Restaurants,cafes, fast_food witout FVST tag</a>     
+     <li> <a href="http://overpass-turbo.eu/s/cd9">Foodplaces with wrong positions in FVST</a>
+     <li> <a href="http:data/fvsterror.txt">FVST entries with error (missing positions).</a>
+     <li><a href="https://github.com/elgaard/OpenStreetmapTools/blob/master/restaurants/blacklist.json">blacklist, steder der ikke skal med i OSM: pølsevogne, streetfood, færgerestauranter, juleboder, osv</a> Tilføj gerne og lav en pull-request på Github</li>
     </ul>
 
-    
+<h1>To Do</h1>
+<ol>
+<li>check alle restauranter, cafeer og fastfoodsteder, der ikke har et fvst:navnelbnr. De der ikke findes, skal slettes. Nogen mangler bare positioner i FVST. Nogen har ikke et selvstændigt navnelbnr, Fx når FVST registrerer et hotel, en restaurant og en bar under samme navnelbnr. Og endelig sker det, at vi får nye madsteder med i OSM inden FVST registrerer dem. </li>
+
+<li>check alle madsteder, der har et fvst:navnelbnr, som ikke findes i FVST. Jeg vil lave et værktøj der finder dem. Det vil formodentlig være madsteder, som er lukket, eller har skiftet ejer og navn. Hvis et madsted skifter ejer og får et nyt fvst:navnelbnr, men beholder navnet, vil det blive fanget at Unify værktøjet </li>
+
+<li>Checke om nogen af madstederne tagget fvst:fixme er blevet rettet af FVST. Jeg vil lave et værktøj til det</li>
+<li>løbende finde nye madsteder med Missing værktøjet </li>
+<li>løbende finde opdaterede madsteder og madsteder, der mangler fvst:navnelbnr med Unify værktøjet </li>
+</ol>
+
+
+
+<h1>Hvordan det virker og skal bruges </h1>
+
+Der er absolut intet, der bliver manskinopdateret. Det er ikke en bot.
+<p>
+Det er halvautomatisk på den måde at der er scripts, der kører hver
+aften opdaterer:
+http://digitalfrihed.dk/restaurants/missing.html
+http://digitalfrihed.dk/restaurants/uni.html
+<p>
+Når man klikker på dem, kan de med remote control lave ændringer i laget
+på ens egen JOSM (missing virker nu også med Merkaartor). Og det er så
+dit eget ansvar at rette til og checke om det ser rigtigt ud. Især nu
+hvor vi er kommet så langt, er der en større del af udfordrende steder
+tilbage, så det er vigtigt at tage det alvorligt. Det drejer sig især om:
+
+<ul>
+<li> amenity: scriptet gætter ud fra navnet om det er en
+cafe/restaurant/eller fast_food. Hvis det ikke har et godt gæt er
+fast_food default. Så det skal man selv vurdere. Der er også mange som
+ikke er egentlige madsteder. Hvis det fx er en idrætsklub og man ikke
+kan søge sig frem til en selvstændig cafe, så tagger jeg det kun som en
+idrætsklub. For hvis det er et tekøkken, hvor de smører madpakker og
+laver pølser når de har trænet, så er det ikke en cafe eller fast_food.
+Catering og event_venues skal også tagges som sådan.
+</li>
+<li> Placering. Kvaliteten fra FVST er ikke høj. På Bornholm er næsten alle
+steder 200 meter for langt mod syd. Og ellers er der mange steder, der
+er helt i skoven, dvs mange km væk, ofte 100 km væk. Så check lige at
+det passer nogenlunde med by. Og check luftfotoes. Hvis det er langt ude
+i et villakvarter, så er det sikkert ejeren af en pølsevogn.
+</li>
+
+<li> Er det et fast sted? Pølsevogne, færgerestauranter, streetfoodcykler
+putter vi i blacklisten, så de ikke dukker op i værktøjerne igen. Jeg
+har overvejet om man kunne bruge færgerestauranter. Vi har jo færgeruter
+og det kunne jo være praktisk hvis man fx skal med Odden-Århus at se at
+der er et par restauranter. Vi mapper ikke individuelle færger, men
+færgerne er jo type ret ens på en rute, så man kunne angive at på en
+bestemt rute, kan man forvente at finde noget fast_food, cafemad, osv.
+</li>
+<li>
+Ekstra tags. opening_hours, cuisine, website, take_away, phone. Det er
+alligevel en godt ide at søge på hvert sted for at checke om data fra
+FVST er korrekte, og så kan jo finde de ekstra informationer, nu man er
+i gang.
+</li>
+<li>
+
+Ekstra nodes. Hvis man fx tagger en hotelrestaurant, og hotellet ikke
+er i OSM, så er det en god anledning til at få det med. Det samme gælder
+cafeterier på skoler, idrætshaller osv.
+</li>
+<li>
+
+Dubletter. Findes restauranten i OSM i forvejen med et andet navn, som
+ikke blev matchet af Unify værktøjet?
+</li>
+</ul>
+
+Så bare ret løs. Hvis du tilføjer en restaurant fra Missing-værktøjet og
+får den tagget med fvst:navnelbnr sker der ikke andet end at næste dag
+så er den ikke længere med på Missing siden. Det er lige meget om du
+retter den med JOSM, Id, eller hvad du har nu kan bruge.
+
 </body>
 </html>

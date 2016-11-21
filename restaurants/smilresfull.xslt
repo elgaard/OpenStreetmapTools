@@ -17,17 +17,28 @@
     <!-- Niels Elgaard Larsen elgaard@agol.dk -->
     <!-- GPL3 -->
   </xsl:template>
+
+
+  <xsl:template match="Geo_Lng[not(node())]">
+    -0.44
+  </xsl:template>
   
   <xsl:template match="/document/row">
     <xsl:if test="not (brancheKode='99.99.99.H')">
       <xsl:if test="not (contains(navn1,'Ophørt '))">
 
 	<xsl:if test="seneste_kontrol!=''">
-	  <xsl:if test="Geo_Lat!=''">
 	    {
 	    "id":<xsl:value-of select="navnelbnr"/>,    
-	    "lat":<xsl:value-of select="Geo_Lat"/>,
-	    "lon":<xsl:value-of select="Geo_Lng"/>,
+	    "lat":<xsl:choose><xsl:when test="Geo_Lat !=''">
+            <xsl:value-of select="Geo_Lat"/>
+            </xsl:when> <xsl:otherwise>0.000</xsl:otherwise>
+            </xsl:choose>,
+	    "lon":<xsl:choose>
+            <xsl:when test="Geo_Lng !=''">
+              <xsl:value-of select="Geo_Lng"/>
+              </xsl:when> <xsl:otherwise>0.0</xsl:otherwise>
+            </xsl:choose>,
 	    "city":"<xsl:value-of select="By"/>",
 	    "tags": {
 	    "amenity":"restaurant",
@@ -37,7 +48,6 @@
 	  </xsl:if>
         </xsl:if>
       </xsl:if>
-    </xsl:if>
   </xsl:template>
 </xsl:stylesheet>
 

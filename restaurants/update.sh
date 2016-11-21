@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 
 git pull
@@ -24,9 +24,11 @@ q="[timeout:600] [out:json];\
   node["shop"="craft"](area.sa);\
   node["shop"="kiosk"](area.sa);\
   node["amenity"="pub"](area.sa);\
+  way["tourism"="hotel"](area.sa);\
   node["tourism"="hotel"](area.sa);\
   node["tourism"="museum"](area.sa);\
   way["tourism"="hotel"](area.sa);\
+  way["leisure"="golf_course"](area.sa);\
   node["tourism"="guest_house"](area.sa);\
   way["tourism"="guest_house"](area.sa);\
   node["tourism"="hostel"](area.sa);\
@@ -60,3 +62,5 @@ echo misses
 grep amenity data/miss.json |wc
 echo matches
 grep osm:name data/match.json |wc
+echo errors
+grep tags data/fvsterror.txt |wc
