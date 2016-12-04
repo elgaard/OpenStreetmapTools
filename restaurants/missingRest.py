@@ -11,12 +11,12 @@ fvsterr=open(fvsterrfile,mode="w")
 
 if (len(sys.argv)>1 and sys.argv[1]=="match"):
       fullmatch=True
-#      fvstfile='data/rfull.json'
+      fvstfile='data/rfull.json'
       print("fullmatch")
 
-blacklist=json.loads(open('blacklist.json').read())['blacklist']
+blacklist=json.loads(open('blacklist.json','r', encoding='utf-8').read())['blacklist']
 
-osmres=open('data/osmres.json').read()
+osmres=open('data/osmres.json',"r",encoding='utf-8').read()
 osmdata = json.loads(osmres)
 osmlbnr=[]
 
@@ -71,7 +71,7 @@ for res in list(osmdata['elements']):
       if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
           fvst[res['tags']['fvst:navnelbnr']]=res
             
-smilres=open(fvstfile).read()
+smilres=open(fvstfile,"r",encoding='utf-8').read()
 smildata = json.loads(smilres)['elements']
 
 missingItems={'elements':[],'info':'missing restaurants'}
@@ -79,7 +79,7 @@ for smil in smildata:
   osmlbnr.append(str(smil['id']));
 #  print(str(smil['id']))
 
-#print(json.dumps(osmlbnr,indent=2))
+# print(json.dumps(osmlbnr,indent=2))
 
       
 for smil in smildata:
@@ -98,7 +98,7 @@ for smil in smildata:
           continue
 #    print("cn "+cn)
     if (not smil['lat'] or not smil['lon'] or int(smil['lat']) < 54 or int(smil['lat'])> 57 or int(smil['lon'])<8 or int(smil['lon']) > 15):
-          print(json.dumps(smil,indent=2,ensure_ascii=False),file=fvsterr)
+          print(json.dumps(smil,indent=2,ensure_ascii=True),file=fvsterr)
     if cn!='':
           if cn in osminfo:
             # print("tze "+cn+" "+str(smil['lat'])+","+str(smil['lon']))
@@ -107,7 +107,7 @@ for smil in smildata:
                   if (len(osminfo[cn])==1): # there is only one global match, so we go with it
                         ores=osminfo[cn][0]
                         olbnr=ores["fvst:navnelbnr"]
-                        if (not "fvst:navnelbnr" in ores or ores["fvst:navnelbnr"]==""):
+                        if (not "fvst:navnelbnr" in ores or ores["fvst:navnelbnr"]=="" or not ores["fvst:navnelbnr"] in osmlbnr):
                               # FIXME TODO, also only if ores["fvst:navnelbnr"] still exists in FVST
                               found=True
                               match.append({"fvst:navnelbnr":smil['id'],

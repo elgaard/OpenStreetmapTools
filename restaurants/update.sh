@@ -8,6 +8,7 @@ q="[timeout:600] [out:json];\
 ( \
   area(3600050046)->.sa;\
   node["amenity"="restaurant"](area.sa);\
+  node["amenity"="kitchen"](area.sa);\
   way["amenity"="restaurant"](area.sa);\
   node["amenity"="hospital"](area.sa);\
   node["amenity"="clinic"](area.sa);\
@@ -43,8 +44,10 @@ out center;\
 
 #printf "$q"
 
-echo get osm data
-curl -G --silent --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > data/osmres.json
+if [[ x$1 != "xskiposm" ]] ; then
+    echo get osm data
+    curl -G --silent --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > data/osmres.json
+fi
 
 echo get kontrolresultater
 ## http://www.findsmiley.dk/xml/allekontrolresultater.xml
@@ -55,8 +58,8 @@ if wget -O data/allekontrolresultater.xml --timeout 40 --quiet --timestamping  h
     xsltproc smilresfull.xslt data/allekontrolresultater.xml > data/rfull.json
 fi
 echo find matches and misses
-python3 missingRest.py
 python3 missingRest.py match
+python3 missingRest.py
 
 echo misses
 grep amenity data/miss.json |wc

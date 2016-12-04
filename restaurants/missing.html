@@ -42,7 +42,7 @@
 	name=pi.tags["name"].replace(/v\. .*/i,"").replace(/v\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("&"," og ").trim();
 	var addtags="amenity=fast_food";
 	var nl=name.toLowerCase();
-	if (nl.match(/pleje|botilbud|bosted|Ældrebolig|hjemmet/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+	if (nl.match(/pleje|ældrecenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
     else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
     	else if (nl.match(/varmestue/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
@@ -72,9 +72,10 @@
         else if (nl.match(/sandwich/)!=null) addtags+="%257Ccuisine=sandwich";
     else if (nl.match(/bagel/)!=null) addtags+="%257Ccuisine=bagel";
     else if (nl.match(/donut/)!=null) addtags+="%257Ccuisine=donut";
+    else if (nl.match(/selskabslokale|konference/)!=null) addtags="amenity=events_venue";
     else if (nl.match(/coffee/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
     else if (nl.match(/joe  og  the juice/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
-    else if (nl.match(/kiosken/)!=null) addtags="shop=convenience";
+    else if (nl.match(/kiosk|butik/)!=null) addtags="shop=convenience";
 
       	  else if (nl.match(/Kaffe/)!=null) addtags+="%257Camenity=cafe%257Ccuisine=coffee_shop";
     if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
