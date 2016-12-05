@@ -41,7 +41,7 @@
                     </xsl:when> <xsl:otherwise>0.0</xsl:otherwise>
                     </xsl:choose>,
                     "operator":"<xsl:value-of select="Kaedenavn"/>",
-                    "addr":"<xsl:value-of select="Adresse1"/>",
+                    "addr":"<xsl:value-of select="adresse1"/>",
                     "postnr":"<xsl:value-of select="postnr"/>",
                   "city":"<xsl:value-of select="By"/>",
                   "branchekode":"<xsl:value-of select="brancheKode"/>",

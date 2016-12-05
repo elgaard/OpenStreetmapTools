@@ -59,10 +59,11 @@
        for skolebørn 56.29.00.E
        førskolebørn 56.29.00.D
        engros fisk 46.38.10.A
+       fremstilling porcelæn 20.00.00.B
   -->
   
   <xsl:template match="/document/row">
-    <xsl:if test="not (brancheKode='99.99.99.H' or  brancheKode='46.38.10.A' or  brancheKode='56.29.00.D' or  brancheKode='56.29.00.E'  or brancheKode='46.39.00.C'  or brancheKode='82.92.00.A'  or brancheKode=' 10.20.20.C' or brancheKode='47.81.00.A' or brancheKode='56.21.00' or brancheKode='10.10.00.A' or brancheKode='52.10.00.C' or brancheKode='46.30.00.A' or brancheKode='10.71.10.A' or brancheKode='46.17.90' or brancheKode='46.31.00'  or brancheKode='46.38.00.A' or brancheKode='46.00.00.C' or brancheKode='49.41.00.D'  or brancheKode='56.10.00.E' or brancheKode='47.81.00.B'  or brancheKode='56.29.00.C'  or brancheKode='46.00.00.D' or brancheKode='47.24.00.A'  or brancheKode='46.39.00.D' or brancheKode='47.29.00.C' or brancheKode='56.29.00.A' or brancheKode='47.29.00.E' or brancheKode='47.23.00' or brancheKode='47.22.00.A' or brancheKode='56.10.00.G' or brancheKode='47.29.00.A' or brancheKode='10.71.20' or brancheKode='47.11.00.A' or brancheKode='47.11.00.B' or brancheKode='47.21.00.A' or brancheKode='47.25.00' or brancheKode='46.17.90 ' ) ">
+    <xsl:if test="not (brancheKode='99.99.99.H'  or  brancheKode='20.00.00.B' or  brancheKode='46.38.10.A' or  brancheKode='56.29.00.D' or  brancheKode='56.29.00.E'  or brancheKode='46.39.00.C'  or brancheKode='82.92.00.A'  or brancheKode=' 10.20.20.C' or brancheKode='47.81.00.A' or brancheKode='56.21.00' or brancheKode='10.10.00.A' or brancheKode='52.10.00.C' or brancheKode='46.30.00.A' or brancheKode='10.71.10.A' or brancheKode='46.17.90' or brancheKode='46.31.00'  or brancheKode='46.38.00.A' or brancheKode='46.00.00.C' or brancheKode='49.41.00.D'  or brancheKode='56.10.00.E' or brancheKode='47.81.00.B'  or brancheKode='56.29.00.C'  or brancheKode='46.00.00.D' or brancheKode='47.24.00.A'  or brancheKode='46.39.00.D' or brancheKode='47.29.00.C' or brancheKode='56.29.00.A' or brancheKode='47.29.00.E' or brancheKode='47.23.00' or brancheKode='47.22.00.A' or brancheKode='56.10.00.G' or brancheKode='47.29.00.A' or brancheKode='10.71.20' or brancheKode='47.11.00.A' or brancheKode='47.11.00.B' or brancheKode='47.21.00.A' or brancheKode='47.25.00' or brancheKode='46.17.90 ' ) ">
       <xsl:if test="not (contains(navn1,'Ophørt '))">
 
 	<xsl:if test="seneste_kontrol!=''">

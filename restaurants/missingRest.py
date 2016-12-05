@@ -6,8 +6,9 @@ import sys
 
 fullmatch=False;
 fvstfile='data/r.json';
-fvsterrfile='data/fvsterror.txt';
+fvsterrfile='data/fvsterror.json';
 fvsterr=open(fvsterrfile,mode="w")
+fvsterrlist=[]
 
 if (len(sys.argv)>1 and sys.argv[1]=="match"):
       fullmatch=True
@@ -26,7 +27,7 @@ def canonicalname(nm):
             return nm
       nm0=nm.replace(" AB","").replace(" P/S","").replace("Gl ","Gammel ")
 
-      nm1=nm0.split(" - ")[0].split(" ApS")[0].lower().replace('air group a/s restaurants,','').replace("&","og").replace("å","aa").split(" v. ")[0].split(" v/")[0].split(" /")[0].split(" -")[0].split(" i/s")[0].split(" aps")[0].split(" ved ")[0].split(" c/o")[0].translate(str.maketrans(u'ñèéäöúá–\'-´.,’+&"`|', 'neeæøua            ')) +' '
+      nm1=nm0.split(" - ")[0].split(" ApS")[0].lower().replace('air group a/s restaurants,','').replace("&","og").replace("å","aa").split(" i/s")[0].split(" v. ")[0].split(" v/")[0].split(" /")[0].split(" -")[0].split(" i/s")[0].split(" aps")[0].split(" ved ")[0].split(" c/o")[0].translate(str.maketrans(u'ñèéäöúá–\'-´.,’+&"`|', 'neeæøua            ')) +' '
       nm2=nm1.replace('pizzeria','pizza').replace('pizzaria','pizza').replace('pizzabar','pizza').replace('pizza bar','pizza')
       nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('( og cafe| og bar|cafe | Kro|Café| v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
       nmc=re.sub(' 2','',nm3)
@@ -98,7 +99,7 @@ for smil in smildata:
           continue
 #    print("cn "+cn)
     if (not smil['lat'] or not smil['lon'] or int(smil['lat']) < 54 or int(smil['lat'])> 57 or int(smil['lon'])<8 or int(smil['lon']) > 15):
-          print(json.dumps(smil,indent=2,ensure_ascii=True),file=fvsterr)
+          fvsterrlist.append(smil)
     if cn!='':
           if cn in osminfo:
             # print("tze "+cn+" "+str(smil['lat'])+","+str(smil['lon']))
@@ -161,6 +162,7 @@ for smil in smildata:
                           })
       else:
         missingItems['elements'].append(smil)
+print(json.dumps(fvsterrlist,indent=2,ensure_ascii=True),file=fvsterr)
 
 #print(out)
 if fullmatch:

@@ -61,9 +61,6 @@ echo find matches and misses
 python3 missingRest.py match
 python3 missingRest.py
 
-echo misses
-grep amenity data/miss.json |wc
-echo matches
-grep osm:name data/match.json |wc
-echo errors
-grep tags data/fvsterror.txt |wc
+echo misses; grep amenity data/miss.json |wc
+echo matches; grep osm:name data/match.json |wc
+echo errors; grep tags data/fvsterror.json |wc
