@@ -33,15 +33,31 @@ def canonicalname(nm):
       nmc=re.sub(' 2','',nm3)
       return nmc.replace(' ','')
 
+def getname(o):
+      if ('name' in o):
+            return o['name']
+      elif ('name' in o['tags']):
+            return o['tags']['name']
+      else:
+#            pprint(o)
+            return ""
+
+def getamenity(o):
+      if ('amenity' in o):
+            return o['amenity']
+      if ('amenity' in o['tags']):
+            return o['tags']['amenity']
+      return None
+
 def canonical(res):
   nm='UNDEFINED'
-  nm=canonicalname(res['tags']['name'])
+  nm=canonicalname(getname(res))
   posob=res
   if 'center' in res:
         posob=res['center']
   rv={'id': res['id'],
       'name':nm,
-      'orgname':res['tags']['name'],
+      'orgname':getname(res),
       'type':res['type'],
       'lat':posob['lat'],
       'lon':posob['lon'],
@@ -58,7 +74,7 @@ osminfo_by_pos={} # holds OSM restaurants, cafes, fast_food, etc by position
 match=[] # holds matches based on name and location, i.e. FVST objects already in OSM, but without fvst:navnelbnr tag
 
 for res in list(osmdata['elements']):
-    if res['type'] in ['way','node','relation'] and 'tags' in res and 'name' in res['tags']:
+    if res['type'] in ['way','node','relation'] and 'tags' in res and getname(res):
       cn=canonical(res)
       if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
@@ -73,7 +89,13 @@ for res in list(osmdata['elements']):
           fvst[res['tags']['fvst:navnelbnr']]=res
             
 smilres=open(fvstfile,"r",encoding='utf-8').read()
-smildata = json.loads(smilres)['elements']
+smf = json.loads(smilres)['elements']
+fixed='data/fixed.json'
+fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
+
+smildata=smf+fixeddata
+#smildata=fixeddata
+print(" now in smildata: "+ str(len(smildata)))
 
 missingItems={'elements':[],'info':'missing restaurants'}
 for smil in smildata:
@@ -87,10 +109,10 @@ for smil in smildata:
     fvsttags=smil['tags']
     if smil['id'] == 'dummy':
         break
-    cn=canonicalname(fvsttags['name'])
+    cn=canonicalname(getname(smil))
     if (cn not in smilinfo):
         smilinfo[cn]=[]
-    fvsttags['name']=fvsttags['name'].replace("`","").replace("|","").replace(",","").replace("'","")
+    smil['name']=getname(smil).replace("`","").replace("|","").replace(",","").replace("'","")
     smilinfo[cn].append(smil)
     found=False
     if str(smil['id']) in fvst:
@@ -117,7 +139,7 @@ for smil in smildata:
                                       "id":ores["id"],
                                       "osm:name":ores["orgname"],
                                       "osm:navnelbnr":olbnr,
-                                      "fvst:name":fvsttags['name'],
+                                      "fvst:name":smil['name'],
                                       'lat':ores['lat'],
                                       'lon':ores['lon']
                         })
@@ -134,7 +156,7 @@ for smil in smildata:
                                   "id":ores["id"],
                                   "osm:name":ores["orgname"],
                                   "osm:navnelbnr":olbnr,
-                                  "fvst:name":fvsttags['name'],
+                                  "fvst:name":smil['name'],
                                   'lat':ores['lat'],
                                   'lon':ores['lon'],
                                   'slat':smil['lat'],
@@ -154,7 +176,7 @@ for smil in smildata:
                           "id":ores["id"],
                           "osm:name":ores["orgname"],
                           "osm:navnelbnr":olbnr,
-                          "fvst:name":fvsttags['name'],
+                          "fvst:name":smil['name'],
                           'lat':ores['lat'],
                           'lon':ores['lon'],
                           'slat':smil['lat'],
