@@ -21,6 +21,21 @@ osmres=open('data/osmres.json',"r",encoding='utf-8').read()
 osmdata = json.loads(osmres)
 osmlbnr=[]
 
+def getname(o):
+      if ('name' in o):
+            return o['name']
+      elif ('tags' in o and 'name' in o['tags']):
+            return o['tags']['name']
+      else:
+            return ""
+
+def getamenity(o):
+      if 'amenity' in o:
+            return o['amenity']
+      if 'tags' in o and 'amenity' in o['tags']:
+            return o['tags']['amenity']
+      return None
+
 
 def canonicalname(nm):
       if not nm:
@@ -32,22 +47,6 @@ def canonicalname(nm):
       nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('( og cafe| og bar|cafe | Kro|Café| v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
       nmc=re.sub(' 2','',nm3)
       return nmc.replace(' ','')
-
-def getname(o):
-      if ('name' in o):
-            return o['name']
-      elif ('name' in o['tags']):
-            return o['tags']['name']
-      else:
-#            pprint(o)
-            return ""
-
-def getamenity(o):
-      if ('amenity' in o):
-            return o['amenity']
-      if ('amenity' in o['tags']):
-            return o['tags']['amenity']
-      return None
 
 def canonical(res):
   nm='UNDEFINED'
@@ -63,7 +62,7 @@ def canonical(res):
       'lon':posob['lon'],
       'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
   }
-  if 'fvst:name' in res['tags']:
+  if 'tags' in res and 'fvst:name' in res['tags']:
         rv['fvstname']=canonicalname(res['tags']['fvst:name'])
   return rv 
 
@@ -74,7 +73,7 @@ osminfo_by_pos={} # holds OSM restaurants, cafes, fast_food, etc by position
 match=[] # holds matches based on name and location, i.e. FVST objects already in OSM, but without fvst:navnelbnr tag
 
 for res in list(osmdata['elements']):
-    if res['type'] in ['way','node','relation'] and 'tags' in res and getname(res):
+    if res['type'] in ['way','node','relation'] and getname(res):
       cn=canonical(res)
       if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
@@ -93,9 +92,9 @@ smf = json.loads(smilres)['elements']
 fixed='data/fixed.json'
 fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
 
-smildata=smf+fixeddata
+smildata=fixeddata+smf
 #smildata=fixeddata
-print(" now in smildata: "+ str(len(smildata)))
+print(str(len(fixeddata))+" fixed "+str(len(smf))+" from fvst, now in smildata: "+ str(len(smildata)))
 
 missingItems={'elements':[],'info':'missing restaurants'}
 for smil in smildata:
@@ -106,7 +105,6 @@ for smil in smildata:
 
       
 for smil in smildata:
-    fvsttags=smil['tags']
     if smil['id'] == 'dummy':
         break
     cn=canonicalname(getname(smil))

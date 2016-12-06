@@ -21,14 +21,14 @@ fvsterr=open(fvsterrfile,mode="r")
 alist=json.loads(open(fvsterrfile,'r', encoding='utf-8').read())
 
 for adr in alist:
-    print("\n\n\n")
-    print(adr, file=u8o)
+    print("\n\n")
+#    print(adr, file=u8o)
     alu="http://nominatim.openstreetmap.org/search?"+urlencode({"country":"Denmark","format":"json","street":adr['addr'],"postalcode":adr['postnr'],"email":"osm@agol.dk","addressdetails":0})
-    print("alu= "+alu, file=u8o)
+#    print("alu= "+alu, file=u8o)
     oar=urlopen(Request(alu, headers={'User-Agent': 'Elgaard OSM Restaurant health inspection report synchronizer'}))
     oa=oar.read().decode("utf8")
     osm=json.loads(oa)
-    print(json.dumps(osm,indent=2))
+#    print(json.dumps(osm,indent=2))
     print("#addr= "+str(len(osm)))
     if (len(osm)==1):
         print ("got exactly one postion")
