@@ -2,6 +2,9 @@
 
 # Niels Elgaard Larsen 2016
 # for looking up addresses for FVST health reports that do not have a valid position
+# TODO look up 20, 20A, 20B
+# TODO interpolate if close
+
 
 import json
 from pprint import pprint
@@ -12,7 +15,7 @@ import sys
 from time import sleep
 
 limit=200 # for testing
-fixedaddrs={'elements':[],'info':'fvst data, fixed by lookup up addresses with noatim'}
+fixedaddrs={'elements':[],'info':'fvst data, fixed by lookup up addresses with nomintim'}
 u8o=open(1, 'w', encoding='utf-8', closefd=False)
 fixed=open('data/fixed.json',mode="w",encoding='utf-8')
 
