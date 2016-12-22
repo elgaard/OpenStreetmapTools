@@ -78,12 +78,12 @@
     else if (nl.match(/kiosk|butik/)!=null) addtags="shop=convenience";
 
     else if (nl.match(/Kaffe/)!=null) addtags+="%257Camenity=cafe%257Ccuisine=coffee_shop";
-    if (pi.operator) addtags+="%257Coperator="+encodeURIComponent(pi.operator);
-    if (pi.src && pi.src=='addrfix') addtags+="%257Cfvst:fixme=fvst position missing, fixed from Nominatim";
+    if (pi.operator) addtags+="%257Coperator="+encodeURIComponent(pi.operator.replace("'",""));
+    if (pi.src && pi.src=='addrfix') addtags+="%257Cfvst:fixme=fvst position missing, fixed from overpassturbo/osak";
     if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
 	var r = $('<table>');
 	r.append($('<tr>').append($('<th>').html(name)));
-	r.append($('<tr>').append($('<th>').html("check: by="+pi.city)));
+	r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
 	   
 	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
 	var js="javascript:void $.get('"+jsurl+"')";
