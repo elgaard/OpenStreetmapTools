@@ -89,6 +89,8 @@
               </xsl:when> <xsl:otherwise>0.0</xsl:otherwise>
             </xsl:choose>,
 	    "city":"<xsl:value-of select="By"/>",
+            "senestekontrol":"<xsl:value-of select="seneste_kontrol_dato"/>",
+            "branchekode":"<xsl:value-of select="brancheKode"/>",
 	    "tags": {
 	    "amenity":"restaurant",
 	    "name":"<xsl:value-of select="translate(normalize-space(navn1),'&quot;','')"/>"

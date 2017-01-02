@@ -74,7 +74,7 @@ for adr in alist:
                 ac=osm[0]
                 doaddr(fixedaddrs,ac)
             else:
-                avej=avej.replace("Nr ","NÃ¸rre ").replace("gade"," Gade").replace("Henrik Dams Alle","SÃ¸ltofts Plads").replace("vej"," Vej").replace("toft"," Toft").replace("enteret","entret").replace("Skt.","Sankt").replace("Sct.","Sanct").replace("Sdr.","SÃ¸ndre").replace("Gl.","Gammel").replace("Allé","Alle").replace("Sct ","Sanct ")
+                avej=avej.replace("Hovedgade","Hovedgaden").replace("Nr ","NÃ¸rre ").replace("gade"," Gade").replace("Henrik Dams Alle","SÃ¸ltofts Plads").replace("vej"," Vej").replace("toft"," Toft").replace("enteret","entret").replace("Skt.","Sankt").replace("Sct.","Sanct").replace("Sdr.","SÃ¸ndre").replace("Gl.","Gammel").replace("Allé","Alle").replace(" Alle","alle").replace("Sct ","Sanct ")
                 osm=overpass(avej,anr,pno)
                 if (len(osm)==1):
                     print ("NOW got exactly one postion")

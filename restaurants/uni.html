@@ -57,8 +57,11 @@
 	var typeF=pi["type"].charAt(0);
 	var fvstid=pi["fvst:navnelbnr"]
 	var r = $('<table>');
-	r.append($('<tr>').append($('<th>').html('fvst name: '+fvstname)));
+        if (fvstname) {
+	  r.append($('<tr>').append($('<th>').html('fvst name: '+fvstname)));
+        }
 	r.append($('<tr>').append($('<th>').html($('<a>',{ target:'osm', text: 'osm  name:' +osmname, href:'https://www.openstreetmap.org/'+pi['type']+'/'+pi['id']}))));
+        
 	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid;
         var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+encodeURIComponent($("<div />").text(fvstname).html()).replace("`","").replace("'","")+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=";
         if (pi['exact']) jsurl+='%257Cfvst%3Aname='+encodeURIComponent(pi["fvst:name"]);
@@ -69,14 +72,22 @@
           jsurl+='%257Cfvst%3Afixme=fvst:no_pos';
 	  var js="javascript:void $.get('"+jsurl+"')";
 	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'update fvst:navnelbnr. First check address (No pos in FVST)',  href:js }))));
+	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
+        } else if (pi["notinfvst"]) {
+          r.append($('<tr>').append($('<td>').html("food place has no fvst:navnelbnr tag: Delete, Add tag or Merge")));
+          r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'DuckD search: ',href:'https://duckduckgo.com/?q='+osmname+'%20"'+'Denmark"'}))));
+          r.append($('<tr>').append($('<td>').html($('<a>',{ target:'FVSTsearch', text: 'FVST search: ', href:'http://www.findsmiley.dk/Sider/Search.aspx?k='+osmname.replace('&','')+'%20'+''}))));
+ 	  var jsdelurl='http://localhost:8111/load_object?objects='+typeF+id;
+	  var jsdel="javascript:void $.get('"+jsurl+"')";
+	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM for manual deletion',  href:jsdel }))));
         } else {
 	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge at blue/orange point in JOSM',  href:js }))));
+	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
         }
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
+        
         if (osmlbnr) {
 	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'osmfvst', text: 'OSM: fvst:navnelbnr: '+osmlbnr, href:'http://www.findsmiley.dk/'+osmlbnr}))));			      
-        } else {
-
+        } else if (! pi["notinfvst"]){
 	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'overwrite osm node in JOSM',  href:mergejs }))));
         }
         return $('<div>').append(r).html();
@@ -94,6 +105,8 @@
             if (i["exact"]) {
 	      mk=L.circle(osmll,13,{color: 'green'}).addTo(markers);
 	      pl = L.polyline([osmll,fvstll], {color: 'green'}).addTo(markers);	      
+	    } else if (i["notinfvst"]) {
+	      mk=L.circle(osmll,11,{color: 'cyan',weight:10,fill:true}).addTo(markers);
 	    } else if (i["category"]=="fvst:no_pos") {
 	      mk=L.circle(osmll,11,{color: 'brown',weight:10,fill:true}).addTo(markers);
 	    } else if (i["osm:navnelbnr"]) {

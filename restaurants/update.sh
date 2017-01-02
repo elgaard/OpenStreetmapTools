@@ -34,12 +34,12 @@ q="[timeout:600] [out:json];\
   way["tourism"="guest_house"](area.sa);\
   node["tourism"="hostel"](area.sa);\
   way["tourism"="hostel"](area.sa);\
-  node[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
-  way[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
+  node[\"fvst:navnelbnr\" ~ \".\"]( 54.395, 3.853, 57.8321, 16.9097 );\
+  way[\"fvst:navnelbnr\" ~ \".\"]( 54.395, 3.853, 57.8321, 16.9097 );\
   relation[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
 );\
 (._;>;);\
-out center;\
+out center meta;\
 >;"
 
 #printf "$q"

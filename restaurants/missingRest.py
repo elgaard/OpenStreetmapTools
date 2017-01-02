@@ -3,12 +3,25 @@ from pprint import pprint
 import re
 import string
 import sys
+from datetime import datetime
+
+now=datetime.now()
+
+def fvstage(s):
+      d=s.split(" ")[0].split("-")
+      return (now-datetime(int(d[2]),int(d[1]),int(d[0]))).days
+
+
+def osmage(s):
+      d=s.split("T")[0].split("-")
+      return (now-datetime(int(d[0]),int(d[1]),int(d[2]))).days
 
 fullmatch=False;
 fvstfile='data/r.json';
 fvsterrfile='data/fvsterror.json';
 fvsterr=open(fvsterrfile,mode="w")
 fvsterrlist=[]
+gone=[]
 
 if (len(sys.argv)>1 and sys.argv[1]=="match"):
       fullmatch=True
@@ -93,16 +106,11 @@ fixed='data/fixed.json'
 fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
 
 smildata=fixeddata+smf
-#smildata=fixeddata
 print(str(len(fixeddata))+" fixed "+str(len(smf))+" from fvst, now in smildata: "+ str(len(smildata)))
 
 missingItems={'elements':[],'info':'missing restaurants'}
 for smil in smildata:
   osmlbnr.append(str(smil['id']));
-#  print(str(smil['id']))
-
-# print(json.dumps(osmlbnr,indent=2))
-
       
 for smil in smildata:
     if smil['id'] == 'dummy':
@@ -117,7 +125,6 @@ for smil in smildata:
           continue
     if str(smil['id']) in blacklist:
           continue
-#    print("cn "+cn)
     if (not smil['lat'] or not smil['lon'] or int(smil['lat']) < 54 or int(smil['lat'])> 57 or int(smil['lon'])<8 or int(smil['lon']) > 15):
           fvsterrlist.append(smil)
     if cn!='':
@@ -182,6 +189,25 @@ for smil in smildata:
                           })
       else:
         missingItems['elements'].append(smil)
+
+print("now osm not in fvst")
+for osmelm in list(osmdata['elements']):
+      if "tags" in osmelm and "amenity" in osmelm["tags"] and osmelm["tags"]["amenity"] in ["restaurant","cafe","fast_food"]:
+            if not "fvst:navnelbnr" in osmelm["tags"]:
+                  age=osmage(osmelm["timestamp"])
+                  if "name" in osmelm["tags"]:
+                        osmelm["osm:name"]=osmelm["tags"]["name"]
+                  else:
+                        osmelm["osm:name"]="unnamed"
+                  if age>120 and osmelm["osm:name"]!='Pølsevogn':
+                        osmelm["notinfvst"]=True
+                        match.append(osmelm)
+                        gone.append(osmelm)                  
+                  #else:
+                      #  print("keep",osmelm["osm:name"], "ts=",osmelm["timestamp"], "age: ",age,"days")
+                        
+print("there was ",len(gone),"not in fvst")        
+            
 print(json.dumps(fvsterrlist,indent=2,ensure_ascii=True),file=fvsterr)
 
 #print(out)
@@ -191,3 +217,5 @@ if fullmatch:
 else:
       missing=open('data/miss.json',mode="w")
       print(json.dumps(missingItems,indent=2),file=missing)
+      gonefd=open('data/gone.json',mode="w")
+      print(json.dumps(gone,indent=2),file=gonefd)
