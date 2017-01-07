@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+  <html>
+    <!--viser restauranter i fødevarekontrollens smiley ordning på OSM -->
+    <!-- Der skal være en map.js fra leaflet i folderen -->
+    <!-- Niels Elgaard Larsen -->
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF8">
+<META name="keywords" content="restauranter smiley">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="//code.jquery.com/jquery-latest.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+  <!-- script src="leaflet.label.js"></script -->
+<script src="map.js"></script>
+<title>help to synchronizing OSM and Fødevarestyrelses kontrolrapporter based on geo/name matching</title>
+<script>L_PREFER_CANVAS = true;</script>
+<script>
+    var map;
+    var data;
+    var poiUrl = 'data/match.json';
+    var markers = new L.FeatureGroup();
+
+  var ignores={};
+    var ignore=function(id,name) {
+      ignores[id]=name;
+    };
+
+    var resIcon = L.icon({
+      iconUrl: 'res.png',
+      iconSize: new L.Point(12, 12),
+      iconAnchor: new L.Point(6, 6),
+      shadowSize: new L.Point(0, 0)
+    });
+
+
+   $(function () {
+      map = POImap.init();
+      map.addLayer(markers);
+      map.zoomIn();
+      $.getJSON(poiUrl).then(function (d) {
+        data=d;
+        loadMissingPoi();
+        loadPoi();
+      })
+    });
+      
+    function do_batch() {
+      var max=100;
+      var done=0;
+      var i=0;
+      while (done<max && i<data.length) {
+        r=data[i];
+        if (!r.done && (!r["osm:navnelbnr"] && r["xxfvst:navnelbnr"]  || r["exact"]) ) {
+          var jsurl='http://localhost:8111/load_object?objects='+r["type"].charAt(0)+r.id+'&addtags=fvst%3Anavnelbnr='+r["fvst:navnelbnr"]+'%257Cfvst%3Aname='+encodeURIComponent(r["fvst:name"]);
+	  var js=$.get(jsurl);
+          r.done=true;
+          done++;
+        }
+        i++;
+      }
+      markers.clearLayers();
+      loadPoi();
+    };
+
+    function loadMissingPoi() {
+      var poiUrl = 'data/miss.json';
+      var poiInfo = function(pi) {
+	var
+	name=pi.tags["name"].replace(/v\. .*/i,"").replace(/v\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("&"," og ").replace("'",'').trim();
+	var addtags="amenity=fast_food";
+	var nl=name.toLowerCase();
+	if (nl.match(/pleje|ældrecenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+        else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
+    	else if (nl.match(/varmestue/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
+	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
+	else if (nl.match(/catering/)!=null) addtags="shop=craft%257Ccraft=catering";
+	else if (nl.match(/cafe|café/)!=null) addtags="amenity=cafe";
+        else if (nl.match(/ pub/)!=null) addtags="amenity=pub";
+    	else if (nl.match(/iscafe/)!=null) addtags="amenity=ice_cream";
+        else if (nl.match(/idrætscenter/)!=null) addtags="leisure=sports_centre";
+	else if (nl.match(/bodega/)!=null) addtags="amenity=bar";
+	else if (nl.match(/feriekoloni/)!=null) addtags="leisure=summer_camp";
+	else if (nl.match(/bowling/)!=null) addtags="leisure=bowling_alley";
+	else if (nl.match(/bingo|banko/)!=null) addtags="amenity=gambling";
+	else if (nl.toLowerCase().match(/gelateria/)!=null) addtags="amenity=ice_cream";
+	else if (nl.toLowerCase().match(/ isbar/)!=null) addtags="amenity=ice_cream";	
+	if (nl.toLowerCase().match(/sushi/)!=null) addtags+="%257Ccuisine=sushi";
+        else if (nl.match(/pizza/)!=null) addtags+="%257Ccuisine=pizza";
+        else if (nl.match(/pizzeri/)!=null) addtags+="%257Ccuisine=pizza";
+        else if (nl.match(/indian/)!=null) addtags+="%257Ccuisine=indian";
+        else if (nl.match(/india/)!=null) addtags+="%257Ccuisine=indian";
+	else if (nl.match(/thai/)!=null) addtags+="%257Ccuisine=thai";
+	else if (nl.match(/burger/)!=null) addtags+="%257Ccuisine=burger";
+	else if (nl.match(/chine /)!=null) addtags+="%257Ccuisine=chinese";
+        else if (nl.match(/asian /)!=null) addtags+="%257Ccuisine=asian";
+	else if (nl.match(/chinese/)!=null) addtags+="%257Ccuisine=chinese";
+        else if (nl.match(/china/)!=null) addtags+="%257Ccuisine=chinese";
+        else if (nl.match(/kebab/)!=null) addtags+="%257Ccuisine=kebab";
+        else if (nl.match(/steak/)!=null) addtags+="%257Ccuisine=steak";
+        else if (nl.match(/sandwich/)!=null) addtags+="%257Ccuisine=sandwich";
+    else if (nl.match(/bagel/)!=null) addtags+="%257Ccuisine=bagel";
+    else if (nl.match(/donut/)!=null) addtags+="%257Ccuisine=donut";
+    else if (nl.match(/selskabslokale|konference/)!=null) addtags="amenity=events_venue";
+    else if (nl.match(/coffee/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
+    else if (nl.match(/joe  og  the juice/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
+    else if (nl.match(/kiosk|butik/)!=null) addtags="shop=convenience";
+
+    else if (nl.match(/Kaffe/)!=null) addtags+="%257Camenity=cafe%257Ccuisine=coffee_shop";
+    if (pi.operator) addtags+="%257Coperator="+encodeURIComponent(pi.operator.replace("'",""));
+    if (pi.src && pi.src=='addrfix') addtags+="%257Cfvst:fixme=fvst position missing, fixed from overpassturbo/osak";
+    if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
+	var r = $('<table>');
+	r.append($('<tr>').append($('<th>').html('NEW from FVST: '+name)));
+	r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
+	   
+	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
+	var js="javascript:void $.get('"+jsurl+"')";
+	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
+	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ',
+	href:'https://duckduckgo.com/?q='+encodeURIComponent(pi.name.replace("ApS"," ") +' '+pi.addr.replace(' st.','').replace(',',' ').trim()+' '+pi.city.trim())}))));
+        r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ pi.id+',\''+name+'\')" >ignore</button>'))));
+	
+        return $('<div>').append(r).html();
+      };
+
+      $.getJSON(poiUrl, function(data) {
+	  $.each(data.elements, function(ign, i) {
+	      if (i.branchekode=='56.10.00.B') {
+		  var osmll=new L.LatLng(i.lat, i.lon);
+		  L.circle(osmll,8,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	      } else {
+		  L.marker([i.lat, i.lon], {
+		      icon: resIcon,
+		      title: i.tags.name
+		  }).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	      }
+        });
+      });
+    }
+
+    function loadPoi() {
+      var poiInfo = function(pi) {
+	var fvstname=pi["fvst:name"];
+    	var osmname=pi["osm:name"];
+        var osmlbnr=pi["osm:navnelbnr"];
+	var id=pi["id"]
+	var typeF=pi["type"].charAt(0);
+	var fvstid=pi["fvst:navnelbnr"]
+	var r = $('<table>');
+        if (fvstname) {
+	  r.append($('<tr>').append($('<th>').html('fvst name: '+fvstname)));
+        }
+	r.append($('<tr>').append($('<th>').html($('<a>',{ target:'osm', text: 'osm  name:' +osmname, href:'https://www.openstreetmap.org/'+pi['type']+'/'+pi['id']}))));
+        
+	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid;
+        var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+encodeURIComponent($("<div />").text(fvstname).html()).replace("`","").replace("'","")+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=";
+        if (pi['exact']) jsurl+='%257Cfvst%3Aname='+encodeURIComponent(pi["fvst:name"]);
+
+	var js="javascript:void $.get('"+jsurl+"')";
+	var mergejs="javascript:void $.get('"+mergejsurl+"')";
+        if (pi["category"]=="fvst:no_pos") {
+          jsurl+='%257Cfvst%3Afixme=fvst:no_pos';
+	  var js="javascript:void $.get('"+jsurl+"')";
+	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'update fvst:navnelbnr. First check address (No pos in FVST)',  href:js }))));
+	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
+        } else if (pi["stalefvst"]) {
+          r.append($('<tr>').append($('<td>').html("food place has stale fvst:navnelbnr tag: Delete, Add tag or Merge")));
+          r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'DuckD search: ',href:'https://duckduckgo.com/?q='+osmname+'%20"'+'Denmark"'}))));
+          r.append($('<tr>').append($('<td>').html($('<a>',{ target:'FVSTsearch', text: 'FVST search: ', href:'http://www.findsmiley.dk/Sider/Search.aspx?k='+osmname.replace('&','')+'%20'+''}))));
+          if (pi["tags"]) {
+             var tags=pi["tags"];
+             if (tags["phone"]) {
+             var ph=tags["phone"].replace(" ","").replace("+45","");
+                r.append($('<tr>').append($('<td>').html($('<a>',{ target:'phonesearch', text: 'phone search: '+ph, href:'https://www.degulesider.dk/'+ph+'/s%C3%B8g.cs'}))));
+             }
+             if (tags["website"]) {
+                r.append($('<tr>').append($('<td>').html($('<a>',{ target:'wwwsearch', text: 'osm:www: ', href: tags['website']}))));             
+             }
+             
+          }
+ 	  var jsdelurl='http://localhost:8111/load_object?objects='+typeF+id;
+	  var jsdel="javascript:void $.get('"+jsdelurl+"')";
+	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM for manual edit/deletion',  href:jsdel }))));
+        } else if (pi["notinfvst"]) {
+          r.append($('<tr>').append($('<td>').html("food place has no fvst:navnelbnr tag: Delete, Add tag or Merge")));
+          r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'DuckD search: ',href:'https://duckduckgo.com/?q='+osmname+'%20"'+'Denmark"'}))));
+          r.append($('<tr>').append($('<td>').html($('<a>',{ target:'FVSTsearch', text: 'FVST search: ', href:'http://www.findsmiley.dk/Sider/Search.aspx?k='+osmname.replace('&','')+'%20'+''}))));
+ 	  var jsdelurl='http://localhost:8111/load_object?objects='+typeF+id;
+	  var jsdel="javascript:void $.get('"+jsdelurl+"')";
+	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM for manual deletion',  href:jsdel }))));
+        } else {
+	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge at blue/orange point in JOSM',  href:js }))));
+	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
+        }
+        
+        if (osmlbnr) {
+	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'osmfvst', text: 'OSM: fvst:navnelbnr: '+osmlbnr, href:'http://www.findsmiley.dk/'+osmlbnr}))));			      
+        } else if (! pi["notinfvst"] && ! pi["stalefvst"]){
+	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'overwrite osm node in JOSM',  href:mergejs }))));
+        }
+        return $('<div>').append(r).html();
+      };
+      $.each(data, function(ign, i) {
+          if (!i.done) {
+	    var osmll=new L.LatLng(i.lat, i.lon);
+	    var fvstll;
+            if (i.slat && i.slon) {
+                fvstll=new L.LatLng(i.slat, i.slon);
+            }
+    	    var pl;
+    	    var mk;
+
+            if (i["exact"]) {
+	      mk=L.circle(osmll,13,{color: 'green'}).addTo(markers);
+	      pl = L.polyline([osmll,fvstll], {color: 'green'}).addTo(markers);	      
+	    } else if (i["notinfvst"]) {
+	      mk=L.circle(osmll,11,{color: 'cyan',weight:10,fill:true}).addTo(markers);
+	    } else if (i["stalefvst"]) {
+	      mk=L.circle(osmll,11,{color: 'magenta',weight:10,fill:true}).addTo(markers);
+	    } else if (i["category"]=="fvst:no_pos") {
+	      mk=L.circle(osmll,11,{color: 'brown',weight:10,fill:true}).addTo(markers);
+	    } else if (i["osm:navnelbnr"]) {
+	      mk=L.circle(osmll,3,{color: 'blue'}).addTo(markers);
+	      pl = L.polyline([osmll,fvstll], {color: 'blue'}).addTo(markers);
+	    } else if (i["exact"]) {
+	      mk=L.circle(osmll,9,{color: 'green'}).addTo(markers);
+	      pl = L.polyline([osmll,fvstll], {color: 'green'}).addTo(markers);	      
+	    } else if (!i["fvst:navnelbnr"]) {
+	      mk=L.circle(osmll,5,{color: 'red'}).addTo(markers);
+	      pl = L.polyline([osmll,fvstll], {color: 'red'}).addTo(markers);	      
+	    } else {
+	      mk=L.circle(osmll,14,{color: 'orange',fill:true}).addTo(markers);
+	      pl = L.polyline([osmll,fvstll], {color: 'orange'}).addTo(markers);	      
+	    }
+            mk.bindPopup(poiInfo(i)).addTo(markers);
+	  }
+        });
+    }
+  </script>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+    html, body, #map {
+      height: 99%;
+    }
+  </style>
+  </head>
+    <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">
+  <!--button OnClick="do_batch()" >batch</button-->
+
+  <a href="index.html">Menu</a>  fvst:navnelbnr import tool based on name and location matching (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM, orange=no valid navnelbnr in OSM, green=exact same pos, blue=fuzzy match
+    <button onclick="prompt('copy this to blacklist.json, git push, reload this page',JSON.stringify(ignores))">ignores</button>
+  <div id="map"></div>  
+  </body>
+  </html>
+  
