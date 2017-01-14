@@ -56,6 +56,8 @@ if wget -O data/allekontrolresultater.xml --timeout 40 --quiet --timestamping  h
     echo got kontrolresultater
     xsltproc smilres.xslt data/allekontrolresultater.xml > data/r.json
     xsltproc smilresfull.xslt data/allekontrolresultater.xml > data/rfull.json
+    xsltproc smilresno.xslt data/allekontrolresultater.xml > data/rall.json
+
 fi
 echo find matches and misses
 python3 missingRest.py match
@@ -63,4 +65,8 @@ python3 missingRest.py
 
 echo misses; grep amenity data/miss.json |wc
 echo matches; grep osm:name data/match.json |wc
-echo errors; grep tags data/fvsterror.json |wc
+echo fvst errors; grep tags data/fvsterror.json |wc
+
+echo look up addrs
+./addressLookup.py > addr.log
+

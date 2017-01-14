@@ -15,21 +15,24 @@ import sys
 import re
 import overpass
 from time import sleep
-
+import os
 
 api = overpass.API()
 
 limit=500 # for testing
-fixedaddrs={'elements':[],'info':'fvst data, fixed by lookup up addresses with voerpass turbo'}
-u8o=open(1, 'w', encoding='utf-8', closefd=False)
+fixedaddrs={'elements':[],'info':'fvst data, fixed by lookup up addresses with overpass turbo'}
 fixed=open('data/fixed.json',mode="w",encoding='utf-8')
 
-fvsterrfile='data/fvsterror.json';
-fvsterr=open(fvsterrfile,mode="r")
-alist=json.loads(open(fvsterrfile,'r', encoding='utf-8').read())
+alist=[]
+fvsterrfile='data/fvsterror.json'
+
+if os.path.isfile(fvsterrfile):
+    fvsterr=open(fvsterrfile,mode="r", encoding='utf-8').read()
+    if (len(fvsterr)>0):
+        alist=json.loads(fvsterr)
 
 def overpass(avej,ano,pno):
-    print(" opass: "+avej+", nr="+ ano+" ,pn="+pno)
+    print(" opass: "+avej+", nr="+ ano+", pn="+pno)
     r = api.Get('node["addr:country"="DK"]["addr:postcode"="'+pno+'"]["addr:street"="'+avej+'"]["addr:housenumber"="'+anr+'"]',responseformat="json")
     osm=r['elements']
     sleep(1)

@@ -10,20 +10,15 @@
     <h1>Elgaard DK restaurant and food inspection report tools</h1>
     These tools use the Danish food inspection reports (the "smiley" reports) which has a name, a postion and a unique id (fvst:navnelbnr) for all danish restaurants, cafes, canteens, etc.
 <p>
-The tool have links to the food inspection reports and to JOSM Remote Control actions (also works in Merkaartor/git)
+The tool have links to the food inspection reports and to JOSM Remote Control actions (also works with Merkaartor)
     
-    <ul>
-      <li><a href="missing.html">Food places that is in FVST but not in OSM (Missing)</a><br>
-      The Remote Control link creates the node in OSM, at the "fvst:navnelbnr" and also "amenity", "cuisine", etc based on the FVST name.
-      </li>
-      
-      <li><a href="uni.html">Food places that is in both OSM and FVST but missing fvst:navnelbnr id in OSM (Unify)</a><br>
+    <ul>      
+      <li><a href="all.html">Food places synchronization with FVST</a><br>
 	List both the FVST and the OSM name. Draws a red line between the FVST and OSM location - the OSM end is marked with a blue dot.<br>
-	The Remote Control link add the fvst:navnelbnr to the OSM node. But please verify that the OSM name and position is correct and edit it in JOSM if not.
+	The Remote Control link add the fvst:navnelbnr to the OSM node or creates the node in OSM, at the "fvst:navnelbnr" and also "amenity", "cuisine", etc based on the FVST name.
+      The Remote Control link 
       </li>
       
-     <li> <a href="http://overpass-turbo.eu/s/eVU">Restaurants without FVST tag</a>	
-     <li> <a href="http://overpass-turbo.eu/s/hIu">Restaurants,cafes, fast_food witout FVST tag</a>     
      <li> <a href="http://overpass-turbo.eu/s/cd9">Foodplaces with wrong positions in FVST</a>
      <li> <a href="http:data/fvsterror.json">FVST entries with error (missing positions).</a>
      <li><a href="https://github.com/elgaard/OpenStreetmapTools/blob/master/restaurants/blacklist.json">blacklist, steder der ikke skal med i OSM: pølsevogne, streetfood, færgerestauranter, juleboder, osv</a> Tilføj gerne og lav en pull-request på Github</li>

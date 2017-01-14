@@ -1,6 +1,13 @@
 {
-  "blacklist":
+  "blacklist":  
   {
+    "672758":"Grilletten:: Lukket ifølge hjemmeside",
+    "654777":"VOLVER Peruvian Street Taste Mobilvogn",
+    "669804":"M/F Copenhagen, FoodXpress",
+    "669809":"M/F Copenhagen, Personalemessen",
+    "669808":"M/F Copenhagen, Scandlines Buffet - All Inclusive",
+    "669806":"M/F Copenhagen, Berlin Xpresso",
+    "664855":"Akaff Mobil",
     "652822":"Solo Mio, lukket ifølge Asger",
     "669976":"Dewsevents Bod",
     "635199":"Food & Son::foodtruck",
@@ -640,7 +647,6 @@
     "90328495":"Tivoliland personalespisevogn YU 4929",
     "90328242":"M/F Richard-Foodexpress Cafeteria Nord Cafeteria-Nord",
     "545638":"PølseKompagniet Vogn 3",
-    "574280":"Cafe Klinker, dublet ikke i brug",
     "562499":"Ankers Tivolipark Grøn Churrosvogn",
     "90328241":"Foodexpree/Benedikte/Cafeteria-Midt Cafeteria-midt",
     "298723323":"merci closed",

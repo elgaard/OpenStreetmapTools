@@ -3,7 +3,11 @@ from pprint import pprint
 import re
 import string
 import sys
+import os
 from datetime import datetime
+import urllib.request
+from time import sleep
+
 
 now=datetime.now()
 
@@ -18,10 +22,15 @@ def osmage(s):
 
 fullmatch=False;
 fvstfile='data/r.json';
-fvsterrfile='data/fvsterror.json';
+fvsterrfile='data/fvsterror.json'
 fvsterr=open(fvsterrfile,mode="w")
+mlog=open("missing.log",encoding='utf-8',mode="w")
+
+fvstall=open("data/rall.json",mode="r").read()
+
 fvsterrlist=[]
 gone=[]
+merge_candidates=[];
 
 if (len(sys.argv)>1 and sys.argv[1]=="match"):
       fullmatch=True
@@ -34,6 +43,13 @@ osmres=open('data/osmres.json',"r",encoding='utf-8').read()
 osmdata = json.loads(osmres)
 osmlbnr=[]
 
+def getfvst(o):
+      if 'fvst:navnelbnr' in o:
+            return o['fvst:navnelbnr']
+      elif 'tags' in o and  'fvst:navnelbnr' in o['tags']:
+            return o['tags']['fvst:navnelbnr']
+      return None
+      
 def getname(o):
       if ('name' in o):
             return o['name']
@@ -103,7 +119,10 @@ for res in list(osmdata['elements']):
 smilres=open(fvstfile,"r",encoding='utf-8').read()
 smf = json.loads(smilres)['elements']
 fixed='data/fixed.json'
-fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
+if os.path.isfile(fixed):
+      fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
+else:
+     fixeddata=[] 
 
 smildata=fixeddata+smf
 print(str(len(fixeddata))+" fixed "+str(len(smf))+" from fvst, now in smildata: "+ str(len(smildata)))
@@ -120,17 +139,24 @@ for smil in smildata:
         smilinfo[cn]=[]
     smil['name']=getname(smil).replace("`","").replace("|","").replace(",","").replace("'","")
     smilinfo[cn].append(smil)
+    print("do smil ", cn,smil['id'], file=mlog )
     found=False
     if str(smil['id']) in fvst:
+          print(" in fvst ", cn,smil['id'], " osmid",fvst[str(smil['id'])]['id'], file=mlog )
           continue
     if str(smil['id']) in blacklist:
+          print(" in blacklist ", cn,smil['id'], file=mlog )
           continue
     if (not smil['lat'] or not smil['lon'] or int(smil['lat']) < 54 or int(smil['lat'])> 57 or int(smil['lon'])<8 or int(smil['lon']) > 15):
+          print(" missing pos: ", cn,smil['id'], file=mlog )
           fvsterrlist.append(smil)
-    if cn!='':
+    if cn=='':
+      print("  no name:",smil['id'], file=mlog )          
+    else:
           if cn in osminfo:
             # print("tze "+cn+" "+str(smil['lat'])+","+str(smil['lon']))
             if (smil['lat']==0.0 or smil['lon']==0.0):
+                  print(" zero pos: ", cn,smil['id'], file=mlog )
                   # print("ze "+cn)
                   if (len(osminfo[cn])==1): # there is only one global match, so we go with it
                         ores=osminfo[cn][0]
@@ -138,6 +164,7 @@ for smil in smildata:
                         if (not "fvst:navnelbnr" in ores or ores["fvst:navnelbnr"]=="" or not ores["fvst:navnelbnr"] in osmlbnr):
                               # FIXME TODO, also only if ores["fvst:navnelbnr"] still exists in FVST
                               found=True
+                              merge_candidates.append(olbnr);
                               match.append({"fvst:navnelbnr":smil['id'],
                                       "category":"fvst:no_pos",
                                       "type":ores["type"],
@@ -149,13 +176,18 @@ for smil in smildata:
                                       'lon':ores['lon']
                         })
             else:
+              print(" try pos match: ", cn,smil['id'], file=mlog)
               for ores in osminfo[cn]:
                 d = (smil['lat']-ores['lat'])*(smil['lat']-ores['lat'])+(smil['lon']-ores['lon'])*(smil['lon']-ores['lon'])
+#                print("d=",d,"for ",smil['id']," ", smil['name'])
                 if (d<0.000005 or 'fvst:fixme' in ores):
                     found=True
                     olbnr=ores["fvst:navnelbnr"]
                     if (olbnr and not (olbnr in osmlbnr)):
                           olbnr=""
+                    print("   is found: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
+                    merge_candidates.append(olbnr)
+                    print("     append: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
                     match.append({"fvst:navnelbnr":smil['id'],
                                   "type":ores["type"],
                                   "id":ores["id"],
@@ -168,6 +200,7 @@ for smil in smildata:
                                   'slon':smil['lon']
                     })
     if not found and smil['lat']>0 and smil['lon']>0:
+      print(" not found: ", cn,smil['id'], file=mlog)
       pos="p"+str(smil['lat'])+","+str(smil['lon'])
       if (pos in osminfo_by_pos):
             ores=osminfo_by_pos[pos]
@@ -191,15 +224,23 @@ for smil in smildata:
         missingItems['elements'].append(smil)
 
 print("now osm not in fvst")
+print("merge_candidates: ",json.dumps(merge_candidates,indent=2),file=mlog)
+
 for osmelm in list(osmdata['elements']):
       if "tags" in osmelm and "amenity" in osmelm["tags"] and osmelm["tags"]["amenity"] in ["restaurant","cafe","fast_food"]:
-            if not "fvst:navnelbnr" in osmelm["tags"]:
+            if not "fvst:navnelbnr" in osmelm["tags"] or not osmelm["tags"]["fvst:navnelbnr"] in fvstall:
                   age=osmage(osmelm["timestamp"])
                   if "name" in osmelm["tags"]:
                         osmelm["osm:name"]=osmelm["tags"]["name"]
                   else:
                         osmelm["osm:name"]="unnamed"
-                  if age>120 and osmelm["osm:name"]!='Pølsevogn':
+                  if (not "lat" in osmelm) and "center" in osmelm:
+                        osmelm["lat"]=osmelm["center"]["lat"]
+                        osmelm["lon"]=osmelm["center"]["lon"]
+                  if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and osmelm["osm:name"].find('Pølsevogn')<0:
+                        osmelm["stalefvst"]=True
+                        match.append(osmelm)                 
+                  elif age>120 and osmelm["osm:name"].find('Pølsevogn')<0:
                         osmelm["notinfvst"]=True
                         match.append(osmelm)
                         gone.append(osmelm)                  
@@ -210,7 +251,32 @@ print("there was ",len(gone),"not in fvst")
             
 print(json.dumps(fvsterrlist,indent=2,ensure_ascii=True),file=fvsterr)
 
-#print(out)
+nids=[]
+nidslot={}
+for osmelm in match:
+  if 'stalefvst' in osmelm or "notinfvst" in osmelm:
+    nid= osmelm["type"][0].upper()+ str(osmelm["id"])
+    nids.append(nid)
+    nidslot[nid]= osmelm
+
+staleaddresses=[]
+maxids=50
+nid=0
+
+while nid < len(nids):
+      nidargs=",".join(nids[nid:nid+maxids])
+#      print("args=",nidargs)
+      nourl="https://nominatim.openstreetmap.org/lookup/?format=json&osm_ids="+nidargs
+      stalef = urllib.request.urlopen(nourl)
+      staleaddresses+=json.loads(stalef.read().decode('utf8'))
+      nid+=maxids
+      sleep(1)
+
+for staleaddress in staleaddresses:
+      id=staleaddress["osm_type"][0].upper()+staleaddress["osm_id"]
+      addr=nidslot[id]
+      addr['stale_address']=staleaddress["address"]
+
 if fullmatch:
       matchfile=open('data/match.json',mode="w")
       print(json.dumps(match,indent=2),file=matchfile)
