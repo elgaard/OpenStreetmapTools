@@ -51,21 +51,24 @@ fi
 
 echo get kontrolresultater
 ## http://www.findsmiley.dk/xml/allekontrolresultater.xml
-cp data/allekontrolresultater.xml data/allekontrolresultater.xml.bu$(date "+%d")7
+buf=data/allekontrolresultater.xml.bu$(date "+%d")
+cp data/allekontrolresultater.xml $buf
+gzip -f $buf
 if wget -O data/allekontrolresultater.xml --timeout 40 --quiet --timestamping  https://www.foedevarestyrelsen.dk/_layouts/15/sdata/smiley_xml.xml; then
     echo got kontrolresultater
     xsltproc smilres.xslt data/allekontrolresultater.xml > data/r.json
     xsltproc smilresfull.xslt data/allekontrolresultater.xml > data/rfull.json
     xsltproc smilresno.xslt data/allekontrolresultater.xml > data/rall.json
-
+else
+    echo did nog get kontrolresultater
 fi
 echo find matches and misses
 python3 missingRest.py match
 python3 missingRest.py
 
-echo misses; grep amenity data/miss.json |wc
-echo matches; grep osm:name data/match.json |wc
-echo fvst errors; grep tags data/fvsterror.json |wc
+echo misses; grep amenity data/miss.json |wc -l
+echo matches; grep osm:name data/match.json |wc -l 
+echo fvst errors; grep tags data/fvsterror.json |wc -l
 
 echo look up addrs
 ./addressLookup.py > addr.log

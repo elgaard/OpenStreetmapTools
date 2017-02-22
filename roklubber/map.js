@@ -42,7 +42,7 @@ POImap.init = function () {
       var center = new L.LatLng(position.coords.latitude, position.coords.longitude);
       map.setView(center, 10);
     });
-  }
+  };
   POImap.map = map;
   return map;
 };

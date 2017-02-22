@@ -6,10 +6,32 @@ import sys
 import os
 from datetime import datetime
 import urllib.request
+import urllib.error
 from time import sleep
+from datetime import date
+
 
 
 now=datetime.now()
+mlog=open("missing.log",encoding='utf-8',mode="w")
+
+def future(elm):
+      print("  i future ", json.dumps(elm),file=mlog )
+      if "tags" in elm and "start_date" in elm["tags"]:
+            sd=elm["tags"]["start_date"].split("-")
+            print("  c future ", elm['id'],json.dumps(sd),file=mlog )
+            if len(sd)==3:
+                  d=date(int(sd[0]),int(sd[1]),int(sd[2]))
+                  rv=datetime.today().date()<d
+                  print("  r future ", smil['id'],rv, file=mlog)
+                  return rv 
+            elif len(sd)==1:
+                  if (sd[0].isdigit()):
+                        d=date(int(sd[0]),6,1) # just guess on mid year
+                        return (datetime.today().date()<d)
+                  else:
+                     print("Invalid year: ",sd[0], " for:", json.dumps(elm))   
+      return False
 
 def fvstage(s):
       d=s.split(" ")[0].split("-")
@@ -24,7 +46,6 @@ fullmatch=False;
 fvstfile='data/r.json';
 fvsterrfile='data/fvsterror.json'
 fvsterr=open(fvsterrfile,mode="w")
-mlog=open("missing.log",encoding='utf-8',mode="w")
 
 fvstall=open("data/rall.json",mode="r").read()
 
@@ -120,7 +141,11 @@ smilres=open(fvstfile,"r",encoding='utf-8').read()
 smf = json.loads(smilres)['elements']
 fixed='data/fixed.json'
 if os.path.isfile(fixed):
-      fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
+      try:
+            fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
+      except json.decoder.JSONDecodeError as e:
+            fixeddata=[] 
+            
 else:
      fixeddata=[] 
 
@@ -149,7 +174,13 @@ for smil in smildata:
           continue
     if (not smil['lat'] or not smil['lon'] or int(smil['lat']) < 54 or int(smil['lat'])> 57 or int(smil['lon'])<8 or int(smil['lon']) > 15):
           print(" missing pos: ", cn,smil['id'], file=mlog )
-          fvsterrlist.append(smil)
+          isFixed=False;
+          for fx in fixeddata:
+                if 'fvst:navnelbnr' in smil['tags'] and fx['id']==smil['tags']['fvst:navnelbnr']:
+                      isFixed=True
+                      break
+          if not isFixed:
+                fvsterrlist.append(smil)
     if cn=='':
       print("  no name:",smil['id'], file=mlog )          
     else:
@@ -237,10 +268,10 @@ for osmelm in list(osmdata['elements']):
                   if (not "lat" in osmelm) and "center" in osmelm:
                         osmelm["lat"]=osmelm["center"]["lat"]
                         osmelm["lon"]=osmelm["center"]["lon"]
-                  if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and osmelm["osm:name"].find('Pølsevogn')<0:
+                  if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
                         osmelm["stalefvst"]=True
                         match.append(osmelm)                 
-                  elif age>120 and osmelm["osm:name"].find('Pølsevogn')<0:
+                  elif age>120 and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
                         osmelm["notinfvst"]=True
                         match.append(osmelm)
                         gone.append(osmelm)                  
@@ -260,15 +291,18 @@ for osmelm in match:
     nidslot[nid]= osmelm
 
 staleaddresses=[]
-maxids=50
+maxids=30
 nid=0
 
 while nid < len(nids):
       nidargs=",".join(nids[nid:nid+maxids])
 #      print("args=",nidargs)
       nourl="https://nominatim.openstreetmap.org/lookup/?format=json&osm_ids="+nidargs
-      stalef = urllib.request.urlopen(nourl)
-      staleaddresses+=json.loads(stalef.read().decode('utf8'))
+      try:
+            stalef = urllib.request.urlopen(nourl)
+            staleaddresses+=json.loads(stalef.read().decode('utf8'))
+      except urllib.error.HTTPError as e:
+            print(e,nourl)
       nid+=maxids
       sleep(1)
 

@@ -101,7 +101,10 @@
 	  $.each(data.elements, function(ign, i) {
 	      if (i.branchekode=='56.10.00.B') {
 		  var osmll=new L.LatLng(i.lat, i.lon);
-		  L.circle(osmll,8,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+		  L.circle(osmll,8,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);
+	      } else if (i.branchekode=='00.00.02.H') {
+		  var osmll=new L.LatLng(i.lat, i.lon);
+		  L.circle(osmll,8,{color:'Wheat'}).bindPopup(poiInfo(i)).addTo(map);
 	      } else {
 		  L.marker([i.lat, i.lon], {
 		      icon: resIcon,
