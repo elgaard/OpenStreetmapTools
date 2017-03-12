@@ -45,7 +45,7 @@ def osmage(s):
 fullmatch=False;
 fvstfile='data/r.json';
 fvsterrfile='data/fvsterror.json'
-fvsterr=open(fvsterrfile,mode="w")
+fvsterr=open(fvsterrfile,mode="w",encoding='utf8')
 
 fvstall=open("data/rall.json",mode="r").read()
 
@@ -167,7 +167,7 @@ for smil in smildata:
     print("do smil ", cn,smil['id'], file=mlog )
     found=False
     if str(smil['id']) in fvst:
-          print(" in fvst ", cn,smil['id'], " osmid",fvst[str(smil['id'])]['id'], file=mlog )
+          print(" in fvst ", cn,smil['id'], " osmid0",fvst[str(smil['id'])]['id'], file=mlog )
           continue
     if str(smil['id']) in blacklist:
           print(" in blacklist ", cn,smil['id'], file=mlog )
@@ -216,8 +216,9 @@ for smil in smildata:
                     olbnr=ores["fvst:navnelbnr"]
                     if (olbnr and not (olbnr in osmlbnr)):
                           olbnr=""
+                    else:
+                          merge_candidates.append(olbnr)
                     print("   is found: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
-                    merge_candidates.append(olbnr)
                     print("     append: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
                     match.append({"fvst:navnelbnr":smil['id'],
                                   "type":ores["type"],
@@ -280,7 +281,7 @@ for osmelm in list(osmdata['elements']):
                         
 print("there was ",len(gone),"not in fvst")        
             
-print(json.dumps(fvsterrlist,indent=2,ensure_ascii=True),file=fvsterr)
+print(json.dumps(fvsterrlist,indent=2,ensure_ascii=False),file=fvsterr)
 
 nids=[]
 nidslot={}
@@ -312,10 +313,10 @@ for staleaddress in staleaddresses:
       addr['stale_address']=staleaddress["address"]
 
 if fullmatch:
-      matchfile=open('data/match.json',mode="w")
+      matchfile=open('data/match.json',mode="w",encoding='utf-8')
       print(json.dumps(match,indent=2),file=matchfile)
 else:
-      missing=open('data/miss.json',mode="w")
+      missing=open('data/miss.json',mode="w",encoding='utf-8')
       print(json.dumps(missingItems,indent=2),file=missing)
-      gonefd=open('data/gone.json',mode="w")
+      gonefd=open('data/gone.json',mode="w",encoding='utf-8')
       print(json.dumps(gone,indent=2),file=gonefd)

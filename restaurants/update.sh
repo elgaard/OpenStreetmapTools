@@ -70,6 +70,7 @@ echo misses; grep amenity data/miss.json |wc -l
 echo matches; grep osm:name data/match.json |wc -l 
 echo fvst errors; grep tags data/fvsterror.json |wc -l
 
-echo look up addrs
-./addressLookup.py > addr.log
-
+if [[ x$1 != "xskipaddr" ]] ; then
+  echo look up addrs
+  ./addressLookup.py > addr.log
+fi

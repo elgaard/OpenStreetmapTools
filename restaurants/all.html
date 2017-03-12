@@ -68,7 +68,7 @@
 	var name=pi.tags["name"].replace(/v\. .*/i,"").replace(/v\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("&"," og ").replace("|",'').replace("'",'').replace("`","").trim();
 	var addtags="amenity=fast_food";
 	var nl=name.toLowerCase();
-	if (nl.match(/pleje|ældrecenter|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+	if (nl.match(/pleje|ældrecenter|boenhed|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
         else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
     	else if (nl.match(/varmestue/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
