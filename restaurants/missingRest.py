@@ -162,7 +162,7 @@ for smil in smildata:
     cn=canonicalname(getname(smil))
     if (cn not in smilinfo):
         smilinfo[cn]=[]
-    smil['name']=getname(smil).replace("`","").replace("|","").replace(",","").replace("'","")
+    smil['name']=getname(smil).replace("`","").replace("|","").replace(",","").replace("'","").replace("´","")
     smilinfo[cn].append(smil)
     print("do smil ", cn,smil['id'], file=mlog )
     found=False

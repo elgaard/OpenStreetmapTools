@@ -126,21 +126,26 @@
     if (pi.operator) addtags+="%257Coperator="+encodeURIComponent(pi.operator.replace("'",""));
     if (pi.src && pi.src=='addrfix') addtags+="%257Cfvst:fixme=fvst position missing, fixed from overpassturbo/osak";
     if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
-	var r = $('<table>');
-	r.append($('<tr>').append($('<th>').html('NEW from FVST: '+name)));
-	r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
+    var r = $('<table>');
+        r.append($('<tr>').append($('<th>').html('NEW from FVST: '+name+' senest: ' + pi.senestekontrol.split(" ")[0])));
+    
+    if (pi.branchekode=='00.00.02.H') {
+      r.append($('<tr>').append($('<th>').html('Maybe not open yet: ')));
+    }
+
+    r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
 	   
-	var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
-	var js="javascript:void $.get('"+jsurl+"')";
-	r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
-	r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ',
-	href:'https://duckduckgo.com/?q='+encodeURIComponent(pi.name.replace("ApS"," ") +' '+pi.addr.replace(' st.','').replace(',',' ').trim()+' '+pi.city.trim())}))));
-        r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ pi.id+',\''+name+'\')" >ignore</button>'))));
+    var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
+    var js="javascript:void $.get('"+jsurl+"')";
+    r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
+    r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
+    r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
+    r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ',
+    href:'https://duckduckgo.com/?q='+encodeURIComponent(pi.name.replace("ApS"," ") +' '+pi.addr.replace(' st.','').replace(',',' ').trim()+' '+pi.city.trim())}))));
+    r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ pi.id+',\''+name+'\')" >ignore</button>'))));
 	
-        return $('<div>').append(r).html();
-      };
+    return $('<div>').append(r).html();
+  };
 
       $.getJSON(poiUrl, function(data) {
 	  $.each(data.elements, function(ign, i) {

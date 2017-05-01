@@ -31,16 +31,20 @@ if os.path.isfile(fvsterrfile):
     if (len(fvsterr)>0):
         alist=json.loads(fvsterr)
 
-def overpass(avej,ano,pno):
+def dooverpass(avej,ano,pno):
     print(" opass:"+avej+", nr="+ano+", pn="+pno+"#")
-    r = api.Get('node["addr:country"="DK"]["addr:postcode"="'+pno+'"]["addr:street"="'+avej+'"]["addr:housenumber"="'+ano+'"]',responseformat="json")
-    osm=r['elements']
-    print(json.dumps(osm,indent=2))   
-    sleep(1.2)
-    return osm
+    sleep(1.4)
+    try:
+        r = api.Get('node["addr:country"="DK"]["addr:postcode"="'+pno+'"]["addr:street"="'+avej+'"]["addr:housenumber"="'+ano+'"]',responseformat="json")
+        osm=r['elements']
+        print(json.dumps(osm,indent=2))   
+        return osm
+    except overpass.errors.MultipleRequestsError:
+        print("ignore Multiple Requests Error")
+        return []
 
 def doaddr(fixedaddrs,ac):
-        if (ac["type"]=="node"):
+        if ac["type"]=="node":
             print ("is node")
             adr["lon"]=float(ac["lon"])+0.00003 # not right on top of address node
             adr["lat"]=float(ac["lat"])
@@ -50,7 +54,12 @@ ano=0
 for adr in alist:
     ano=ano+1
     print("\n")
-    a=adr['addr'].split(',')[0].split('-')[0].strip()
+    altnrs=[];
+    at=adr['addr'].replace("Hesseløgade, Drejøgade ","Drejøgade ").split(',')[0].strip().split('-')
+    a=at[0].strip()
+    if len(at)>1:
+        altnrs.append(at[1].strip())
+        print("altnrs=",altnrs[0])
     street=adr['addr']
     pno=adr['postnr']
     print("#"+str(ano)+"  vej: "+street)
@@ -59,27 +68,30 @@ for adr in alist:
         anr=ads.group(2).replace(" ","").upper()
         avej=ads.group(1).title().replace("Vald ","Valdemar ").split(",")[0]
         print(" vej="+avej+"::"+anr)
-        osm=overpass(avej,anr,pno)
+        osm=dooverpass(avej,anr,pno)
         if (len(osm)==1):
             print ("got exactly one postion")
             ac=osm[0]
             doaddr(fixedaddrs,ac)
         else:
-            print("got "+str(len(osm)) +": too many/few")
+            print("got "+str(len(osm)) +": anra"+anr)
             #print(json.dumps(osm,indent=2),"\n")
-            if (street[-1] in "ABCDEFGHIJKabc"):
+            if (anr[-1] in "ABCDEFGHIJKabcdef"):
                 anra=anr[:-1]
             else:
-                anra=anr+"A"
-            print(" anra="+anra)
-            osm=overpass(avej,anra,pno)
+                if len(altnrs)>0:
+                    anra=altnrs[0]
+                else:
+                    anra=anr+"A"
+                print(" anra="+anra)
+            osm=dooverpass(avej,anra,pno)
             if (len(osm)==1):
                 print ("NOW got exactly one postion")
                 ac=osm[0]
                 doaddr(fixedaddrs,ac)
             else:
                 avej=avej.replace("Nr ","NÃ¸rre ").replace("gade"," Gade").replace("Hovedgade","Hovedgaden").replace("Henrik Dams Alle","Sæltofts Plads").replace("vej"," Vej").replace("toft"," Toft").replace("enteret","entret").replace("Skt.","Sankt").replace("Sct.","Sanct").replace("Sdr.","Søndre").replace("Skt.","Sankt ").replace("Ndr.","Nordre ").replace("Gl.","Gammel").replace("Allé","Alle").replace(" Alle","alle").replace("Sct ","Sanct ")
-                osm=overpass(avej,anr,pno)
+                osm=dooverpass(avej,anr,pno)
                 if (len(osm)==1):
                     print ("NOW got exactly one postion")
                     ac=osm[0]
