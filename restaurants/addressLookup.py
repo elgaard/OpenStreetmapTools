@@ -33,7 +33,7 @@ if os.path.isfile(fvsterrfile):
 
 def dooverpass(avej,ano,pno):
     print(" opass:"+avej+", nr="+ano+", pn="+pno+"#")
-    sleep(1.4)
+    sleep(1.5)
     try:
         r = api.Get('node["addr:country"="DK"]["addr:postcode"="'+pno+'"]["addr:street"="'+avej+'"]["addr:housenumber"="'+ano+'"]',responseformat="json")
         osm=r['elements']
@@ -41,6 +41,9 @@ def dooverpass(avej,ano,pno):
         return osm
     except overpass.errors.MultipleRequestsError:
         print("ignore Multiple Requests Error")
+        return []
+    except overpass.errors.ServerLoadError:
+        print("ignore Server Load Error")
         return []
 
 def doaddr(fixedaddrs,ac):
