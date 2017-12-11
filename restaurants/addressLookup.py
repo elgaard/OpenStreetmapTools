@@ -2,7 +2,6 @@
 
 # Niels Elgaard Larsen 2016
 # for looking up addresses for FVST health reports that do not have a valid position
-# TODO look up 20, 20A, 20B
 # TODO interpolate if close
 
 
@@ -67,7 +66,7 @@ for adr in alist:
     pno=adr['postnr']
     print("#"+str(ano)+"  vej: "+street)
     ads=re.search("(\D*) ([0-9]+[a-zA-Z]*)",a)
-    if ads:
+    if ads and "senestekontrol" in adr and adr["senestekontrol"]:
         anr=ads.group(2).replace(" ","").upper()
         avej=ads.group(1).title().replace("Vald ","Valdemar ").split(",")[0]
         print(" vej="+avej+"::"+anr)
