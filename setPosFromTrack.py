@@ -50,7 +50,10 @@ for fn in glob.glob("*.jpg"):
             gps = primary.GPS
             h=ipol(drp,dr,t,'direction')
             hr=Rational(int(round(h)), 1)
-            gps.GPSImgDirection=[hr] # requires patched pexif.py:     0x11: ("Image Direction", "GPSImgDirection", RATIONAL, 1),
+            
+            gps.GPSImgDirection=[hr] # requires patched pexif.py: https://github.com/elgaard/pexif , with  0x11: ("Image Direction", "GPSImgDirection", RATIONAL, 1),
+            #comment out if you are using the standard pexif
+            
             dirty=True
         drp=dr
     if dirty:
