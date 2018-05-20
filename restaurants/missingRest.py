@@ -10,10 +10,11 @@ import urllib.error
 from time import sleep
 from datetime import date
 
-
-
 now=datetime.now()
 mlog=open("missing.log",encoding='utf-8',mode="w")
+
+def sanes(s):
+      return s.replace("&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
 
 def future(elm):
       print("  i future ", json.dumps(elm),file=mlog )
@@ -73,9 +74,9 @@ def getfvst(o):
       
 def getname(o):
       if ('name' in o):
-            return o['name']
+            return sanes(o['name'])
       elif ('tags' in o and 'name' in o['tags']):
-            return o['tags']['name']
+            return sanes(o['tags']['name'])
       else:
             return ""
 
@@ -162,7 +163,8 @@ for smil in smildata:
     cn=canonicalname(getname(smil))
     if (cn not in smilinfo):
         smilinfo[cn]=[]
-    smil['name']=getname(smil).replace("`","").replace("|","").replace(",","").replace("'","").replace("´","")
+    smil['name']=getname(smil)
+    smil['tags']['name']=smil['name']
     smilinfo[cn].append(smil)
     print("do smil ", cn,smil['id'], file=mlog )
     found=False
@@ -200,7 +202,7 @@ for smil in smildata:
                                       "category":"fvst:no_pos",
                                       "type":ores["type"],
                                       "id":ores["id"],
-                                      "osm:name":ores["orgname"],
+                                      "osm:name":sanes(ores["orgname"]),
                                       "osm:navnelbnr":olbnr,
                                       "fvst:name":smil['name'],
                                       'lat':ores['lat'],
@@ -253,6 +255,8 @@ for smil in smildata:
                           'slon':smil['lon']
                           })
       else:
+        if "operator" in smil:
+           smil["operator"]=sanes(smil["operator"])
         missingItems['elements'].append(smil)
 
 print("now osm not in fvst")
