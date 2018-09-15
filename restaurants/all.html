@@ -65,7 +65,7 @@
     function loadMissingPoi() {
       var poiUrl = 'data/miss.json';
       var poiInfo = function(pi) {
-	var name=pi.tags["name"].replace(/v\. .*/i,"").replace(/v\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("&"," og ").replace("|",'').replace("'",'').replace("`","").trim();
+	var name=pi.tags["name"].replace(/ ?v\. .*/i,"").replace(/v ?\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("|",'').replace("'",'').replace("`","").trim();
 	var addtags="amenity=fast_food";
 	var nl=name.toLowerCase();
 	if (nl.match(/pleje|ældrecenter|boenhed|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
@@ -107,64 +107,63 @@
         else if (nl.match(/kebab/)!=null) addtags+="%257Ccuisine=kebab";
         else if (nl.match(/steak/)!=null) addtags+="%257Ccuisine=steak";
         else if (nl.match(/sandwich/)!=null) addtags+="%257Ccuisine=sandwich";
-    else if (nl.match(/bagel/)!=null) addtags+="%257Ccuisine=bagel";
-    else if (nl.match(/donut/)!=null) addtags+="%257Ccuisine=donut";
-    else if (nl.match(/selskabslokale|konference/)!=null) addtags="amenity=events_venue";
-    else if (nl.match(/coffee/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
-    else if (nl.match(/joe  og  the juice/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
-    else if (nl.match(/kiosk|butik/)!=null) addtags="shop=convenience";
-    else if (nl.match(/s mad/)!=null) addtags="shop=craft%257Ccraft=caterer";
-    else if (nl.match(/s diner/)!=null) addtags="shop=craft%257Ccraft=caterer";    
-    else if (nl.match(/s køkken/)!=null) addtags="shop=craft%257Ccraft=caterer";
-    else if (nl.match(/advokat/)!=null) addtags="office=lawyer";
-    else if (nl.match(/ amba| elektronik/)!=null) addtags="man_made=works";
-    else if (nl.match(/revision/)!=null) addtags="office=accountant";        
-    else if (nl.match(/ gastronomi/)!=null) addtags="shop=craft%257Ccraft=caterer";
-    else if (nl.match(/ gourmet/)!=null) addtags="shop=craft%257Ccraft=caterer";
-
-    else if (nl.match(/Kaffe/)!=null) addtags+="%257Camenity=cafe%257Ccuisine=coffee_shop";
-    if (pi.operator) addtags+="%257Coperator="+encodeURIComponent(pi.operator.replace("'",""));
-    if (pi.src && pi.src=='addrfix') addtags+="%257Cfvst:fixme=fvst position missing, fixed from overpassturbo/osak";
-    if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
-    var r = $('<table>');
+        else if (nl.match(/bagel/)!=null) addtags+="%257Ccuisine=bagel";
+        else if (nl.match(/donut/)!=null) addtags+="%257Ccuisine=donut";
+        else if (nl.match(/selskabslokale|konference/)!=null) addtags="amenity=events_venue";
+        else if (nl.match(/coffee/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
+        else if (nl.match(/joe  og  the juice/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
+        else if (nl.match(/kiosk|butik/)!=null) addtags="shop=convenience";
+        else if (nl.match(/s mad/)!=null) addtags="shop=craft%257Ccraft=caterer";
+        else if (nl.match(/s diner/)!=null) addtags="shop=craft%257Ccraft=caterer";    
+        else if (nl.match(/s køkken/)!=null) addtags="shop=craft%257Ccraft=caterer";
+        else if (nl.match(/advokat/)!=null) addtags="office=lawyer";
+        else if (nl.match(/ amba| elektronik/)!=null) addtags="man_made=works";
+        else if (nl.match(/revision/)!=null) addtags="office=accountant";        
+        else if (nl.match(/ gastronomi/)!=null) addtags="shop=craft%257Ccraft=caterer";
+        else if (nl.match(/ gourmet/)!=null) addtags="shop=craft%257Ccraft=caterer";
+        
+        else if (nl.match(/Kaffe/)!=null) addtags+="%257Camenity=cafe%257Ccuisine=coffee_shop";
+        if (pi.operator) addtags+="%257Coperator="+encodeURIComponent(pi.operator.replace("'",""));
+        if (pi.src && pi.src=='addrfix') addtags+="%257Cfvst:fixme=fvst position missing, fixed from overpassturbo/osak";
+        if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
+        var r = $('<table>');
         r.append($('<tr>').append($('<th>').html('NEW from FVST: '+name+' senest: ' + pi.senestekontrol.split(" ")[0])));
-    
-    if (pi.branchekode=='00.00.02.H') {
-      r.append($('<tr>').append($('<th>').html('Maybe not open yet: ')));
-    }
+        
+        if (pi.branchekode=='00.00.02.H') {
+          r.append($('<tr>').append($('<th>').html('Maybe not open yet: ')));
+        }
 
-    r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
+        r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
 	   
-    var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent($("<div />").text(name).html()).replace("`","").replace("'","")+'%257Cfvst%3Anavnelbnr='+pi.id;
-    var js="javascript:void $.get('"+jsurl+"')";
-    r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
-    r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
-    r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
-    if (pi.cvr) {
-        r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'CVR: '+pi.cvr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=virksomhed&id='+pi.cvr}))));
-    }
-    r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ',
-    href:'https://duckduckgo.com/?q='+encodeURIComponent(pi.name.replace("ApS"," ") +' '+pi.addr.replace(' st.','').replace(',',' ').trim()+' '+pi.city.trim())}))));
-    r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ pi.id+',\''+name+'\')" >ignore</button>'))));
+        var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+encodeURIComponent(encodeURIComponent(name.replace("'","")))+'%257Cfvst%3Anavnelbnr='+pi.id;
+        var js="javascript:void $.get('"+jsurl+"')";
+        r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
+        r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
+        r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
+        if (pi.cvr) {
+          r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'CVR: '+pi.cvr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=virksomhed&id='+pi.cvr}))));
+        }
+        r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ', href:'https://duckduckgo.com/?q='+encodeURIComponent(pi.name.replace("ApS"," ") +' '+pi.addr.replace(' st.','').replace(',',' ').trim()+' '+pi.city.trim())}))));
+        r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ pi.id+',\''+name+'\')" >ignore</button>'))));
 	
-    return $('<div>').append(r).html();
-  };
+        return $('<div>').append(r).html();
+      };
 
-	$.getJSON(poiUrl, function(data) {
-	    $("#misnum").html("missing: "+(data.elements.length));
-	  $.each(data.elements, function(ign, i) {
-	      if (i.branchekode=='56.10.00.B') {
-		  var osmll=new L.LatLng(i.lat, i.lon);
-		  L.circle(osmll,8,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
-	      } else if (i.branchekode=='00.00.02.H') {
-		  var osmll=new L.LatLng(i.lat, i.lon);
-		  L.circle(osmll,8,{color:'black'}).bindPopup(poiInfo(i)).addTo(map);
-	      } else {
-		  L.marker([i.lat, i.lon], {
-		      icon: resIcon,
-		      title: i.tags.name
-		  }).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
-	      }
+      $.getJSON(poiUrl, function(data) {
+	$("#misnum").html("missing: "+(data.elements.length));
+	$.each(data.elements, function(ign, i) {
+	  if (i.branchekode=='56.10.00.B') {
+	    var osmll=new L.LatLng(i.lat, i.lon);
+	    L.circle(osmll,8,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	  } else if (i.branchekode=='00.00.02.H') {
+	    var osmll=new L.LatLng(i.lat, i.lon);
+	    L.circle(osmll,8,{color:'black'}).bindPopup(poiInfo(i)).addTo(map);
+	  } else {
+	    L.marker([i.lat, i.lon], {
+	      icon: resIcon,
+	      title: i.tags.name
+	    }).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	  }
         });
       });
     }
@@ -264,11 +263,15 @@
           r.append($('<tr>').append($('<td>').html($('<a>',{ target:'FVSTsearch', text: 'FVST search: ', href:'http://www.findsmiley.dk/Sider/Search.aspx?k='+osmname.replace('&','')+'%20'+''}))));
 	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM for manual deletion',  href:jsdel }))));
         } else {
-	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge at blue/orange point in JOSM',  href:js }))));
+          r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge in JOSM',  href:js }))));
           r.append($('<tr>').append($('<td>').html($('<a>',{text: 'select OSM in JOSM',  href:jsdel }))));
 	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
         }
         
+          if (fvstname && pi["fvst:city"]) {
+            r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'SEARCH for it: ', href:'https://duckduckgo.com/?q='+encodeURIComponent(fvstname.replace("ApS"," ") +' '+' '+pi["fvst:city"].trim())}))));
+//            +pi["fvst:addr"].replace(' st.','').replace(',',' ').trim()
+          }
         if (osmlbnr) {
 	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'osmfvst', text: 'OSM: fvst:navnelbnr: '+osmlbnr, href:'http://www.findsmiley.dk/'+osmlbnr}))));			      
         } else if (! pi["notinfvst"] && ! pi["stalefvst"]){

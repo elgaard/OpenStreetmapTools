@@ -14,7 +14,7 @@ now=datetime.now()
 mlog=open("missing.log",encoding='utf-8',mode="w")
 
 def sanes(s):
-      return s.replace("&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
+      return s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
 
 def future(elm):
       print("  i future ", json.dumps(elm),file=mlog )
@@ -205,6 +205,7 @@ for smil in smildata:
                                       "osm:name":sanes(ores["orgname"]),
                                       "osm:navnelbnr":olbnr,
                                       "fvst:name":smil['name'],
+                                      "fvst:city":smil['city'],
                                       'lat':ores['lat'],
                                       'lon':ores['lon']
                         })
@@ -228,6 +229,7 @@ for smil in smildata:
                                   "osm:name":ores["orgname"],
                                   "osm:navnelbnr":olbnr,
                                   "fvst:name":smil['name'],
+                                  "fvst:city":smil['city'],
                                   'lat':ores['lat'],
                                   'lon':ores['lon'],
                                   'slat':smil['lat'],
@@ -249,6 +251,7 @@ for smil in smildata:
                           "osm:name":ores["orgname"],
                           "osm:navnelbnr":olbnr,
                           "fvst:name":smil['name'],
+                          "fvst:city":smil['city'],                          
                           'lat':ores['lat'],
                           'lon':ores['lon'],
                           'slat':smil['lat'],
