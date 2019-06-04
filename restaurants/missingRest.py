@@ -17,7 +17,6 @@ def sanes(s):
       return s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
 
 def future(elm):
-      print("  i future ", json.dumps(elm),file=mlog )
       if "tags" in elm and "start_date" in elm["tags"]:
             sd=elm["tags"]["start_date"].split("-")
             print("  c future ", elm['id'],json.dumps(sd),file=mlog )
@@ -32,6 +31,19 @@ def future(elm):
                         return (datetime.today().date()<d)
                   else:
                      print("Invalid year: ",sd[0], " for:", json.dumps(elm))   
+      return False
+
+def outofseason(elm):
+      month=datetime.now().month
+      if month <9 and month >4:
+            return False
+      if "tags" in elm and "opening_hours" in elm["tags"]:
+            hours=elm["tags"]["opening_hours"].split(" ")
+            print("  c season ", elm['id'],json.dumps(hours),file=mlog )
+            if len(hours)>0:
+                  if hours[0].lower() in ["summer","apr-oct"]:
+                        print("  out of season: ", json.dumps(elm),file=mlog )
+                        return hours 
       return False
 
 def fvstage(s):
@@ -95,7 +107,7 @@ def canonicalname(nm):
 
       nm1=nm0.split(" - ")[0].split(" ApS")[0].lower().replace('air group a/s restaurants,','').replace("&","og").replace("å","aa").split(" i/s")[0].split(" v. ")[0].split(" v/")[0].split(" /")[0].split(" -")[0].split(" i/s")[0].split(" aps")[0].split(" ved ")[0].split(" c/o")[0].translate(str.maketrans(u'ñèéäöúá–\'-´.,’+&"`|', 'neeæøua            ')) +' '
       nm2=nm1.replace('pizzeria','pizza').replace('pizzaria','pizza').replace('pizzabar','pizza').replace('pizza bar','pizza')
-      nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('( og cafe| og bar|cafe | Kro|Café| v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IVS| aps| ApS)','',nm2))).replace('/','')
+      nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('( og cafe| og bar|cafe | Kro|Café| v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IvS| IVS| aps| ApS)','',nm2))).replace('/','')
       nmc=re.sub(' 2','',nm3)
       return nmc.replace(' ','')
 
@@ -276,7 +288,7 @@ for osmelm in list(osmdata['elements']):
                   if (not "lat" in osmelm) and "center" in osmelm:
                         osmelm["lat"]=osmelm["center"]["lat"]
                         osmelm["lon"]=osmelm["center"]["lon"]
-                  if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
+                  if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and not outofseason(osmelm) and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
                         osmelm["stalefvst"]=True
                         match.append(osmelm)                 
                   elif age>120 and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
@@ -315,7 +327,7 @@ while nid < len(nids):
       sleep(1)
 
 for staleaddress in staleaddresses:
-      id=staleaddress["osm_type"][0].upper()+staleaddress["osm_id"]
+      id=staleaddress["osm_type"][0].upper()+str(staleaddress["osm_id"])
       addr=nidslot[id]
       addr['stale_address']=staleaddress["address"]
 
