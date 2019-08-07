@@ -67,7 +67,11 @@
       var poiInfo = function(pi) {
 	var name=pi.tags["name"].replace(/ ?v\. .*/i,"").replace(/v ?\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("|",'').replace("'",'').replace("`","").trim();
 	var addtags="amenity=fast_food";
-	var nl=name.toLowerCase();
+        var operator="";
+        if (pi.tags["operator"]) {
+          operator=pi.tags["operator"].toLowerCase();
+        }
+        var nl=name.toLowerCase();
 	if (nl.match(/pleje|ældrecenter|boenhed|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
         else if (nl.match(/værested/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
     	else if (nl.match(/varmestue/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
@@ -111,6 +115,8 @@
         else if (nl.match(/donut/)!=null) addtags+="%257Ccuisine=donut";
         else if (nl.match(/selskabslokale|konference/)!=null) addtags="amenity=events_venue";
         else if (nl.match(/coffee/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
+        else if (operator.match(/coffee/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
+        else if (nl.match(/kaffebar/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
         else if (nl.match(/joe  og  the juice/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
         else if (nl.match(/kiosk|butik/)!=null) addtags="shop=convenience";
         else if (nl.match(/s mad/)!=null) addtags="shop=craft%257Ccraft=caterer";
@@ -332,7 +338,7 @@
 
   <a href="index.html">Menu</a>  fvst:navnelbnr sync tool (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM, orange=no valid navnelbnr in OSM, green=exact same pos, blue=fuzzy match
     <span id="misnum">MISS</span>
-    <button onclick="prompt('copy this to blacklist.json, git push, reload this page',JSON.stringify(ignores))">ignores</button>
+    <button onclick="prompt('copy this to blacklist.json, git push, reload this page',JSON.stringify(ignores).replace(/,/g,',\n').replace('{','').replace('}',',\n'))">ignores</button>
   <div id="map"></div>  
   </body>
   </html>

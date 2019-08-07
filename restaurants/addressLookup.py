@@ -76,6 +76,8 @@ for adr in alist:
             pno="1577"
         if avej=="Refshalevej" and pno=="1422":
             pno="1432"
+        if avej=="Onkel Dannys plads" and pno=="1700":
+            pno="1711"
         if avej=="Rødovre Centrum" and anrn==82:
             anr="1P"
         if avej=="Kampmannsgade" and pno=="1603":
@@ -94,6 +96,8 @@ for adr in alist:
             avej="Christian X's Vej"
         if avej=="Smedebjergvej":
             avej="Smedebjergevej"
+        if avej=="Baron Boltens Gaard":
+            avej="Boltens Gård"
         if avej=="Århusgade" and anrn>120 and pno=="2100":
             pno="2150"
         if avej=="Dronningens Tværgade" and anrn==22 and pno=="1322":
@@ -120,7 +124,7 @@ for adr in alist:
                 ac=osm[0]
                 doaddr(fixedaddrs,ac)
             else:
-                avej=avej.replace("Nr ","NÃ¸rre ").replace("xxxgade"," Gade").replace("Hovedgade","Hovedgaden").replace("Henrik Dams Alle","Sæltofts Plads").replace("desvej","dsvej").replace("xxvej"," Vej").replace("torv"," Torv").replace("toft"," Toft").replace("enteret","entret").replace("Skt.","Sankt").replace("Sct.","Sanct").replace("Sdr.","Sønder").replace("Sdr ","Sønder ").replace("Skt.","Sankt ").replace("Ndr.","Nordre ").replace("Gl.","Gammel").replace("Allé","Alle").replace(" Alle","alle").replace("Sct ","Sanct ").replace("Dr. ","Doktor ").replace("Rafshalevej","Refshalevej")
+                avej=avej.replace("  "," ").replace(", TV","").replace("Center Vej","Centervej").replace(", st","").replace("Nr ","Nørre ").replace("xxxgade"," Gade").replace("Hovedgade","Hovedgaden").replace("Henrik Dams Alle","Sæltofts Plads").replace("desvej","dsvej").replace("xxvej"," Vej").replace("torv"," Torv").replace("toft"," Toft").replace("enteret","entret").replace("Skt.","Sankt").replace("Sct.","Sanct").replace("Sdr.","Sønder").replace("Sdr ","Sønder ").replace("Skt.","Sankt ").replace("Ndr.","Nordre ").replace("Gl.","Gammel").replace("Allé","Alle").replace(" Alle","alle").replace("Sct ","Sanct ").replace("Dr. ","Doktor ").replace("Rafshalevej","Refshalevej")
                 osm=dooverpass(avej,anr,pno)
                 if (len(osm)==1):
                     print ("FINALLY got exactly one postion")

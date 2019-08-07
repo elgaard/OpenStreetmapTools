@@ -10,7 +10,11 @@
     <h1>Elgaard DK restaurant and food inspection report tools</h1>
     These tools use the Danish food inspection reports (the "smiley" reports) which has a name, a postion and a unique id (fvst:navnelbnr) for all danish restaurants, cafes, canteens, etc.
 <p>
-The tool have links to the food inspection reports and to JOSM Remote Control actions (also works with Merkaartor)
+The tool have links to the food inspection reports and to JOSM Remote Control
+actions.
+
+<a href="http://localhost:8111/load_object?objects=nn">Test connection to
+local JOSM. You might have to add a security exception</a>
     
     <ul>      
       <li><a href="all.html">Food places synchronization with FVST</a><br>
@@ -20,7 +24,7 @@ The tool have links to the food inspection reports and to JOSM Remote Control ac
       </li>
       
      <li> <a href="http://overpass-turbo.eu/s/cd9">Foodplaces with wrong positions in FVST</a>
-     <li> <a href="http:data/fvsterror.json">FVST entries with error (missing positions)</a> - <a href="http:data/notfixed.json">not fixed.</a>
+     <li> <a href="http:data/fvsterror.json">FVST entries with error (missing positions)</a> - <a href="/restaurants/data/notfixed.json">not fixed.</a>
      <li><a href="https://github.com/elgaard/OpenStreetmapTools/blob/master/restaurants/blacklist.json">blacklist, steder der ikke skal med i OSM: pølsevogne, streetfood, færgerestauranter, juleboder, osv</a> Tilføj gerne og lav en pull-request på Github</li>
     </ul>
 

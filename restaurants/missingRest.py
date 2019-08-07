@@ -100,15 +100,37 @@ def getamenity(o):
       return None
 
 
-def canonicalname(nm):
-      if not nm:
-            return nm
-      nm0=nm.replace(" AB","").replace(" P/S","").replace("Gl ","Gammel ")
-
-      nm1=nm0.split(" - ")[0].split(" ApS")[0].lower().replace('air group a/s restaurants,','').replace("&","og").replace("å","aa").split(" i/s")[0].split(" v. ")[0].split(" v/")[0].split(" /")[0].split(" -")[0].split(" i/s")[0].split(" aps")[0].split(" ved ")[0].split(" c/o")[0].translate(str.maketrans(u'ñèéäöúá–\'-´.,’+&"`|', 'neeæøua            ')) +' '
-      nm2=nm1.replace('pizzeria','pizza').replace('pizzaria','pizza').replace('pizzabar','pizza').replace('pizza bar','pizza')
-      nm3=re.sub('/v.*',' ',re.sub('den ',' ',re.sub('( og cafe| og bar|cafe | Kro|Café| v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| I/S| take away| IvS| IVS| aps| ApS)','',nm2))).replace('/','')
-      nmc=re.sub(' 2','',nm3)
+def canonicalname(nmi):
+      if not nmi:
+            return nmi
+      nm=nmi.lower()
+      nm=nm.translate(str.maketrans(u'ñèéäöúá–\'-´.,’+&"`|', 'neeæøua            '))
+      splits=[ " i/s"," aps"," - ", " c/o", " ved", " v/"," /"]
+      rpls={
+            "AB":"",
+            " P/S":"",
+            "Gl. ":"Gammel",
+            "Gl ":"Gammel",
+            "&":"og",
+            "å":"aa",
+            ",":""
+      }
+      rpls1={
+            "air group a/s restaurants":"",
+            "pizzaria":"pizza",
+            "pizzeria":"pizza",
+            "pizzabar":"pizza",
+            "é":"e"
+      }
+      for rpk,rpv in rpls.items():
+            nm=nm.replace(rpk,rpv)            
+      for spl in splits:
+            nm=nm.split(spl)[0]
+      for rpk,rpv in rpls1.items():
+            nm=nm.replace(rpk,rpv)
+      nm=nm + ' '
+      nm=re.sub('den ',' ',re.sub('( og cafe| og bar| cafe| Kro|cafe | v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| i/s| take away| ivs| aps)','',nm)).replace('/','')
+      nmc=re.sub(' 2','',nm)
       return nmc.replace(' ','')
 
 def canonical(res):
@@ -141,12 +163,13 @@ for res in list(osmdata['elements']):
       if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
       osminfo[cn['name']].append(cn)
+      if ('brand' in cn):
+            osminfo[cn['name']+cn['brand']].append(cn)
       osminfo_by_pos["p"+str(cn['lat'])+","+str(cn['lon'])]=cn
       if 'fvstname' in cn:
             if (cn['fvstname'] not in osminfo):
                   osminfo[cn['fvstname']]=[]
-            osminfo[cn['fvstname']].append(cn)
-            
+            osminfo[cn['fvstname']].append(cn)            
       if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
           fvst[res['tags']['fvst:navnelbnr']]=res
             
