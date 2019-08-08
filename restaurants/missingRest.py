@@ -153,7 +153,7 @@ def canonical(res):
 
 smilinfo={}
 fvst={} # holds OSM object with a fvst:navnelbnr tag
-osminfo={} # holds OSM restaurants, cafes, fast_food, etc
+osminfo={} # holds OSM restaurants, cafes, fast_food, etc, by name
 osminfo_by_pos={} # holds OSM restaurants, cafes, fast_food, etc by position
 match=[] # holds matches based on name and location, i.e. FVST objects already in OSM, but without fvst:navnelbnr tag
 
@@ -162,9 +162,12 @@ for res in list(osmdata['elements']):
       cn=canonical(res)
       if (cn['name'] not in osminfo):
         osminfo[cn['name']]=[]
-      osminfo[cn['name']].append(cn)
-      if ('brand' in cn):
-            osminfo[cn['name']+cn['brand']].append(cn)
+      for ex in ["brand","branch"]:
+            if (ex in cn):
+                  nx=cn['name']+cn[ex]
+                  if (nx not in osminfo):
+                        osminfo[nx]=[]
+                  osminfo[nx].append(cn)
       osminfo_by_pos["p"+str(cn['lat'])+","+str(cn['lon'])]=cn
       if 'fvstname' in cn:
             if (cn['fvstname'] not in osminfo):
