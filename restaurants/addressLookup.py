@@ -34,7 +34,7 @@ if os.path.isfile(fvsterrfile):
 
 def dooverpass(avej,ano,pno):
     print(" opass:"+avej+", nr="+ano+", pn="+pno+"#")
-    sleep(1.5)
+    sleep(2)
     try:
         r = api.Get('node["addr:country"="DK"]["addr:postcode"="'+pno+'"]["addr:street"="'+avej+'"]["addr:housenumber"="'+ano+'"]',responseformat="json")
         osm=r['elements']
@@ -59,7 +59,7 @@ for adr in alist:
     ano=ano+1
     print("\n")
     altnrs=[];
-    at=adr['addr'].replace("Prof. ","Professor ").replace("Otte Busse","Otto Busse").replace("Hesseløgade, Drejøgade ","Drejøgade ").split(',')[0].strip().split('-')
+    at=adr['addr'].replace("Prof. ","Professor ").replace("(City 2-Staderne)","").replace("Otte Busse","Otto Busse").replace("Hesseløgade, Drejøgade ","Drejøgade ").split(',')[0].strip().split('-')
     a=at[0].strip()
     if len(at)>1:
         altnrs.append(at[1].strip())
@@ -68,7 +68,7 @@ for adr in alist:
     pno=str(adr['postnr'])
     print("#"+str(ano)+" "+adr["name"]+":  vej="+street)
     ads=re.search("(\D*) ([0-9]+[a-zA-Z]*)",a)
-    if ads and "senestekontrol" in adr and adr["senestekontrol"]:
+    if ads and ("all" in sys.argv  or "senestekontrol" in adr and adr["senestekontrol"]):
         anr=ads.group(2).replace(" ","").upper()
         anrn=int(re.split("[a-zA-Z ]",anr)[0])
         avej=ads.group(1).title().replace("Vald ","Valdemar ").replace(" Pl."," Plads").split(",")[0]
@@ -124,7 +124,30 @@ for adr in alist:
                 ac=osm[0]
                 doaddr(fixedaddrs,ac)
             else:
-                avej=avej.replace("  "," ").replace(", TV","").replace("Center Vej","Centervej").replace(", st","").replace("Nr ","Nørre ").replace("xxxgade"," Gade").replace("Hovedgade","Hovedgaden").replace("Henrik Dams Alle","Sæltofts Plads").replace("desvej","dsvej").replace("xxvej"," Vej").replace("torv"," Torv").replace("toft"," Toft").replace("enteret","entret").replace("Skt.","Sankt").replace("Sct.","Sanct").replace("Sdr.","Sønder").replace("Sdr ","Sønder ").replace("Skt.","Sankt ").replace("Ndr.","Nordre ").replace("Gl.","Gammel").replace("Allé","Alle").replace(" Alle","alle").replace("Sct ","Sanct ").replace("Dr. ","Doktor ").replace("Rafshalevej","Refshalevej")
+                rpls={
+                    "  ":" ",
+                    "é":"e",
+                    ", TV":"",
+                    "Center Vej":"Centervej",
+                    ", st":"",
+                    "Nr ":"Nørre ",
+                    "Hovedgade":"Hovedgaden",
+                    "desvej":"dsvej",
+                    "torv":" Torv",
+                    "toft":" Toft",
+                    "enteret":"entret",
+                    "Skt.":"Sankt",
+                    "Sct.":"Sanct",
+                    "Sdr.":"Sønder",
+                    "Sdr ":"Sønder ",
+                    "Ndr.":"Nordre ",
+                    "Gl.":"Gammel",
+                    "Sct ":"Sanct ",
+                    "Dr. ":"Doktor ",
+                    "Rafshalevej":"Refshalevej"
+                }
+                for rpk,rpv in rpls.items():
+                    avej=avej.replace(rpk,rpv)            
                 osm=dooverpass(avej,anr,pno)
                 if (len(osm)==1):
                     print ("FINALLY got exactly one postion")

@@ -60,7 +60,8 @@ fvstfile='data/r.json';
 fvsterrfile='data/fvsterror.json'
 fvsterr=open(fvsterrfile,mode="w",encoding='utf8')
 
-fvstall=open("data/rall.json",mode="r").read()
+with open("data/rall.json", 'r') as f:
+  fvstall = json.load(f)
 
 fvsterrlist=[]
 gone=[]
@@ -131,6 +132,7 @@ def canonicalname(nmi):
       nm=nm + ' '
       nm=re.sub('den ',' ',re.sub('( og cafe| og bar| cafe| Kro|cafe | v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| i/s| take away| ivs| aps)','',nm)).replace('/','')
       nmc=re.sub(' 2','',nm)
+      print("CANON  ", nmc.replace(' ','') , file=mlog )
       return nmc.replace(' ','')
 
 def canonical(res):
@@ -161,10 +163,11 @@ for res in list(osmdata['elements']):
     if res['type'] in ['way','node','relation'] and getname(res):
       cn=canonical(res)
       if (cn['name'] not in osminfo):
-        osminfo[cn['name']]=[]
+            osminfo[cn['name']]=[]
+      osminfo[cn['name']].append(cn)
       for ex in ["brand","branch"]:
-            if (ex in cn):
-                  nx=cn['name']+cn[ex]
+            if ('tags' in cn and ex in cn['tags']):
+                  nx=cn['name']+cn['tags'][ex]
                   if (nx not in osminfo):
                         osminfo[nx]=[]
                   osminfo[nx].append(cn)
@@ -176,6 +179,7 @@ for res in list(osmdata['elements']):
       if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
           fvst[res['tags']['fvst:navnelbnr']]=res
             
+print("\n\nOSMINFO ", json.dumps(osminfo), file=mlog )
 smilres=open(fvstfile,"r",encoding='utf-8').read()
 smf = json.loads(smilres)['elements']
 fixed='data/fixed.json'
@@ -304,8 +308,9 @@ print("now osm not in fvst")
 print("merge_candidates: ",json.dumps(merge_candidates,indent=2),file=mlog)
 
 for osmelm in list(osmdata['elements']):
-      if "tags" in osmelm and "amenity" in osmelm["tags"] and osmelm["tags"]["amenity"] in ["restaurant","cafe","fast_food"]:
-            if not "fvst:navnelbnr" in osmelm["tags"] or not osmelm["tags"]["fvst:navnelbnr"] in fvstall:
+      if "tags" in osmelm and "amenity" in osmelm["tags"] and osmelm["tags"]["amenity"] in ["restaurant","cafe","events_venue","fast_food"]:
+            print("   mck ", json.dumps(osmelm),file=mlog )
+            if not "fvst:navnelbnr" in osmelm["tags"] or osmelm["tags"]["fvst:navnelbnr"]=="undefined" or not int(osmelm["tags"]["fvst:navnelbnr"]) in fvstall:
                   age=osmage(osmelm["timestamp"])
                   if "name" in osmelm["tags"]:
                         osmelm["osm:name"]=osmelm["tags"]["name"]
@@ -315,6 +320,7 @@ for osmelm in list(osmdata['elements']):
                         osmelm["lat"]=osmelm["center"]["lat"]
                         osmelm["lon"]=osmelm["center"]["lon"]
                   if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and not outofseason(osmelm) and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
+                        print("     MCK STALE ", osmelm["tags"]["fvst:navnelbnr"],file=mlog )
                         osmelm["stalefvst"]=True
                         match.append(osmelm)                 
                   elif age>120 and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
