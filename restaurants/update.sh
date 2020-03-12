@@ -1,6 +1,4 @@
 #!/bin/bash
-
-
 git pull
 #  area["name"="Denmark"]->.sa;\
 # {{geocodeArea:\"Denmark\"}}->.sa;\
@@ -44,7 +42,7 @@ out center meta;\
 
 #printf "$q"
 
-if [[ x$1 != "xskiposm" ]] ; then
+if [[ x$1 != "xskiposm" && x$2 != "xskiposm" ]] ; then
     echo get osm data
     curl -G --silent --data-urlencode  "data=$q" http://overpass-api.de/api/interpreter > data/osmres.json
 fi
@@ -70,7 +68,7 @@ echo misses; grep amenity data/miss.json |wc -l
 echo matches; grep osm:name data/match.json |wc -l 
 echo fvst errors; grep tags data/fvsterror.json |wc -l
 
-if [[ x$1 != "xskipaddr" ]] ; then
+if [[ x$1 != "xskipaddr" && x$2 != "xskipaddr" ]] ; then
   echo look up addrs
   ./addressLookup.py > addr.log
 fi
