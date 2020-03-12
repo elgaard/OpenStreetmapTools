@@ -19,7 +19,7 @@ def sanes(s):
 def future(elm):
       if "tags" in elm and "start_date" in elm["tags"]:
             sd=elm["tags"]["start_date"].split("-")
-            print("  c future ", elm['id'],json.dumps(sd),file=mlog )
+            print("  c future ", elm['id'],json.dumps(sd,indent=2),file=mlog )
             if len(sd)==3:
                   d=date(int(sd[0]),int(sd[1]),int(sd[2]))
                   rv=datetime.today().date()<d
@@ -37,13 +37,16 @@ def outofseason(elm):
       month=datetime.now().month
       if month <9 and month >4:
             return False
-      if "tags" in elm and "opening_hours" in elm["tags"]:
-            hours=elm["tags"]["opening_hours"].split(" ")
-            print("  c season ", elm['id'],json.dumps(hours),file=mlog )
-            if len(hours)>0:
-                  if hours[0].lower() in ["summer","apr-oct"]:
-                        print("  out of season: ", json.dumps(elm),file=mlog )
-                        return hours 
+      if "tags" in elm:
+            if "opening_hours" in elm["tags"]:
+                  hours=elm["tags"]["opening_hours"].split(" ")
+                  if len(hours)>0:
+                        if hours[0].lower() in ["summer","apr-oct"]:
+                              print("  out of season: ", json.dumps(elm),file=mlog )
+                              return hours
+            if "seasonal" in elm["tags"]:
+                  if "summer" in elm["tags"]["seasonal"].split(';'):
+                        return "outofseason"
       return False
 
 def fvstage(s):
@@ -132,7 +135,7 @@ def canonicalname(nmi):
       nm=nm + ' '
       nm=re.sub('den ',' ',re.sub('( og cafe| og bar| cafe| Kro|cafe | v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| i/s| take away| ivs| aps)','',nm)).replace('/','')
       nmc=re.sub(' 2','',nm)
-      print("CANON  ", nmc.replace(' ','') , file=mlog )
+      print("CANON  ",nmi, nmc.replace(' ','') , file=mlog )
       return nmc.replace(' ','')
 
 def canonical(res):
@@ -149,8 +152,14 @@ def canonical(res):
       'lon':posob['lon'],
       'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
   }
-  if 'tags' in res and 'fvst:name' in res['tags']:
-        rv['fvstname']=canonicalname(res['tags']['fvst:name'])
+  if 'tags' in res:
+      rv['alt_names']=[]
+      if 'fvst:name' in res['tags']:
+            rv['alt_names'].append(canonicalname(res['tags']['fvst:name']))
+      for ex in ["brand","branch"]:
+            if ex in res['tags']:
+                  rv['alt_names'].append(canonicalname(nm+res['tags'][ex]))
+
   return rv 
 
 smilinfo={}
@@ -165,21 +174,16 @@ for res in list(osmdata['elements']):
       if (cn['name'] not in osminfo):
             osminfo[cn['name']]=[]
       osminfo[cn['name']].append(cn)
-      for ex in ["brand","branch"]:
-            if ('tags' in cn and ex in cn['tags']):
-                  nx=cn['name']+cn['tags'][ex]
-                  if (nx not in osminfo):
-                        osminfo[nx]=[]
-                  osminfo[nx].append(cn)
       osminfo_by_pos["p"+str(cn['lat'])+","+str(cn['lon'])]=cn
-      if 'fvstname' in cn:
-            if (cn['fvstname'] not in osminfo):
-                  osminfo[cn['fvstname']]=[]
-            osminfo[cn['fvstname']].append(cn)            
+      if 'alt_names' in cn:
+            for an in cn['alt_names']:
+                  if (an not in osminfo):
+                        osminfo[an]=[]
+                        osminfo[an].append(cn)            
       if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
           fvst[res['tags']['fvst:navnelbnr']]=res
             
-print("\n\nOSMINFO ", json.dumps(osminfo), file=mlog )
+print("\n\nOSMINFO ", json.dumps(osminfo,indent=2), file=mlog )
 smilres=open(fvstfile,"r",encoding='utf-8').read()
 smf = json.loads(smilres)['elements']
 fixed='data/fixed.json'
@@ -310,7 +314,7 @@ print("merge_candidates: ",json.dumps(merge_candidates,indent=2),file=mlog)
 for osmelm in list(osmdata['elements']):
       if "tags" in osmelm and "amenity" in osmelm["tags"] and osmelm["tags"]["amenity"] in ["restaurant","cafe","events_venue","fast_food"]:
             print("   mck ", json.dumps(osmelm),file=mlog )
-            if not "fvst:navnelbnr" in osmelm["tags"] or osmelm["tags"]["fvst:navnelbnr"]=="undefined" or not int(osmelm["tags"]["fvst:navnelbnr"]) in fvstall:
+            if not "fvst:navnelbnr" in osmelm["tags"] or osmelm["tags"]["fvst:navnelbnr"]=="undefined" or not (osmelm["tags"]["fvst:navnelbnr"].isnumeric() and int(osmelm["tags"]["fvst:navnelbnr"]) in fvstall):
                   age=osmage(osmelm["timestamp"])
                   if "name" in osmelm["tags"]:
                         osmelm["osm:name"]=osmelm["tags"]["name"]
