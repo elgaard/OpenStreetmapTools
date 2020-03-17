@@ -9,8 +9,8 @@ POImap.init = function () {
   var mapbox=L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
     maxZoom: 18,
-    id: 'user.yyyyy',
-    accessToken: 'pk.xxxxxxxxxxxxxxxxxxxxxxx'
+    id: 'user.elgaard',
+    accessToken: 'pk.eyJ1IjoiZWxnYWFyZCIsImEiOiI5MWQ4YzVlNTFlNWJhZmViYjdlMTU4NDE4N2Q1ZjIyOSJ9.WvawLWq4r-ix-W_gFWXI2g'
   });
 		
   var map = new L.Map('map', {
@@ -18,12 +18,12 @@ POImap.init = function () {
       center: new L.LatLng(56,12.5),
       zoom: 8,
       layers: [osm]
-//      layers: [osm,mapbox]      
+//      layers: [mapbox,osm]      
   });
 
   map.getControl = function () {
     var ctrl = new L.Control.Layers({
-	'OpenSteetMap': osm,
+	'OpenSteetMap': osm	,
 	'Mapbox': mapbox
     });
     return function () {
