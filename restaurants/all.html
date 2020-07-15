@@ -33,7 +33,7 @@
     });
 
 
-   $(function () {
+   (function () {
       map = POImap.init();
       map.addLayer(markers);
       map.zoomIn();
@@ -42,7 +42,7 @@
         loadMissingPoi();
         loadPoi();
       })
-    });
+    })();
       
     function do_batch() {
       var max=100;
@@ -304,7 +304,7 @@
 	      mk=L.circle(osmll,13,{color: 'green'}).addTo(markers);
 	      pl = L.polyline([osmll,fvstll], {color: 'green'}).addTo(markers);	      
 	    } else if (i["notinfvst"]) {
-	      mk=L.circle(osmll,11,{color: 'cyan',weight:10,fill:true}).addTo(markers);
+	      mk=L.circle(osmll,11,{color: 'cyan',weight:5,fill:true}).addTo(markers);
 	    } else if (i["stalefvst"]) {
 	      mk=L.circle(osmll,11,{color: 'magenta',weight:10,fill:true}).addTo(markers);
 	    } else if (i["category"]=="fvst:no_pos") {
