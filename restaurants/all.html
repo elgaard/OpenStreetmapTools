@@ -1,48 +1,49 @@
 <!DOCTYPE html>
-  <html>
-    <!--viser restauranter i fødevarekontrollens smiley ordning på OSM -->
-    <!-- Der skal være en map.js fra leaflet i folderen -->
-    <!-- Niels Elgaard Larsen -->
+<html>
+  <!--viser restauranter i fødevarekontrollens smiley ordning på OSM -->
+  <!-- Der skal være en map.js fra leaflet i folderen -->
+  <!-- Niels Elgaard Larsen -->
   <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF8">
-<META name="keywords" content="restauranter smiley">
-<meta http-equiv="Content-Type" content="text/html; charset=UTF8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="//code.jquery.com/jquery-latest.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
-  <!-- script src="leaflet.label.js"></script -->
-<script src="map.js"></script>
-<title>help to synchronizing OSM and Fødevarestyrelses kontrolrapporter based on geo/name matching</title>
-<script>L_PREFER_CANVAS = true;</script>
-<script>
-    var map;
-    var data;
-    var poiUrl = 'data/match.json';
-    var markers = new L.FeatureGroup();
+  <META name="keywords" content="restauranter smiley">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="js/jq-min.js"></script>
+  <script src="js/leaflet-src.js"></script>
+  <script src="map.js"></script>
+  <title>help to synchronizing OSM and Fødevarestyrelses kontrolrapporter based on geo/name matching</title>
+  <script>L_PREFER_CANVAS = true;</script>
+  <script>
 
-  var ignores={};
-    var ignore=function(id,name) {
-      ignores[id]=name;
-    };
+var map;
+var data;
+var poiUrl = 'data/match.json';
+var markers = new L.FeatureGroup();
 
-    var resIcon = L.icon({
-      iconUrl: 'res.png',
-      iconSize: new L.Point(12, 12),
-      iconAnchor: new L.Point(6, 6),
-      shadowSize: new L.Point(0, 0)
-    });
+var ignores={};
+var ignore=function(id,name) {
+  ignores[id]=name;
+};
 
+var resIcon;
 
-   (function () {
-      map = POImap.init();
-      map.addLayer(markers);
-      map.zoomIn();
-      $.getJSON(poiUrl).then(function (d) {
-        data=d;
-        loadMissingPoi();
-        loadPoi();
-      })
-    })();
+$(document).ready(function () {
+  resIcon = L.icon({
+    iconUrl: 'res.png',
+    iconSize: new L.Point(12, 12),
+    iconAnchor: new L.Point(6, 6),
+  shadowSize: new L.Point(0, 0)
+  });
+
+  map = POImap.init();
+  map.addLayer(markers);
+  map.zoomIn();
+  $.getJSON(poiUrl).then(function (d) {
+    data=d;
+    loadMissingPoi();
+    loadPoi();
+  })
+});
       
     function do_batch() {
       var max=100;
@@ -326,25 +327,23 @@
 	  }
         });
     }
-  </script>
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+                                        </script>
+  <link rel="stylesheet" href="css/leaflet.css" />
   <style>
     body {
-      padding: 0;
-      margin: 0;
+    padding: 0;
+    margin: 0;
     }
-    html, body, #map {
-      height: 99%;
+    html, body, #fvstmap {
+    height: 99%;
     }
   </style>
   </head>
-    <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">
-  <!--button OnClick="do_batch()" >batch</button-->
-
-  <a href="index.html">Menu</a>  fvst:navnelbnr sync tool (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM, orange=no valid navnelbnr in OSM, green=exact same pos, blue=fuzzy match
+  <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">
+    <a href="index.html">Menu</a>  fvst:navnelbnr sync tool (Niels Elgaard Larsen, elgaard@agol.dk), start new layer in JOSM, orange=no valid navnelbnr in OSM, green=exact same pos, blue=fuzzy match
     <span id="misnum">MISS</span>
     <button onclick="prompt('copy this to blacklist.json, git push, reload this page',JSON.stringify(ignores).replace(/,/g,',\n').replace('{','').replace('}',',\n'))">ignores</button>
-  <div id="map"></div>  
+    <div id="fvstmap"></div>  
   </body>
-  </html>
-  
+</html>
+

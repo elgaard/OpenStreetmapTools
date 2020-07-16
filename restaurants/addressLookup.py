@@ -16,10 +16,19 @@ import overpass
 from time import sleep
 import os
 api = overpass.API()
-
+fixcnt=0
 limit=500 # for testing
 fixedaddrs={'elements':[],'info':'fvst data, fixed by lookup up addresses with overpass turbo'}
 notfixedaddrs={'elements':[],'info':'fvst data, not fixed by lookup up addresses with overpass turbo'}
+
+if os.path.isfile("data/fixed.json"):
+      try:
+            pfixed=json.loads(open("data/fixed.json",'r', encoding='utf-8').read())['elements']
+      except json.decoder.JSONDecodeError as e:
+            pfixed=[] 
+else:
+     pfixed=[] 
+
 
 fixed=open('data/fixed.json',mode="w",encoding='utf-8')
 notfixed=open('data/notfixed.json',mode="w",encoding='utf-8')
@@ -48,14 +57,27 @@ def dooverpass(avej,ano,pno):
         return []
 
 def doaddr(fixedaddrs,ac):
-        if ac["type"]=="node":
-            print ("is node")
-            adr["lon"]=float(ac["lon"])+0.00003 # not right on top of address node
-            adr["lat"]=float(ac["lat"])
-            adr["src"]="addrfix"
-            fixedaddrs["elements"].append(adr)
+    global fixcnt
+    if ac["type"]=="node":
+        fixcnt=fixcnt+1
+        print ("is node")
+    adr["lon"]=float(ac["lon"])+0.00003 # not right on top of address node
+    adr["lat"]=float(ac["lat"])
+    adr["src"]="addrfix"
+    fixedaddrs["elements"].append(adr)
+    
 ano=0
 for adr in alist:
+    adone=False  
+    for ca in pfixed:
+      #print("cache cmp",ca['id']," == ",adr['id'])
+      if ca['id'] == adr['id']:
+        print("\ncached ",ca["id"])
+        fixedaddrs["elements"].append(ca)
+        adone=True
+        break
+    if adone:
+      continue
     ano=ano+1
     print("\n")
     altnrs=[];
@@ -162,6 +184,7 @@ for adr in alist:
     
 print(json.dumps(fixedaddrs,indent=2, ensure_ascii=False),file=fixed)
 print(json.dumps(notfixedaddrs,indent=2, ensure_ascii=False),file=notfixed)
-print("    fixed: "+ str(len(fixedaddrs["elements"])))
+print("    fixed: "+ str(fixcnt))
+print("    total: "+ str(len(fixedaddrs["elements"])))
 print("not fixed: "+ str(len(notfixedaddrs["elements"])))
 

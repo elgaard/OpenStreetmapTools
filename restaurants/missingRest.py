@@ -192,7 +192,6 @@ if os.path.isfile(fixed):
             fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
       except json.decoder.JSONDecodeError as e:
             fixeddata=[] 
-            
 else:
      fixeddata=[] 
 

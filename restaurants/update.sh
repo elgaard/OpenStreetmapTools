@@ -72,4 +72,4 @@ if [[ x$1 != "xskipaddr" && x$2 != "xskipaddr" ]] ; then
   echo look up addrs
   ./addressLookup.py > addr.log
 fi
-tail -2 addr.log
+tail -3 addr.log
