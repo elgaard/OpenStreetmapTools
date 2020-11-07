@@ -8,10 +8,16 @@ from datetime import datetime
 import urllib.request
 import urllib.error
 from time import sleep
+import gpxpy
+import gpxpy.gpx
 from datetime import date
 
 now=datetime.now()
 mlog=open("missing.log",encoding='utf-8',mode="w")
+
+gpx = gpxpy.gpx.GPX()
+#gpx_miss = gpxpy.gpx.GPXTrack()
+#gpx.tracks.append(gpx_miss)
 
 def sanes(s):
       return s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
@@ -24,13 +30,13 @@ def future(elm):
                   d=date(int(sd[0]),int(sd[1]),int(sd[2]))
                   rv=datetime.today().date()<d
                   print("  r future ", smil['id'],rv, file=mlog)
-                  return rv 
+                  return rv
             elif len(sd)==1:
                   if (sd[0].isdigit()):
                         d=date(int(sd[0]),6,1) # just guess on mid year
                         return (datetime.today().date()<d)
                   else:
-                     print("Invalid year: ",sd[0], " for:", json.dumps(elm))   
+                     print("Invalid year: ",sd[0], " for:", json.dumps(elm))
       return False
 
 def outofseason(elm):
@@ -87,7 +93,6 @@ def getfvst(o):
       elif 'tags' in o and  'fvst:navnelbnr' in o['tags']:
             return o['tags']['fvst:navnelbnr']
       return None
-      
 def getname(o):
       if ('name' in o):
             return sanes(o['name'])
@@ -160,7 +165,7 @@ def canonical(res):
             if ex in res['tags']:
                   rv['alt_names'].append(canonicalname(nm+res['tags'][ex]))
 
-  return rv 
+  return rv
 
 smilinfo={}
 fvst={} # holds OSM object with a fvst:navnelbnr tag
@@ -179,10 +184,9 @@ for res in list(osmdata['elements']):
             for an in cn['alt_names']:
                   if (an not in osminfo):
                         osminfo[an]=[]
-                        osminfo[an].append(cn)            
+                        osminfo[an].append(cn)
       if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
           fvst[res['tags']['fvst:navnelbnr']]=res
-            
 print("\n\nOSMINFO ", json.dumps(osminfo,indent=2), file=mlog )
 smilres=open(fvstfile,"r",encoding='utf-8').read()
 smf = json.loads(smilres)['elements']
@@ -191,9 +195,9 @@ if os.path.isfile(fixed):
       try:
             fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
       except json.decoder.JSONDecodeError as e:
-            fixeddata=[] 
+            fixeddata=[]
 else:
-     fixeddata=[] 
+     fixeddata=[]
 
 smildata=fixeddata+smf
 print(str(len(fixeddata))+" fixed "+str(len(smf))+" from fvst, now in smildata: "+ str(len(smildata)))
@@ -201,7 +205,6 @@ print(str(len(fixeddata))+" fixed "+str(len(smf))+" from fvst, now in smildata: 
 missingItems={'elements':[],'info':'missing restaurants'}
 for smil in smildata:
   osmlbnr.append(str(smil['id']));
-      
 for smil in smildata:
     if smil['id'] == 'dummy':
         break
@@ -229,7 +232,7 @@ for smil in smildata:
           if not isFixed:
                 fvsterrlist.append(smil)
     if cn=='':
-      print("  no name:",smil['id'], file=mlog )          
+      print("  no name:",smil['id'], file=mlog )
     else:
           if cn in osminfo:
             # print("tze "+cn+" "+str(smil['lat'])+","+str(smil['lon']))
@@ -296,7 +299,7 @@ for smil in smildata:
                           "osm:name":ores["orgname"],
                           "osm:navnelbnr":olbnr,
                           "fvst:name":smil['name'],
-                          "fvst:city":smil['city'],                          
+                          "fvst:city":smil['city'],
                           'lat':ores['lat'],
                           'lon':ores['lon'],
                           'slat':smil['lat'],
@@ -306,6 +309,7 @@ for smil in smildata:
         if "operator" in smil:
            smil["operator"]=sanes(smil["operator"])
         missingItems['elements'].append(smil)
+        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name'],smil['addr'] if 'addr' in smil else 'no addr',None,'missing'))
 
 print("now osm not in fvst")
 print("merge_candidates: ",json.dumps(merge_candidates,indent=2),file=mlog)
@@ -325,16 +329,16 @@ for osmelm in list(osmdata['elements']):
                   if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and not outofseason(osmelm) and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
                         print("     MCK STALE ", osmelm["tags"]["fvst:navnelbnr"],file=mlog )
                         osmelm["stalefvst"]=True
-                        match.append(osmelm)                 
+                        match.append(osmelm)
                   elif age>120 and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
                         osmelm["notinfvst"]=True
                         match.append(osmelm)
-                        gone.append(osmelm)                  
+                        gone.append(osmelm)
+                        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],None,None,'gone'))
+
                   #else:
                       #  print("keep",osmelm["osm:name"], "ts=",osmelm["timestamp"], "age: ",age,"days")
-                        
-print("there was ",len(gone),"not in fvst")        
-            
+print("there was ",len(gone),"not in fvst")
 print(json.dumps(fvsterrlist,indent=2,ensure_ascii=False),file=fvsterr)
 
 nids=[]
@@ -369,8 +373,12 @@ for staleaddress in staleaddresses:
 if fullmatch:
       matchfile=open('data/match.json',mode="w",encoding='utf-8')
       print(json.dumps(match,indent=2),file=matchfile)
+      gpxfile=open('data/match.gpx',mode="w",encoding='utf-8')
+      print(json.dumps(gone,indent=2),file=gpxfile)
 else:
       missing=open('data/miss.json',mode="w",encoding='utf-8')
       print(json.dumps(missingItems,indent=2),file=missing)
       gonefd=open('data/gone.json',mode="w",encoding='utf-8')
+      gpxfile=open('data/miss.gpx',mode="w",encoding='utf-8')
       print(json.dumps(gone,indent=2),file=gonefd)
+      print(gpx.to_xml(),file=gpxfile)

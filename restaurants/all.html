@@ -142,7 +142,8 @@ $(document).ready(function () {
 
         r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
 	   
-        var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+josmUri(name.replace("'",""))+'%257Cfvst%3Anavnelbnr='+pi.id;
+        var
+        jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+josmUri(name.replace("'",""))+'%257Cfvst%3Anavnelbnr='+pi.id+'%257Ccvr='+pi.cvr;
         var js="javascript:void $.get('"+jsurl+"')";
         r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
         r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
@@ -209,7 +210,7 @@ $(document).ready(function () {
 	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'update fvst:navnelbnr. First check address (No pos in FVST)',  href:js }))));
 	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
        	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM for manual edit/deletion',  href:jsdel }))));
-        } else if (pi["stalefvst"]) {
+        } else if (pi["stalefvst"] || pi["notinfvst"]) {
           var addr="";
           if (pi["tags"]) {
              var tags=pi["tags"];
@@ -273,7 +274,7 @@ $(document).ready(function () {
           r.append($('<tr>').append($('<td>').html("food place has no fvst:navnelbnr tag: Delete, Add tag or Merge")));
           r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'DuckD search: ',href:'https://duckduckgo.com/?q='+osmname+'%20"'+'Denmark"'}))));
           r.append($('<tr>').append($('<td>').html($('<a>',{ target:'FVSTsearch', text: 'FVST search: ', href:'http://www.findsmiley.dk/Sider/Search.aspx?k='+osmname.replace('&','')+'%20'+''}))));
-	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM for manual deletion',  href:jsdel }))));
+	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM',  href:jsdel }))));
         } else {
           r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge in JOSM',  href:js }))));
           r.append($('<tr>').append($('<td>').html($('<a>',{text: 'select OSM in JOSM',  href:jsdel }))));

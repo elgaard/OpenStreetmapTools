@@ -6,43 +6,41 @@
   <head>
 <META name="keywords" content="restauranter smiley">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF8">
-  <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">  
+  <body bgcolor="#ffffff" text="#000000" link="#000099" vlink="#660000">
     <h1>Elgaard DK restaurant and food inspection report tools</h1>
     These tools use the Danish food inspection reports (the "smiley" reports) which has a name, a postion and a unique id (fvst:navnelbnr) for all danish restaurants, cafes, canteens, etc.
 <p>
 The tool have links to the food inspection reports and to JOSM Remote Control
 actions.
 
-<a href="http://localhost:8111/load_object?objects=nn">Test connection to
 local JOSM. You might have to add a security exception</a>
-    
-    <ul>      
+    <ul>
       <li><a href="all.html">Food places synchronization with FVST</a><br>
 	List both the FVST and the OSM name. Draws a red line between the FVST and OSM location - the OSM end is marked with a blue dot.<br>
 	The Remote Control link add the fvst:navnelbnr to the OSM node or creates the node in OSM, at the "fvst:navnelbnr" and also "amenity", "cuisine", etc based on the FVST name.
-      The Remote Control link 
+      The Remote Control link
       </li>
-      
      <li> <a href="http://overpass-turbo.eu/s/cd9">Foodplaces with wrong positions in FVST</a>
      <li> <a href="data/fvsterror.json">FVST entries with error (missing positions)</a> - <a href="/restaurants/data/notfixed.json">not fixed.</a>
-     <li><a href="https://github.com/elgaard/OpenStreetmapTools/blob/master/restaurants/blacklist.json">blacklist, steder der ikke skal med i OSM: pølsevogne, streetfood, færgerestauranter, juleboder, osv</a> Tilføj gerne og lav en pull-request på Github</li>
+     <li><a href="https://github.com/elgaard/OpenStreetmapTools/blob/master/restaurants/blacklist.json">blacklist,
+           steder der ikke skal med i OSM: pølsevogne, streetfood, færgerestauranter, juleboder, osv</a> Tilføj gerne og lav en pull-request på Github
+           </li>
+      <li><a href="data/miss.gpx">GPX missing for import into OsmAnd etc</a></li>
+      <li><a href="data/gone.gpx">GPX gone for import into OsmAnd etc</a></li>
     </ul>
-
 <h1>To Do</h1>
 <ol>
-<li>check alle restauranter, cafeer og fastfoodsteder, der ikke har et fvst:navnelbnr. De der ikke findes, skal slettes. Nogen mangler bare positioner i FVST. Nogen har ikke et selvstændigt navnelbnr, Fx når FVST registrerer et hotel, en restaurant og en bar under samme navnelbnr. Og endelig sker det, at vi får nye madsteder med i OSM inden FVST registrerer dem. </li>
-
-<li>check alle madsteder, der har et fvst:navnelbnr, som ikke findes i FVST. Jeg vil lave et værktøj der finder dem. Det vil formodentlig være madsteder, som er lukket, eller har skiftet ejer og navn. Hvis et madsted skifter ejer og får et nyt fvst:navnelbnr, men beholder navnet, vil det blive fanget at Unify værktøjet </li>
-
-<li>Checke om nogen af madstederne tagget fvst:fixme er blevet rettet af FVST. Jeg vil lave et værktøj til det</li>
-<li>løbende finde nye madsteder med Missing værktøjet </li>
-<li>løbende finde opdaterede madsteder og madsteder, der mangler fvst:navnelbnr med Unify værktøjet </li>
+  <li>check alle restauranter, cafeer og fastfoodsteder, der ikke har et fvst:navnelbnr. De der ikke findes, skal slettes.
+      Nogle mangler bare positioner i FVST. Nogen har ikke et selvstændigt navnelbnr, Fx når FVST registrerer et hotel, en restaurant og en bar under samme navnelbnr.
+      Og endelig sker det, at vi får nye madsteder med i OSM inden FVST registrerer dem. </li>
+  <li>check alle madsteder, der har et fvst:navnelbnr, som ikke findes i FVST. Jeg vil lave et værktøj der finder dem.
+      Det vil formodentlig være madsteder, som er lukket, eller har skiftet ejer og navn. Hvis et madsted skifter ejer og får et nyt fvst:navnelbnr, men beholder navnet, vil det blive fanget at Unify værktøjet
+      </li>
+  <li>Checke om nogen af madstederne tagget fvst:fixme er blevet rettet af FVST. Jeg vil lave et værktøj til det</li>
+  <li>løbende finde nye madsteder med Missing værktøjet </li>
+  <li>løbende finde opdaterede madsteder og madsteder, der mangler fvst:navnelbnr med Unify værktøjet </li>
 </ol>
-
-
-
 <h1>Hvordan det virker og skal bruges </h1>
-
 Der er absolut intet, der bliver manskinopdateret. Det er ikke en bot.
 <p>
 Det er halvautomatisk på den måde at der er scripts, der kører hver
