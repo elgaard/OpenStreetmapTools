@@ -89,6 +89,7 @@
               </xsl:when> <xsl:otherwise>0.0</xsl:otherwise>
             </xsl:choose>,
 	    "city":"<xsl:value-of select="By"/>",
+            "cvr":"<xsl:value-of select="cvrnr"/>",
             "senestekontrol":"<xsl:value-of select="seneste_kontrol_dato"/>",
             "branchekode":"<xsl:value-of select="brancheKode"/>",
 	    "tags": {

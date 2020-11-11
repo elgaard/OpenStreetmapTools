@@ -132,7 +132,7 @@ def canonicalname(nmi):
             "é":"e"
       }
       for rpk,rpv in rpls.items():
-            nm=nm.replace(rpk,rpv)            
+            nm=nm.replace(rpk,rpv)
       for spl in splits:
             nm=nm.split(spl)[0]
       for rpk,rpv in rpls1.items():
@@ -140,7 +140,7 @@ def canonicalname(nmi):
       nm=nm + ' '
       nm=re.sub('den ',' ',re.sub('( og cafe| og bar| cafe| Kro|cafe | v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| i/s| take away| ivs| aps)','',nm)).replace('/','')
       nmc=re.sub(' 2','',nm)
-      print("CANON  ",nmi, nmc.replace(' ','') , file=mlog )
+#      print("CANON  ",nmi, nmc.replace(' ','') , file=mlog )
       return nmc.replace(' ','')
 
 def canonical(res):
@@ -153,6 +153,7 @@ def canonical(res):
       'name':nm,
       'orgname':getname(res),
       'type':res['type'],
+      'cvr':res.get('cvr','miss'),
       'lat':posob['lat'],
       'lon':posob['lon'],
       'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
@@ -214,7 +215,7 @@ for smil in smildata:
     smil['name']=getname(smil)
     smil['tags']['name']=smil['name']
     smilinfo[cn].append(smil)
-    print("do smil ", cn,smil['id'], file=mlog )
+    print("do smil ", cn,smil['id'],smil.get('cvr','NOCVR'), file=mlog )
     found=False
     if str(smil['id']) in fvst:
           print(" in fvst ", cn,smil['id'], " osmid0",fvst[str(smil['id'])]['id'], file=mlog )
@@ -236,6 +237,8 @@ for smil in smildata:
     else:
           if cn in osminfo:
             # print("tze "+cn+" "+str(smil['lat'])+","+str(smil['lon']))
+            if not 'cvr' in smil:
+                  print("\n\nNODKCVR ",json.dumps(smil,indent=2), file=mlog)
             if (smil['lat']==0.0 or smil['lon']==0.0):
                   print(" zero pos: ", cn,smil['id'], file=mlog )
                   # print("ze "+cn)
@@ -246,22 +249,24 @@ for smil in smildata:
                               # FIXME TODO, also only if ores["fvst:navnelbnr"] still exists in FVST
                               found=True
                               merge_candidates.append(olbnr);
-                              match.append({"fvst:navnelbnr":smil['id'],
-                                      "category":"fvst:no_pos",
-                                      "type":ores["type"],
-                                      "id":ores["id"],
-                                      "osm:name":sanes(ores["orgname"]),
-                                      "osm:navnelbnr":olbnr,
-                                      "fvst:name":smil['name'],
-                                      "fvst:city":smil['city'],
-                                      'lat':ores['lat'],
-                                      'lon':ores['lon']
+                              match.append({
+                                    "fvst:navnelbnr":smil['id'],
+                                    "cvr":smil.get('cvr','cvrmiss'),
+                                    "category":"fvst:no_pos",
+                                    "type":ores["type"],
+                                    "id":ores["id"],
+                                    "osm:name":sanes(ores["orgname"]),
+                                    "osm:navnelbnr":olbnr,
+                                    "fvst:name":smil['name'],
+                                    "fvst:city":smil['city'],
+                                    'lat':ores['lat'],
+                                    'lon':ores['lon']
                         })
             else:
               print(" try pos match: ", cn,smil['id'], file=mlog)
               for ores in osminfo[cn]:
                 d = (smil['lat']-ores['lat'])*(smil['lat']-ores['lat'])+(smil['lon']-ores['lon'])*(smil['lon']-ores['lon'])
-#                print("d=",d,"for ",smil['id']," ", smil['name'])
+                #                print("d=",d,"for ",smil['id']," ", smil['name'])
                 if (d<0.000005 or 'fvst:fixme' in ores):
                     found=True
                     olbnr=ores["fvst:navnelbnr"]
@@ -271,8 +276,10 @@ for smil in smildata:
                           merge_candidates.append(olbnr)
                     print("   is found: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
                     print("     append: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
+                    gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name'],smil['addr'] if 'addr' in smil else 'no addr','Restaurant','join'))
                     match.append({"fvst:navnelbnr":smil['id'],
                                   "type":ores["type"],
+                                  "cvr":smil.get('cvr','CVRMISS'),
                                   "id":ores["id"],
                                   "osm:name":ores["orgname"],
                                   "osm:navnelbnr":olbnr,
@@ -291,6 +298,7 @@ for smil in smildata:
             olbnr=ores["fvst:navnelbnr"]
             if (olbnr and not (olbnr in osmlbnr)):
                   olbnr=""
+            gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name'],smil['addr'] if 'addr' in smil else 'no addr','Restaurant','stale'))
             match.append({"fvst:navnelbnr":smil['id'],
                           "type":ores["type"],
                           "category":"exact",
@@ -302,6 +310,8 @@ for smil in smildata:
                           "fvst:city":smil['city'],
                           'lat':ores['lat'],
                           'lon':ores['lon'],
+                          'osm:cvr':ores.get('cvr',''),
+                          'scvr':smil.get('cvr',''),
                           'slat':smil['lat'],
                           'slon':smil['lon']
                           })
@@ -309,7 +319,6 @@ for smil in smildata:
         if "operator" in smil:
            smil["operator"]=sanes(smil["operator"])
         missingItems['elements'].append(smil)
-        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name'],smil['addr'] if 'addr' in smil else 'no addr',None,'missing'))
 
 print("now osm not in fvst")
 print("merge_candidates: ",json.dumps(merge_candidates,indent=2),file=mlog)
@@ -334,7 +343,8 @@ for osmelm in list(osmdata['elements']):
                         osmelm["notinfvst"]=True
                         match.append(osmelm)
                         gone.append(osmelm)
-                        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],None,None,'gone'))
+                        if fullmatch:
+                              gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"]["amenity"],'Bell','notinFvst'))
 
                   #else:
                       #  print("keep",osmelm["osm:name"], "ts=",osmelm["timestamp"], "age: ",age,"days")
@@ -374,7 +384,7 @@ if fullmatch:
       matchfile=open('data/match.json',mode="w",encoding='utf-8')
       print(json.dumps(match,indent=2),file=matchfile)
       gpxfile=open('data/match.gpx',mode="w",encoding='utf-8')
-      print(json.dumps(gone,indent=2),file=gpxfile)
+      print(gpx.to_xml(),file=gpxfile)
 else:
       missing=open('data/miss.json',mode="w",encoding='utf-8')
       print(json.dumps(missingItems,indent=2),file=missing)
