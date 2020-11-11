@@ -19,6 +19,13 @@ gpx = gpxpy.gpx.GPX()
 #gpx_miss = gpxpy.gpx.GPXTrack()
 #gpx.tracks.append(gpx_miss)
 
+def selected(smil):
+      if smil["branchekode"] in ["56.29.00.A","99.99.99.H","DD.56.30.99"] or smil.get("vt",'ingen')!='Detail' or smil.get("pixi","u")!='Restauranter, pizzeriaer, kantiner m.m.' and smil["branchekode"] not in ['56.10.00.A','56.10.00.B','56.10.00.C','DD.56.10.99','00.00.02.H']:
+            return False
+      nm=re.search('Ophørt|Pølsevogn|EJERSKIFTE|Festvogn|mobilvogn|Street Food|Mobil |Udlejning |Seaways|mobile| Detaillager| garage| cykel|Mobile|Brugsen|Psykia|PSYKIA|Truck|Foodtruck|foodtruck|Salgsvogn|grillvogn|pølsevogn| TRUCK| Cykel|Texaco|Kommune| afsnit|Kursus| vogn|Grillvogn|Shell| Lager|Kantine|Pølsevogn|Catering|hjemmet|klubben|MENY|Statoil |Circle K|Vogn |vognen|Produktionskøkken|Q8|køkkenet|OK |Anretterkøkken|Vaffelvogn| Candy|7-Eleven|Afd.|kantine|medicinsk|Sygehus|Afdeling|hospital|afdeling|Aktivitet|Bofælles|institution|plejehjem|skole|Fazer|Onkologisk|Driftsenhed|Danhostel|styrelsen|Psykiatrisk| Selskabslokale|orsamlings|kirurg',smil["name"],re.IGNORECASE)
+      #print("SELECTED",smil.get("vt",'ingen'),str(not nm),json.dumps(smil,indent=2))
+      return nm==None and smil["name"].find("M/S")!=0
+
 def sanes(s):
       return s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
 
@@ -64,8 +71,6 @@ def osmage(s):
       d=s.split("T")[0].split("-")
       return (now-datetime(int(d[0]),int(d[1]),int(d[2]))).days
 
-fullmatch=False;
-fvstfile='data/r.json';
 fvsterrfile='data/fvsterror.json'
 fvsterr=open(fvsterrfile,mode="w",encoding='utf8')
 
@@ -73,13 +78,8 @@ with open("data/rall.json", 'r') as f:
   fvstall = json.load(f)
 
 fvsterrlist=[]
-gone=[]
 merge_candidates=[];
 
-if (len(sys.argv)>1 and sys.argv[1]=="match"):
-      fullmatch=True
-      fvstfile='data/rfull.json'
-      print("fullmatch")
 
 blacklist=json.loads(open('blacklist.json','r', encoding='utf-8').read())['blacklist']
 
@@ -154,6 +154,7 @@ def canonical(res):
       'orgname':getname(res),
       'type':res['type'],
       'cvr':res.get('cvr','miss'),
+      'vt':res.get('vt','uu'),
       'lat':posob['lat'],
       'lon':posob['lon'],
       'fvst:navnelbnr':res['tags'].get('fvst:navnelbnr','')
@@ -172,7 +173,8 @@ smilinfo={}
 fvst={} # holds OSM object with a fvst:navnelbnr tag
 osminfo={} # holds OSM restaurants, cafes, fast_food, etc, by name
 osminfo_by_pos={} # holds OSM restaurants, cafes, fast_food, etc by position
-match=[] # holds matches based on name and location, i.e. FVST objects already in OSM, but without fvst:navnelbnr tag
+allfix={"match":[],"miss":[],"gone":[],"info":"missing and matching restaurants"}
+# holds matches based on name and location, i.e. FVST objects already in OSM, but without fvst:navnelbnr tag
 
 for res in list(osmdata['elements']):
     if res['type'] in ['way','node','relation'] and getname(res):
@@ -189,8 +191,9 @@ for res in list(osmdata['elements']):
       if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
           fvst[res['tags']['fvst:navnelbnr']]=res
 print("\n\nOSMINFO ", json.dumps(osminfo,indent=2), file=mlog )
-smilres=open(fvstfile,"r",encoding='utf-8').read()
-smf = json.loads(smilres)['elements']
+fvstfullfile='data/rfull.json';
+smilresfull=open(fvstfullfile,"r",encoding='utf-8').read()
+smf = json.loads(smilresfull)['elements']
 fixed='data/fixed.json'
 if os.path.isfile(fixed):
       try:
@@ -200,13 +203,11 @@ if os.path.isfile(fixed):
 else:
      fixeddata=[]
 
-smildata=fixeddata+smf
-print(str(len(fixeddata))+" fixed "+str(len(smf))+" from fvst, now in smildata: "+ str(len(smildata)))
-
-missingItems={'elements':[],'info':'missing restaurants'}
-for smil in smildata:
-  osmlbnr.append(str(smil['id']));
-for smil in smildata:
+smildatafull=fixeddata+smf
+print(str(len(fixeddata))+" fixed "+str(len(smf))+" from fvst, now in smildata: "+ str(len(smildatafull)))
+for smil in smildatafull:
+  osmlbnr.append(str(smil['id']))
+for smil in smildatafull:
     if smil['id'] == 'dummy':
         break
     cn=canonicalname(getname(smil))
@@ -237,8 +238,6 @@ for smil in smildata:
     else:
           if cn in osminfo:
             # print("tze "+cn+" "+str(smil['lat'])+","+str(smil['lon']))
-            if not 'cvr' in smil:
-                  print("\n\nNODKCVR ",json.dumps(smil,indent=2), file=mlog)
             if (smil['lat']==0.0 or smil['lon']==0.0):
                   print(" zero pos: ", cn,smil['id'], file=mlog )
                   # print("ze "+cn)
@@ -249,7 +248,7 @@ for smil in smildata:
                               # FIXME TODO, also only if ores["fvst:navnelbnr"] still exists in FVST
                               found=True
                               merge_candidates.append(olbnr);
-                              match.append({
+                              allfix["match"].append({
                                     "fvst:navnelbnr":smil['id'],
                                     "cvr":smil.get('cvr','cvrmiss'),
                                     "category":"fvst:no_pos",
@@ -277,7 +276,7 @@ for smil in smildata:
                     print("   is found: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
                     print("     append: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
                     gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name'],smil['addr'] if 'addr' in smil else 'no addr','Restaurant','join'))
-                    match.append({"fvst:navnelbnr":smil['id'],
+                    allfix["match"].append({"fvst:navnelbnr":smil['id'],
                                   "type":ores["type"],
                                   "cvr":smil.get('cvr','CVRMISS'),
                                   "id":ores["id"],
@@ -299,7 +298,7 @@ for smil in smildata:
             if (olbnr and not (olbnr in osmlbnr)):
                   olbnr=""
             gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name'],smil['addr'] if 'addr' in smil else 'no addr','Restaurant','stale'))
-            match.append({"fvst:navnelbnr":smil['id'],
+            allfix["match"].append({"fvst:navnelbnr":smil['id'],
                           "type":ores["type"],
                           "category":"exact",
                           "exact":1,
@@ -315,10 +314,10 @@ for smil in smildata:
                           'slat':smil['lat'],
                           'slon':smil['lon']
                           })
-      else:
+      elif selected(smil) :
         if "operator" in smil:
            smil["operator"]=sanes(smil["operator"])
-        missingItems['elements'].append(smil)
+        allfix['miss'].append(smil)
 
 print("now osm not in fvst")
 print("merge_candidates: ",json.dumps(merge_candidates,indent=2),file=mlog)
@@ -338,27 +337,24 @@ for osmelm in list(osmdata['elements']):
                   if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and not outofseason(osmelm) and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
                         print("     MCK STALE ", osmelm["tags"]["fvst:navnelbnr"],file=mlog )
                         osmelm["stalefvst"]=True
-                        match.append(osmelm)
+                        allfix["match"].append(osmelm)
                   elif age>120 and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
                         osmelm["notinfvst"]=True
-                        match.append(osmelm)
-                        gone.append(osmelm)
-                        if fullmatch:
-                              gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"]["amenity"],'Bell','notinFvst'))
-
+                        allfix["match"].append(osmelm)
+                        allfix["gone"].append(osmelm)
+                        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"]["amenity"],'Bell','notinFvst'))
                   #else:
                       #  print("keep",osmelm["osm:name"], "ts=",osmelm["timestamp"], "age: ",age,"days")
-print("there was ",len(gone),"not in fvst")
+print("there was ",len(allfix["gone"]),"not in fvst")
 print(json.dumps(fvsterrlist,indent=2,ensure_ascii=False),file=fvsterr)
 
 nids=[]
 nidslot={}
-for osmelm in match:
+for osmelm in allfix["match"]:
   if 'stalefvst' in osmelm or "notinfvst" in osmelm:
     nid= osmelm["type"][0].upper()+ str(osmelm["id"])
     nids.append(nid)
     nidslot[nid]= osmelm
-
 staleaddresses=[]
 maxids=30
 nid=0
@@ -380,15 +376,11 @@ for staleaddress in staleaddresses:
       addr=nidslot[id]
       addr['stale_address']=staleaddress["address"]
 
-if fullmatch:
-      matchfile=open('data/match.json',mode="w",encoding='utf-8')
-      print(json.dumps(match,indent=2),file=matchfile)
-      gpxfile=open('data/match.gpx',mode="w",encoding='utf-8')
-      print(gpx.to_xml(),file=gpxfile)
-else:
-      missing=open('data/miss.json',mode="w",encoding='utf-8')
-      print(json.dumps(missingItems,indent=2),file=missing)
-      gonefd=open('data/gone.json',mode="w",encoding='utf-8')
-      gpxfile=open('data/miss.gpx',mode="w",encoding='utf-8')
-      print(json.dumps(gone,indent=2),file=gonefd)
-      print(gpx.to_xml(),file=gpxfile)
+fixfile=open('data/all.json',mode="w",encoding='utf-8')
+print(json.dumps(allfix,indent=2),file=fixfile)
+gpxfile=open('data/all.gpx',mode="w",encoding='utf-8')
+print(gpx.to_xml(),file=gpxfile)
+
+print('misses: ',str(len(allfix["miss"])))
+print('matches: ',str(len(allfix["match"])))
+print('gone: ',str(len(allfix["gone"])))

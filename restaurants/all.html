@@ -17,7 +17,7 @@
 
 var map;
 var data;
-var poiUrl = 'data/match.json';
+var poiUrl = 'data/all.json';
 var markers = new L.FeatureGroup();
 
 var ignores={};
@@ -39,9 +39,9 @@ $(document).ready(function () {
   map.addLayer(markers);
   map.zoomIn();
   $.getJSON(poiUrl).then(function (d) {
-    data=d;
-    loadMissingPoi();
-    loadPoi();
+    data=d.match;
+    loadMissingPoi(d.miss);
+    loadPoi(d.match);
   })
 });
 
@@ -63,8 +63,7 @@ $(document).ready(function () {
       loadPoi();
     };
 
-    function loadMissingPoi() {
-      var poiUrl = 'data/miss.json';
+    function loadMissingPoi(missData) {
       var poiInfo = function(pi) {
 	var name=pi.tags["name"].replace(/ ?v\. .*/i,"").replace(/v ?\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("|",'').replace("'",'').replace("`","").trim();
 	var addtags="amenity=fast_food";
@@ -153,9 +152,8 @@ $(document).ready(function () {
         return $('<div>').append(r).html();
       };
 
-      $.getJSON(poiUrl, function(data) {
-	$("#misnum").html("missing: "+(data.elements.length));
-	$.each(data.elements, function(ign, i) {
+        $("#misnum").html("missing: "+(missData.length));
+	$.each(missData, function(ign, i) {
 	  if (i.branchekode=='56.10.00.B') {
 	    var osmll=new L.LatLng(i.lat, i.lon);
 	    L.circle(osmll,8,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
@@ -169,14 +167,13 @@ $(document).ready(function () {
 	    }).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
 	  }
         });
-      });
     }
 
    function josmUri(u) {
       return encodeURIComponent(encodeURIComponent(u));
     }
 
-    function loadPoi() {
+    function loadPoi(poiData) {
       var poiInfo = function(pi) {
 	var fvstname=pi["fvst:name"];
     	var osmname=pi["osm:name"];
@@ -285,7 +282,7 @@ $(document).ready(function () {
         }
         return $('<div>').append(r).html();
       };
-      $.each(data, function(ign, i) {
+      $.each(poiData, function(ign, i) {
           if (!i.done) {
 	    var osmll=new L.LatLng(i.lat, i.lon);
 	    var fvstll;

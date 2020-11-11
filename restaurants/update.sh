@@ -54,19 +54,14 @@ cp data/allekontrolresultater.xml $buf
 gzip -f $buf
 if wget -O data/allekontrolresultater.xml --timeout 40 --quiet --timestamping  https://www.foedevarestyrelsen.dk/_layouts/15/sdata/smiley_xml.xml; then
     echo got kontrolresultater
-    xsltproc smilres.xslt data/allekontrolresultater.xml | sed -e "s/\t/ /" | sed -e 's/\\//'> data/r.json
+#    xsltproc smilres.xslt data/allekontrolresultater.xml | sed -e "s/\t/ /" | sed -e 's/\\//'> data/r.json
     xsltproc smilresfull.xslt data/allekontrolresultater.xml | sed -e "s/\t/ /" | sed -e 's/\\//' > data/rfull.json
     xsltproc smilresno.xslt data/allekontrolresultater.xml | sed -e "s/\t/ /" | sed -e 's/\\//' > data/rall.json
 else
     echo did not get kontrolresultater
 fi
 echo find matches and misses
-python3 missingRest.py match
 python3 missingRest.py
-
-echo misses; grep amenity data/miss.json |wc -l
-echo matches; grep osm:name data/match.json |wc -l 
-echo fvst errors; grep tags data/fvsterror.json |wc -l
 
 if [[ x$1 != "xskipaddr" && x$2 != "xskipaddr" ]] ; then
   echo look up addrs
