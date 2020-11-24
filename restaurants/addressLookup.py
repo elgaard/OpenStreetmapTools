@@ -25,13 +25,9 @@ if os.path.isfile("data/fixed.json"):
       try:
             pfixed=json.loads(open("data/fixed.json",'r', encoding='utf-8').read())['elements']
       except json.decoder.JSONDecodeError as e:
-            pfixed=[] 
+            pfixed=[]
 else:
-     pfixed=[] 
-
-
-fixed=open('data/fixed.json',mode="w",encoding='utf-8')
-notfixed=open('data/notfixed.json',mode="w",encoding='utf-8')
+     pfixed=[]
 
 alist=[]
 fvsterrfile='data/fvsterror.json'
@@ -47,7 +43,7 @@ def dooverpass(avej,ano,pno):
     try:
         r = api.Get('node["addr:country"="DK"]["addr:postcode"="'+pno+'"]["addr:street"="'+avej+'"]["addr:housenumber"="'+ano+'"]',responseformat="json")
         osm=r['elements']
-        print(json.dumps(osm,indent=2))   
+        print(json.dumps(osm,indent=2))
         return osm
     except overpass.errors.MultipleRequestsError:
         print("ignore Multiple Requests Error")
@@ -65,10 +61,10 @@ def doaddr(fixedaddrs,ac):
     adr["lat"]=float(ac["lat"])
     adr["src"]="addrfix"
     fixedaddrs["elements"].append(adr)
-    
+
 ano=0
 for adr in alist:
-    adone=False  
+    adone=False
     for ca in pfixed:
       #print("cache cmp",ca['id']," == ",adr['id'])
       if ca['id'] == adr['id']:
@@ -81,7 +77,7 @@ for adr in alist:
     ano=ano+1
     print("\n")
     altnrs=[];
-    at=adr['addr'].replace("Prof. ","Professor ").replace("(City 2-Staderne)","").replace("Otte Busse","Otto Busse").replace("Hesseløgade, Drejøgade ","Drejøgade ").split(',')[0].strip().split('-')
+    at=adr['addr'].replace("Prof. ","Professor ").replace("(City 2-Staderne)","").replace("Otte Busse","Otto Busse").replace("Chr.","Christian" ).replace("Hesseløgade, Drejøgade ","Drejøgade ").split(',')[0].strip().split('-')
     a=at[0].strip()
     if len(at)>1:
         altnrs.append(at[1].strip())
@@ -89,7 +85,7 @@ for adr in alist:
     street=adr['addr']
     pno=str(adr['postnr'])
     print("#"+str(ano)+" "+adr["name"]+":  vej="+street)
-    ads=re.search("(\D*) ([0-9]+[a-zA-Z]*)",a)
+    ads=re.search(r"(\D*) ([0-9]+[a-zA-Z]*)",a)
     if ads and ("all" in sys.argv  or "senestekontrol" in adr and adr["senestekontrol"]):
         anr=ads.group(2).replace(" ","").upper()
         anrn=int(re.split("[a-zA-Z ]",anr)[0])
@@ -164,12 +160,13 @@ for adr in alist:
                     "Sdr ":"Sønder ",
                     "Ndr.":"Nordre ",
                     "Gl.":"Gammel",
+                    "Gl ":"Gammel",
                     "Sct ":"Sanct ",
                     "Dr. ":"Doktor ",
                     "Rafshalevej":"Refshalevej"
                 }
                 for rpk,rpv in rpls.items():
-                    avej=avej.replace(rpk,rpv)            
+                    avej=avej.replace(rpk,rpv)
                 osm=dooverpass(avej,anr,pno)
                 if (len(osm)==1):
                     print ("FINALLY got exactly one postion")
@@ -177,11 +174,12 @@ for adr in alist:
                     doaddr(fixedaddrs,ac)
                 else:
                     notfixedaddrs["elements"].append(adr)
-                    
     limit=limit -1
     if limit<0:
         break
-    
+
+fixed=open('data/fixed.json',mode="w",encoding='utf-8')
+notfixed=open('data/notfixed.json',mode="w",encoding='utf-8')
 print(json.dumps(fixedaddrs,indent=2, ensure_ascii=False),file=fixed)
 print(json.dumps(notfixedaddrs,indent=2, ensure_ascii=False),file=notfixed)
 print("    fixed: "+ str(fixcnt))

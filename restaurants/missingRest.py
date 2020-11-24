@@ -20,11 +20,17 @@ gpx = gpxpy.gpx.GPX()
 #gpx.tracks.append(gpx_miss)
 
 def selected(smil):
-      if smil["branchekode"] in ["56.29.00.A","99.99.99.H","DD.56.30.99"] or smil.get("vt",'ingen')!='Detail' or smil.get("pixi","u")!='Restauranter, pizzeriaer, kantiner m.m.' and smil["branchekode"] not in ['56.10.00.A','56.10.00.B','56.10.00.C','DD.56.10.99','00.00.02.H']:
+      if smil["branchekode"] in ["56.29.00.A","99.99.99.H","xDD.56.30.99"] or smil.get("vt",'ingen')!='Detail' or smil.get("pixi","u")!='Restauranter, pizzeriaer, kantiner m.m.' and smil["branchekode"] not in ['56.10.00.A','56.10.00.B','56.10.00.C','DD.56.10.99','00.00.02.H'] and smil["name"].find('Sushi')<0 and smil["name"].find('Brasserie')<0:
             return False
-      nm=re.search('Ophørt|Pølsevogn|EJERSKIFTE|Festvogn|mobilvogn|Street Food|Mobil |Udlejning |Seaways|mobile| Detaillager| garage| cykel|Mobile|Brugsen|Psykia|PSYKIA|Truck|Foodtruck|foodtruck|Salgsvogn|grillvogn|pølsevogn| TRUCK| Cykel|Texaco|Kommune| afsnit|Kursus| vogn|Grillvogn|Shell| Lager|Kantine|Pølsevogn|Catering|hjemmet|klubben|MENY|Statoil |Circle K|Vogn |vognen|Produktionskøkken|Q8|køkkenet|OK |Anretterkøkken|Vaffelvogn| Candy|7-Eleven|Afd.|kantine|medicinsk|Sygehus|Afdeling|hospital|afdeling|Aktivitet|Bofælles|institution|plejehjem|skole|Fazer|Onkologisk|Driftsenhed|Danhostel|styrelsen|Psykiatrisk| Selskabslokale|orsamlings|kirurg',smil["name"],re.IGNORECASE)
+      if smil["name"].find("Pop Up")>-1:
+            return False
+      nm=re.search(r'\bEUC\b|\bm/s\b|båden\b|\bm/f\b|Ophørt|Pølsevogn|julebod|ejerskifte|Festvogn|mobilvogn|Street Food|\bMobil\b|udlejning\b|Seaways|mobile| Detaillager|\bgarage\b|\bcykel|Mobile|Brugsen|Psykia|Truck|Foodtruck|foodtruck|Salgsvogn|grillvogn|pølsevogn|\btruck|\bcykel|Texaco|Kommune|\bafsnit|Kursus|\bvogn|grillvogn|personalekantine|kantine\b|kantinen|fjernlager|shell|\blager|pølsevogn|Catering|hjemmet|klubben|MENY|Statoil\b|Circle K|Vogn |vognen|Produktionskøkken|Q8|køkkenet|\bOK\b|Anretterkøkken|Vaffelvogn|\bcandy|7-Eleven|\bAfd.|\bkantine|medicinsk|Sygehus|Afdeling|hospital|afdeling|Aktivitet|Bofælles|institution|plejehjem|skole\b|skolen\b|Fazer|Onkologisk|Driftsenhed|Danhostel|styrelsen|Psykiatrisk|\bselskabslokale|kirurg',smil["name"],re.IGNORECASE)
       #print("SELECTED",smil.get("vt",'ingen'),str(not nm),json.dumps(smil,indent=2))
-      return nm==None and smil["name"].find("M/S")!=0
+      if nm==None:
+            return True
+      else:
+            print("deselect ",smil["name"],"  ::",  nm.group(0),file=mlog)
+            return False
 
 def sanes(s):
       return s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
@@ -51,15 +57,16 @@ def outofseason(elm):
       if month <9 and month >4:
             return False
       if "tags" in elm:
+            if elm["tags"].get("access:covid19","yes")=="no":
+                  return True
             if "opening_hours" in elm["tags"]:
                   hours=elm["tags"]["opening_hours"].split(" ")
                   if len(hours)>0:
                         if hours[0].lower() in ["summer","apr-oct"]:
                               print("  out of season: ", json.dumps(elm),file=mlog )
                               return hours
-            if "seasonal" in elm["tags"]:
-                  if "summer" in elm["tags"]["seasonal"].split(';'):
-                        return "outofseason"
+            if "summer" in elm["tags"].get("seasonal","").split(';'):
+                  return "outofseason"
       return False
 
 def fvstage(s):
@@ -114,7 +121,7 @@ def canonicalname(nmi):
             return nmi
       nm=nmi.lower()
       nm=nm.translate(str.maketrans(u'ñèéäöúá–\'-´.,’+&"`|', 'neeæøua            '))
-      splits=[ " i/s"," aps"," - ", " c/o", " ved", " v/"," /"]
+      splits=[ " i/s"," aps"," APS"," I/S"," Aps"," - ", " c/o", " ved", " v/"," /"]
       rpls={
             "AB":"",
             " P/S":"",
@@ -138,7 +145,7 @@ def canonicalname(nmi):
       for rpk,rpv in rpls1.items():
             nm=nm.replace(rpk,rpv)
       nm=nm + ' '
-      nm=re.sub('den ',' ',re.sub('( og cafe| og bar| cafe| Kro|cafe | v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| i/s| take away| ivs| aps)','',nm)).replace('/','')
+      nm=re.sub('den ',' ',re.sub('( og cafe| og bar| cafe| Kro|cafe | S/I\b| v/.*| a/s|pizza bar| pizza house|og pizza| og grillbar|pizzeria |restauranten | restaurante|take out|take away| af 20|ristorante|restaurant|spisestedet |bryggeriet| house| and | grill| og cafe|s køkken| pizza|pizza |the |kafe |cafeen |cafe |hotel | spisehus| og grillbar| og |steakhouse | kaffebar| vinbar| conditori|produktionskøkken|traktørstedet| takeaway| i/s| take away| ivs| aps)','',nm)).replace('/','')
       nmc=re.sub(' 2','',nm)
 #      print("CANON  ",nmi, nmc.replace(' ','') , file=mlog )
       return nmc.replace(' ','')
@@ -231,7 +238,7 @@ for smil in smildatafull:
                 if 'fvst:navnelbnr' in smil['tags'] and fx['id']==smil['tags']['fvst:navnelbnr']:
                       isFixed=True
                       break
-          if not isFixed:
+          if not isFixed and selected(smil):
                 fvsterrlist.append(smil)
     if cn=='':
       print("  no name:",smil['id'], file=mlog )
@@ -275,7 +282,9 @@ for smil in smildatafull:
                           merge_candidates.append(olbnr)
                     print("   is found: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
                     print("     append: ", cn,smil['id']," olbnr=",olbnr, file=mlog)
-                    gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name'],smil['addr'] if 'addr' in smil else 'no addr','Restaurant','join'))
+                    wp=gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name']+"<=>"+ores["orgname"],smil['addr'] if 'addr' in smil else 'no addr','Restaurant','join')
+                    wp.extension={"color":"#ff0000"}
+                    gpx.waypoints.append(wp)
                     allfix["match"].append({"fvst:navnelbnr":smil['id'],
                                   "type":ores["type"],
                                   "cvr":smil.get('cvr','CVRMISS'),
@@ -297,7 +306,7 @@ for smil in smildatafull:
             olbnr=ores["fvst:navnelbnr"]
             if (olbnr and not (olbnr in osmlbnr)):
                   olbnr=""
-            gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name'],smil['addr'] if 'addr' in smil else 'no addr','Restaurant','stale'))
+            gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(smil['lat'],smil['lon'],None,None,smil['name'],smil['addr'] if 'addr' in smil else 'no addr','Restaurant','double'))
             allfix["match"].append({"fvst:navnelbnr":smil['id'],
                           "type":ores["type"],
                           "category":"exact",
@@ -323,7 +332,7 @@ print("now osm not in fvst")
 print("merge_candidates: ",json.dumps(merge_candidates,indent=2),file=mlog)
 
 for osmelm in list(osmdata['elements']):
-      if "tags" in osmelm and "amenity" in osmelm["tags"] and osmelm["tags"]["amenity"] in ["restaurant","cafe","events_venue","fast_food"]:
+      if "tags" in osmelm and "amenity" in osmelm["tags"]:
             print("   mck ", json.dumps(osmelm),file=mlog )
             if not "fvst:navnelbnr" in osmelm["tags"] or osmelm["tags"]["fvst:navnelbnr"]=="undefined" or not (osmelm["tags"]["fvst:navnelbnr"].isnumeric() and int(osmelm["tags"]["fvst:navnelbnr"]) in fvstall):
                   age=osmage(osmelm["timestamp"])
@@ -334,13 +343,13 @@ for osmelm in list(osmdata['elements']):
                   if (not "lat" in osmelm) and "center" in osmelm:
                         osmelm["lat"]=osmelm["center"]["lat"]
                         osmelm["lon"]=osmelm["center"]["lon"]
-                  if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and not outofseason(osmelm) and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
+                  if "fvst:navnelbnr" in osmelm["tags"] and not osmelm["tags"]["fvst:navnelbnr"] in merge_candidates and not outofseason(osmelm) and not future(osmelm):
                         print("     MCK STALE ", osmelm["tags"]["fvst:navnelbnr"],file=mlog )
                         osmelm["stalefvst"]=True
                         allfix["match"].append(osmelm)
-                  elif age>120 and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0:
+                        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"]["amenity"],'Bell','merge'))
+                  elif age>120 and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0 and not outofseason(osmelm) and not osmelm["tags"].get('amenity','xxx') in ['events_venue','community_centre','social_facility','clinic','hospital','marketplace']:
                         osmelm["notinfvst"]=True
-                        allfix["match"].append(osmelm)
                         allfix["gone"].append(osmelm)
                         gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"]["amenity"],'Bell','notinFvst'))
                   #else:
@@ -379,7 +388,7 @@ for staleaddress in staleaddresses:
 fixfile=open('data/all.json',mode="w",encoding='utf-8')
 print(json.dumps(allfix,indent=2),file=fixfile)
 gpxfile=open('data/all.gpx',mode="w",encoding='utf-8')
-print(gpx.to_xml(),file=gpxfile)
+print(gpx.to_xml("1.1"),file=gpxfile)
 
 print('misses: ',str(len(allfix["miss"])))
 print('matches: ',str(len(allfix["match"])))

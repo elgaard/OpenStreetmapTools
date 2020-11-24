@@ -5,33 +5,27 @@ git pull
 q="[timeout:600] [out:json];\
 ( \
   area(3600050046)->.sa;\
-  node["amenity"="restaurant"](area.sa);\
-  node["amenity"="kitchen"](area.sa);\
-  way["amenity"="restaurant"](area.sa);\
-  node["amenity"="hospital"](area.sa);\
-  node["amenity"="clinic"](area.sa);\
-  node["amenity"="events_venue"](area.sa);\
-  node["amenity"="cafe"](area.sa);\
-  way["amenity"="cafe"](area.sa);\
-  node["amenity"="fast_food"](area.sa);\
-  way["amenity"="fast_food"](area.sa);\
-  node["amenity"="bar"](area.sa);\
-  way["amenity"="bar"](area.sa);\
-  node["amenity"="pub"](area.sa);\
-  node["shop"="farm"](area.sa);\
-  node["shop"="butcher"](area.sa);\
-  node["shop"="craft"](area.sa);\
-  node["shop"="kiosk"](area.sa);\
-  node["amenity"="pub"](area.sa);\
-  way["tourism"="hotel"](area.sa);\
-  node["tourism"="hotel"](area.sa);\
-  node["tourism"="museum"](area.sa);\
-  way["tourism"="hotel"](area.sa);\
-  way["leisure"="golf_course"](area.sa);\
-  node["tourism"="guest_house"](area.sa);\
-  way["tourism"="guest_house"](area.sa);\
-  node["tourism"="hostel"](area.sa);\
-  way["tourism"="hostel"](area.sa);\
+  nwr["amenity"="restaurant"](area.sa);\
+  nwr["amenity"="ice_cream"](area.sa);\
+  nwr["amenity"="community_centre"](area.sa);\
+  nwr["amenity"="kitchen"](area.sa);\
+  nwr["amenity"="hospital"](area.sa);\
+  nwr["amenity"="clinic"](area.sa);\
+  nwr["amenity"="events_venue"](area.sa);\
+  nwr["amenity"="cafe"](area.sa);\
+  nwr["amenity"="fast_food"](area.sa);\
+  nwr["amenity"="bar"](area.sa);\
+  nwr["amenity"="pub"](area.sa);\
+  nwr["shop"="farm"](area.sa);\
+  nwr["shop"="butcher"](area.sa);\
+  nwr["shop"="craft"](area.sa);\
+  nwr["shop"="kiosk"](area.sa);\
+  nwr["amenity"="pub"](area.sa);\
+  nwr["leisure"="golf_course"](area.sa);\
+  nwr["tourism"="hotel"](area.sa);\
+  nwr["tourism"="museum"](area.sa);\
+  nwr["tourism"="guest_house"](area.sa);\
+  nwr["tourism"="hostel"](area.sa);\
   node[\"fvst:navnelbnr\" ~ \".\"]( 54.395, 3.853, 57.8321, 16.9097 );\
   way[\"fvst:navnelbnr\" ~ \".\"]( 54.395, 3.853, 57.8321, 16.9097 );\
   relation[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
