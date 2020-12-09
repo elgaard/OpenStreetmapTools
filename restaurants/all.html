@@ -77,23 +77,25 @@ $(document).ready(function () {
         var nl=name.toLowerCase();
 	if (nl.match(/pleje|ældrecenter|boenhed|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
         else if (nl.match(/\bpub\b|pubben\b|puben\b/)!=null) addtags="amenity=pub";
+        else if (nl.match(/\bbillardklub\b|billard klub\b/)!=null) addtags="club=sport%257Csport=billiards";
+        else if (nl.match(/jobcenter/)!=null) addtags="office=administrative";
+        else if (nl.match(/\bvuc\b|skole|gymnasium/)!=null) addtags="amenity=school";
+        else if (nl.match(/\bvandpibe|hookah\b/)!=null) addtags="amenity=hookah_lounge";
+        else if (nl.match(/\bkino\b/)!=null) addtags="amenity=cinema";
+        else if (nl.match(/\bbed\b .* \bbreakfast\b/)!=null) addtags="tourism=guest_house";
+        else if (nl.match(/kaffebar|coffee|\biss facility\b|\bjoe.*the juice|baresso\b|\bespresso\b|\bkaffe|cafeen\b/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
         else if (nl.match(/\natklub\b|\bnightclub\b/)!=null) addtags="amenity=pub";
+        else if (nl.match(/teatret|\bteater|\bscene\b/)!=null) addtags="amenity=theatre";
         else if (nl.match(/bodega|natklub|bar\b|baren|værtshus|\bølstue\b|vinbar\b/)!=null) addtags="amenity=bar";
-        else if (nl.match(/kaffebar|coffee|joe.*the juice|baresso\b|\bespresso\b|kaffe|cafeen\b/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
-        else if (operator.match(/coffee|\biss facility\b/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
         else if (nl.match(/værested|varmestue/)!=null) addtags="amenity=social_facility%257Csocial_facility=outreach";
 	else if (nl.match(/restaurant/)!=null) addtags="amenity=restaurant";
-	else if (nl.match(/catering|ud af huset|diner transport|\bdiner\b|køkken|madservice|s mad|\bgastronomi|\bgourmet/)!=null) addtags="shop=craft%257Ccraft=caterer";
+	else if (nl.match(/\bmadhus\b|catering|ud af huset|diner transport|\bdiner\b|køkken|madservice|s mad|\bgastronomi|\bgourmet/)!=null) addtags="shop=craft%257Ccraft=caterer";
 	else if (nl.match(/cafe\b|café\b/)!=null) addtags="amenity=cafe";
-      	else if (nl.match(/grillbar/)!=null) addtags="amenity=fast_food";
-        else if (nl.match(/teatret|scene\b/)!=null) addtags="amenity=theatre";
+      	else if (nl.match(/grillbar\b|\bdonut\b|\bbagel\b/)!=null) addtags="amenity=fast_food%257Ccuisine=bagel";
         else if (nl.match(/forsamlings|kulturhus/)!=null) addtags="amenity=community_centre";
-        else if (nl.match(/idrætsforening/)!=null) addtags="club=sport%257Csport=multi";
+        else if (nl.match(/idrætsforening|\bIF$/)!=null) addtags="club=sport%257Csport=multi";
         else if (nl.match(/uddannelse/)!=null) addtags="amenity=school";
         else if (nl.match(/\bis\b|\bisbar|\bishus\b/)!=null) addtags="amenity=ice_cream";
-        else if (nl.match(/\bvuc\b|skole|gymnasium/)!=null) addtags="amenity=school";
-        else if (nl.match(/\bbillardklub\b/)!=null) addtags="club=sport%257Csport=billiards";
-        else if (nl.match(/jobcenter/)!=null) addtags="office=administrative";
     	else if (nl.match(/\biscafe|gelateria|ice cream/)!=null) addtags="amenity=ice_cream";
         else if (nl.match(/idrætscenter/)!=null) addtags="leisure=sports_centre";
 	else if (nl.match(/feriekoloni/)!=null) addtags="leisure=summer_camp";
@@ -126,7 +128,7 @@ $(document).ready(function () {
         if (pi.src && pi.src=='addrfix') addtags+="%257Cfvst:fixme=fvst position missing, fixed from overpassturbo/osak";
         if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
         var r = $('<table>');
-        r.append($('<tr>').append($('<th>').html('NEW from FVST: '+name+' senest: ' + pi.senestekontrol.split(" ")[0])));
+        r.append($('<tr>').append($('<th>').html('New from FVST: '+name+' senest: ' + pi.senestekontrol.split(" ")[0]+"<br>check if it exist. Check amenity type and name on the ground ")));
         if (pi.branchekode=='00.00.02.H') {
           r.append($('<tr>').append($('<th>').html('Maybe not open yet: ')));
         }
@@ -138,12 +140,8 @@ $(document).ready(function () {
         r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
         r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
         r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
-        if (pi.cvr) {
-          r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'CVR: '+pi.cvr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=virksomhed&id='+pi.cvr}))));
-        }
-        if (pi.pnr) {
-          r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'P#: '+pi.pnr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=produktionsenhed&id='+pi.pnr}))));
-        }
+        addCvr(r,pi);
+
         r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'search for it: ', href:'https://duckduckgo.com/?q='+encodeURIComponent(pi.name.replace("ApS"," ").replace(" IVS"," ") +' '+pi.addr.replace(' st.','').replace(',',' ').trim()+' '+pi.city.trim())}))));
         r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ pi.id+',\''+name+'\')" >ignore</button>'))));
         return $('<div>').append(r).html();
@@ -164,8 +162,16 @@ $(document).ready(function () {
         });
     }
 
+   function addCvr(r,pi) {
+     if (pi.cvr) {
+       r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'CVR: '+pi.cvr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=virksomhed&id='+pi.cvr}))));
+     }
+     if (pi.pnr) {
+       r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'P#: '+pi.pnr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=produktionsenhed&id='+pi.pnr}))));
+     }
+   }
    function josmUri(u) {
-      return encodeURIComponent(encodeURIComponent(u));
+     return encodeURIComponent(encodeURIComponent(u));
     }
 
     function loadPoi(poiData) {
@@ -183,7 +189,7 @@ $(document).ready(function () {
         }
 	r.append($('<tr>').append($('<th>').html($('<a>',{ target:'osm', text: 'osm  name:' +osmname, href:'https://www.openstreetmap.org/'+pi['type']+'/'+pi['id']}))));
 	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Ccvr="+pi.cvr;
-        var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+josmUri($("<div />").text(fvstname).html()).replace("`","").replace("'","")+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=%257Ccvr="+pi.cvr;
+        var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+josmUri($("<div />").text(fvstname).html()).replace("`","").replace("'","")+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=%257Ccvr="+pi.scvr;
         if (pi['exact']) jsurl+='%257Cfvst%3Aname='+josmUri(pi["fvst:name"]);
 
 	var js="javascript:void $.get('"+jsurl+"')";
@@ -191,7 +197,7 @@ $(document).ready(function () {
 
         var jsdelurl='http://localhost:8111/load_object?objects='+typeF+id;
 	var jsdel="javascript:void $.get('"+jsdelurl+"')";
-        var jscheckurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=check%3Adate='+today;
+        var jscheckurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=check_date='+today;
         var jscheck="javascript:void $.get('"+jscheckurl+"')";
         if (pi["category"]=="fvst:no_pos") {
           jsurl+='%257Cfvst%3Afixme=fvst:no_pos';
@@ -202,7 +208,6 @@ $(document).ready(function () {
           if (pi.pnr) {
             r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'P#: '+pi.pnr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=produktionsenhed&id='+pi.pnr}))));
           }
-
         } else if (pi["stalefvst"] || pi["notinfvst"]) {
           var addr="";
           if (pi["tags"]) {
@@ -225,6 +230,7 @@ $(document).ready(function () {
             } else if (tags["addr:postcode"]) {
               addr+= " "+tags["addr:postcode"];
             }
+            addCvr(r,pi.tags);
           }
           if (addr=="" && pi["stale_address"]) {
             sa=pi["stale_address"];
@@ -255,7 +261,14 @@ $(document).ready(function () {
           if (addr != "") {
             r.append($('<tr>').append($('<td>').html(" addr: "+addr)));
           }
-          r.append($('<tr>').append($('<td>').html("food place has stale fvst:navnelbnr tag: Delete, Add tag or Merge")));
+          var staleMsg="food place has stale fvst:navnelbnr tag:<br>";
+          if (pi["notinfvst"] && ! pi["stalefvst"]){
+            staleMsg += "Check if it exists. If it does find the fvst:navnelbnr from inspection report";
+          } else {
+            staleMsg += "Check if it exists. If it does exists add a check_data tag, else delete it";
+          }
+          r.append($('<tr>').append($('<td>').html(staleMsg)));
+
           r.append($('<tr>').append($('<td>').html($('<a>',{ target:'FVSTsearch', text: 'FVST name search: ', href:'http://www.findsmiley.dk/Sider/Search.aspx?k='+encodeURIComponent(osmname.replace('&',''))+'%20'+''}))));
           if (addr) {
             r.append($('<tr>').append($('<td>').html($('<a>',{ target:'FVSTsearch', text: 'FVST addr search: ', href:'http://www.findsmiley.dk/Sider/Search.aspx?k='+encodeURIComponent(addr)}))));

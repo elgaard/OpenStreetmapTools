@@ -25,7 +25,7 @@
   </xsl:template>
 
   <xsl:template match="/document/row">
-    <xsl:if test="pixibranche='Restauranter, pizzeriaer, kantiner m.m.' or brancheKode='56.10.00.A' or brancheKode='56.10.00.B' or brancheKode='56.10.00.C' or brancheKode='DD.56.10.99' or brancheKode='00.00.02.H' ">
+    <xsl:if test="pixibranche='Restauranter, pizzeriaer, kantiner m.m.' or brancheKode='56.10.00.A' or brancheKode='56.10.00.B' or brancheKode='56.10.00.C' or brancheKode='DD.56.10.99' or brancheKode='00.00.02.H' or brancheKode='DD.56.10.99' ">
       <xsl:if test="not (brancheKode='99.99.99.H')">
         <xsl:if test="virksomhedstype='Detail'">
           <xsl:if test="brancheKode!='56.29.00.A'"> <!-- Servering: Kantiner mv., fast personkreds over 12 personer -->
@@ -43,7 +43,7 @@
     </xsl:when> <xsl:otherwise>0.0</xsl:otherwise>
  </xsl:choose>,
  "operator":"<xsl:value-of select="Kaedenavn"/>",
- "addr":"<xsl:value-of select="adresse1"/>",
+ "addr":"<xsl:value-of select="translate(normalize-space(adresse1),'&quot;','')""/>",
  "postnr":"<xsl:value-of select="postnr"/>",
  "cvr":"<xsl:value-of select="cvrnr"/>",
  "city":"<xsl:value-of select="By"/>",

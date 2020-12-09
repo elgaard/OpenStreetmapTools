@@ -17,13 +17,14 @@ q="[timeout:600] [out:json];\
   nwr["amenity"="bar"](area.sa);\
   nwr["amenity"="pub"](area.sa);\
   nwr["shop"="farm"](area.sa);\
+  nwr["shop"="craft"]["craft"="catering"](area.sa);\
   nwr["shop"="butcher"](area.sa);\
   nwr["shop"="craft"](area.sa);\
   nwr["shop"="kiosk"](area.sa);\
   nwr["amenity"="pub"](area.sa);\
   nwr["leisure"="golf_course"](area.sa);\
   nwr["tourism"="hotel"](area.sa);\
-  nwr["tourism"="museum"](area.sa);\
+  nw["tourism"="museum"](area.sa);\
   nwr["tourism"="guest_house"](area.sa);\
   nwr["tourism"="hostel"](area.sa);\
   node[\"fvst:navnelbnr\" ~ \".\"]( 54.395, 3.853, 57.8321, 16.9097 );\
@@ -59,6 +60,6 @@ python3 missingRest.py
 
 if [[ x$1 != "xskipaddr" && x$2 != "xskipaddr" ]] ; then
   echo look up addrs
-  ./addressLookup.py > addr.log
+  ./addressLookup.py all > addr.log
 fi
 tail -3 addr.log

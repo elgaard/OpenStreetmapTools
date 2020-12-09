@@ -159,6 +159,7 @@ for adr in alist:
                     "Sdr.":"Sønder",
                     "Sdr ":"Sønder ",
                     "Ndr.":"Nordre ",
+                    "Ndr ":"Nordre ",
                     "Gl.":"Gammel",
                     "Gl ":"Gammel",
                     "Sct ":"Sanct ",
