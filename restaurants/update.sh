@@ -31,9 +31,8 @@ q="[timeout:600] [out:json];\
   way[\"fvst:navnelbnr\" ~ \".\"]( 54.395, 3.853, 57.8321, 16.9097 );\
   relation[\"fvst:navnelbnr\" ~ \".\"](area.sa);\
 );\
-(._;>;);\
 out center meta;\
->;"
+"
 
 #printf "$q"
 

@@ -17,17 +17,17 @@ from time import sleep
 import os
 api = overpass.API()
 fixcnt=0
-limit=500 # for testing
-fixedaddrs={'elements':[],'info':'fvst data, fixed by lookup up addresses with overpass turbo'}
+limit=400 # for testing
+fixedaddrs={'elements':{},'info':'fvst data, fixed by lookup up addresses with overpass turbo'}
 notfixedaddrs={'elements':[],'info':'fvst data, not fixed by lookup up addresses with overpass turbo'}
 
 if os.path.isfile("data/fixed.json"):
       try:
             pfixed=json.loads(open("data/fixed.json",'r', encoding='utf-8').read())['elements']
       except json.decoder.JSONDecodeError as e:
-            pfixed=[]
+            pfixed={}
 else:
-     pfixed=[]
+     pfixed={}
 
 alist=[]
 fvsterrfile='data/fvsterror.json'
@@ -60,20 +60,15 @@ def doaddr(fixedaddrs,ac):
     adr["lon"]=float(ac["lon"])+0.00003 # not right on top of address node
     adr["lat"]=float(ac["lat"])
     adr["src"]="addrfix"
-    fixedaddrs["elements"].append(adr)
+    fixedaddrs["elements"][str(adr["id"])]=adr
 
 ano=0
 for adr in alist:
-    adone=False
-    for ca in pfixed:
-      #print("cache cmp",ca['id']," == ",adr['id'])
-      if ca['id'] == adr['id']:
-        print("\ncached ",ca["id"])
-        fixedaddrs["elements"].append(ca)
-        adone=True
-        break
-    if adone:
-      continue
+    print("check cache for ", adr["id"])
+    if str(adr['id']) in pfixed:
+        print("\ncached ",adr["id"])
+        fixedaddrs["elements"][str(adr['id'])]=pfixed[str(adr['id'])]
+        continue
     ano=ano+1
     print("\n")
     altnrs=[];

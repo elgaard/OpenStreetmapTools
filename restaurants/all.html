@@ -9,7 +9,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="js/jq-min.js"></script>
-  <script src="js/leaflet-src.js"></script>
+  <script src="js/leaflet.js"></script>
   <script src="map.js"></script>
   <title>help to synchronizing OSM and Fødevarestyrelses kontrolrapporter based on geo/name matching</title>
   <script>L_PREFER_CANVAS = true;</script>
@@ -48,24 +48,35 @@ $(document).ready(function () {
   })
 });
 
-    function do_batch() {
-      var max=100;
-      var done=0;
-      var i=0;
-      while (done<max && i<data.length) {
-        r=data[i];
-        if (!r.done && (!r["osm:navnelbnr"] && r["xxfvst:navnelbnr"]  || r["exact"]) ) {
-          var jsurl='http://localhost:8111/load_object?objects='+r["type"].charAt(0)+r.id+'&addtags=fvst%3Anavnelbnr='+r["fvst:navnelbnr"]+'%257Cfvst%3Aname='+josmUri(r["fvst:name"]);
-	  var js=$.get(jsurl);
-          r.done=true;
-          done++;
-        }
-        i++;
+  function do_batch() {
+    var max=100;
+    var done=0;
+    var i=0;
+    while (done<max && i<data.length) {
+      r=data[i];
+      if (!r.done && (!r["osm:navnelbnr"] && r["xxfvst:navnelbnr"]  || r["exact"]) ) {
+        var jsurl='http://localhost:8111/load_object?objects='+r["type"].charAt(0)+r.id+'&addtags=fvst%3Anavnelbnr='+r["fvst:navnelbnr"]+'%257Cfvst%3Aname='+josmUri(r["fvst:name"]);
+        var js=$.get(jsurl);
+        r.done=true;
+        done++;
       }
-      markers.clearLayers();
-      loadPoi();
-    };
+      i++;
+    }
+    markers.clearLayers();
+    loadPoi();
+  };
 
+  function addCvr(r,pi) {
+    if (pi.cvr) {
+      r.append($('<tr>').append($('<td>').html($('<a>',{ target:'cvr', text: 'CVR: '+pi.cvr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=virksomhed&id='+pi.cvr}))));
+    }
+    if (pi.scvr) {
+      r.append($('<tr>').append($('<td>').html($('<a>',{ target:'cvr', text: 'FVST CVR: '+pi.scvr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=virksomhed&id='+pi.scvr}))));
+    }
+    if (pi.pnr) {
+       r.append($('<tr>').append($('<td>').html($('<a>',{ target:'pnummer', text: 'P#: '+pi.pnr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=produktionsenhed&id='+pi.pnr}))));
+    }
+  }
     function loadMissingPoi(missData) {
       var poiInfo = function(pi) {
 	var name=pi.tags["name"].replace(/ ?v\. .*/i,"").replace(/v ?\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" APS","").replace(" a/s","").replace(" IvS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("|",'').replace("'",'').replace("`","").trim();
@@ -128,7 +139,7 @@ $(document).ready(function () {
         if (pi.src && pi.src=='addrfix') addtags+="%257Cfvst:fixme=fvst position missing, fixed from overpassturbo/osak";
         if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
         var r = $('<table>');
-        r.append($('<tr>').append($('<th>').html('New from FVST: '+name+' senest: ' + pi.senestekontrol.split(" ")[0]+"<br>check if it exist. Check amenity type and name on the ground ")));
+        r.append($('<tr>').append($('<th>').html('New from FVST: '+name+'<br> senest: ' + pi.senestekontrol.split(" ")[0]+"<br>check if it exist. Check amenity type and name on the ground ")));
         if (pi.branchekode=='00.00.02.H') {
           r.append($('<tr>').append($('<th>').html('Maybe not open yet: ')));
         }
@@ -149,10 +160,10 @@ $(document).ready(function () {
 	$.each(missData, function(ign, i) {
 	  if (i.branchekode=='56.10.00.B') {
 	    var osmll=new L.LatLng(i.lat, i.lon);
-	    L.circle(osmll,8,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	    L.circleMarker(osmll,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
 	  } else if (i.branchekode=='00.00.02.H') {
 	    var osmll=new L.LatLng(i.lat, i.lon);
-	    L.circle(osmll,8,{color:'black'}).bindPopup(poiInfo(i)).addTo(map);
+	    L.circleMarker(osmll,{color:'black'}).bindPopup(poiInfo(i)).addTo(map);
 	  } else {
 	    L.marker([i.lat, i.lon], {
 	      icon: resIcon,
@@ -162,14 +173,7 @@ $(document).ready(function () {
         });
     }
 
-   function addCvr(r,pi) {
-     if (pi.cvr) {
-       r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'CVR: '+pi.cvr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=virksomhed&id='+pi.cvr}))));
-     }
-     if (pi.pnr) {
-       r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'P#: '+pi.pnr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=produktionsenhed&id='+pi.pnr}))));
-     }
-   }
+
    function josmUri(u) {
      return encodeURIComponent(encodeURIComponent(u));
     }
@@ -177,20 +181,20 @@ $(document).ready(function () {
     function loadPoi(poiData) {
       var today=new Date().toISOString().split('T')[0];
       var poiInfo = function(pi) {
-	var fvstname=pi["fvst:name"];
     	var osmname=pi["osm:name"];
         var osmlbnr=pi["osm:navnelbnr"];
 	var id=pi["id"]
 	var typeF=pi["type"].charAt(0);
 	var fvstid=pi["fvst:navnelbnr"]
 	var r = $('<table>');
-        if (fvstname) {
+        if (pi["fvst:name"]) {
+          fvstname=pi["fvst:name"];
 	  r.append($('<tr>').append($('<th>').html('fvst name: '+fvstname)));
         }
 	r.append($('<tr>').append($('<th>').html($('<a>',{ target:'osm', text: 'osm  name:' +osmname, href:'https://www.openstreetmap.org/'+pi['type']+'/'+pi['id']}))));
 	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Ccvr="+pi.cvr;
-        var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+josmUri($("<div />").text(fvstname).html()).replace("`","").replace("'","")+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=%257Ccvr="+pi.scvr;
-        if (pi['exact']) jsurl+='%257Cfvst%3Aname='+josmUri(pi["fvst:name"]);
+        var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+josmUri(fvstname.replace("'",""))+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=%257Ccvr="+(pi.scvr?pi.scvr:"");
+        if (pi['exact']) mergejsurl+='%257Cfvst%3Aname='+josmUri(fvstname);
 
 	var js="javascript:void $.get('"+jsurl+"')";
 	var mergejs="javascript:void $.get('"+mergejsurl+"')";
@@ -199,15 +203,23 @@ $(document).ready(function () {
 	var jsdel="javascript:void $.get('"+jsdelurl+"')";
         var jscheckurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=check_date='+today;
         var jscheck="javascript:void $.get('"+jscheckurl+"')";
+        var jscovid="javascript:void $.get('"+'http://localhost:8111/load_object?objects='+typeF+id+'&addtags=access:covid19=no'+"')";
+        var jssummer="javascript:void $.get('"+'http://localhost:8111/load_object?objects='+typeF+id+'&addtags=seasonal=summer'+"')";
         if (pi["category"]=="fvst:no_pos") {
           jsurl+='%257Cfvst%3Afixme=fvst:no_pos';
 	  var js="javascript:void $.get('"+jsurl+"')";
 	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'update fvst:navnelbnr. First check address (No pos in FVST)',  href:js }))));
 	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
        	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM for manual edit/deletion',  href:jsdel }))));
-          if (pi.pnr) {
-            r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'P#: '+pi.pnr, href:'https://datacvr.virk.dk/data/visenhed?enhedstype=produktionsenhed&id='+pi.pnr}))));
-          }
+          addCvr(r,pi);
+        } else if (pi["exact"]) {
+          var joinMsg = "new FVST on exact pos as existing OSM POI. If they are different then move the OSM one, if they are really the same, then merge";
+          r.append($('<tr>').append($('<td>').html(joinMsg)));
+          r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge in JOSM',  href:mergejs }))));
+          r.append($('<tr>').append($('<td>').html($('<a>',{text: 'select OSM in JOSM',  href:jsdel }))));
+	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
+          r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ fvstid+',\''+fvstname+'\')" >ignore FVST</button>'))));
+          addCvr(r,pi);
         } else if (pi["stalefvst"] || pi["notinfvst"]) {
           var addr="";
           if (pi["tags"]) {
@@ -263,7 +275,7 @@ $(document).ready(function () {
           }
           var staleMsg="food place has stale fvst:navnelbnr tag:<br>";
           if (pi["notinfvst"] && ! pi["stalefvst"]){
-            staleMsg += "Check if it exists. If it does find the fvst:navnelbnr from inspection report";
+            staleMsg += "Check if it exists. If it does then find the fvst:navnelbnr from inspection report";
           } else {
             staleMsg += "Check if it exists. If it does exists add a check_data tag, else delete it";
           }
@@ -277,6 +289,8 @@ $(document).ready(function () {
           r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'DuckD addr search: ',href:'https://duckduckgo.com/?q='+encodeURIComponent(osmname+" "+addr)}))));
        	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM for manual edit/deletion',  href:jsdel }))));
           r.append($('<tr>').append($('<td>').html($('<a>',{text: 'today as check date',  href:jscheck}))));
+          r.append($('<tr>').append($('<td>').html($('<a>',{text: 'Covid19 temporarely closed',  href:jscovid}))));
+          r.append($('<tr>').append($('<td>').html($('<a>',{text: 'summer season',  href:jssummer}))));
         } else if (pi["notinfvst"]) {
           r.append($('<tr>').append($('<td>').html("food place has no fvst:navnelbnr tag: Delete, Add tag or Merge")));
           r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'DuckD search: ',href:'https://duckduckgo.com/?q='+osmname+'%20"'+'Denmark"'}))));
@@ -284,9 +298,14 @@ $(document).ready(function () {
 	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM',  href:jsdel }))));
           r.append($('<tr>').append($('<td>').html($('<a>',{text: 'today as check date',  href:jscheck}))));
         } else {
+          var dblMsg = "Very similar POIs, check if they are doublets.";
+          r.append($('<tr>').append($('<td>').html(dblMsg)));
           r.append($('<tr>').append($('<td>').html($('<a>',{text: 'merge in JOSM',  href:js }))));
           r.append($('<tr>').append($('<td>').html($('<a>',{text: 'select OSM in JOSM',  href:jsdel }))));
 	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
+          r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ osmlbnr+',\''+osmname+'\')" >ignore OSM</button>'))));
+          r.append($('<tr>').append($('<td>').html($('<button OnClick="ignore('+ fvstid+',\''+fvstname+'\')" >ignore FVST</button>'))));
+          addCvr(r,pi);
         }
           if (fvstname && pi["fvst:city"]) {
             r.append($('<tr>').append($('<td>').html($('<a>',{ target:'searchforFVSTfood', text: 'SEARCH for it: ', href:'https://duckduckgo.com/?q='+encodeURIComponent(fvstname.replace("ApS"," ") +' '+' '+pi["fvst:city"].trim())}))));
@@ -306,31 +325,32 @@ $(document).ready(function () {
             if (i.slat && i.slon) {
                 fvstll=new L.LatLng(i.slat, i.slon);
             }
-    	    var pl;
+    	    var pl=null;
     	    var mk;
             if (i["exact"]) {
-	      mk=L.circle(osmll,13,{color: 'green'}).addTo(markers);
-	      pl = L.polyline([osmll,fvstll], {color: 'green'}).addTo(markers);
+	      mk=L.circleMarker(osmll,{color: 'green'});
+	      pl = L.polyline([osmll,fvstll], {color: 'green'});
 	    } else if (i["notinfvst"]) {
-	      mk=L.circle(osmll,11,{color: 'cyan',weight:5,fill:true}).addTo(markers);
+	      mk=L.circleMarker(osmll,{color: 'cyan',weight:5,fill:true});
 	    } else if (i["stalefvst"]) {
-	      mk=L.circle(osmll,11,{color: 'magenta',weight:10,fill:true}).addTo(markers);
+	      mk=L.circleMarker(osmll,{color: 'magenta',weight:10,fill:true});
 	    } else if (i["category"]=="fvst:no_pos") {
-	      mk=L.circle(osmll,11,{color: 'brown',weight:10,fill:true}).addTo(markers);
+	      mk=L.circleMarker(osmll,{color: 'brown',weight:10,fill:true});
 	    } else if (i["osm:navnelbnr"]) {
-	      mk=L.circle(osmll,3,{color: 'blue'}).addTo(markers);
-	      pl = L.polyline([osmll,fvstll], {color: 'blue'}).addTo(markers);
-	    } else if (i["exact"]) {
-	      mk=L.circle(osmll,9,{color: 'green'}).addTo(markers);
-	      pl = L.polyline([osmll,fvstll], {color: 'green'}).addTo(markers);
+	      mk=L.circleMarker(osmll,{color: 'blue'});
+	      pl = L.polyline([osmll,fvstll], {color: 'blue'});
 	    } else if (!i["fvst:navnelbnr"]) {
-	      mk=L.circle(osmll,5,{color: 'red'}).addTo(markers);
-	      pl = L.polyline([osmll,fvstll], {color: 'red'}).addTo(markers);
+	      mk=L.circleMarker(osmll,{color: 'red'});
+	      pl = L.polyline([osmll,fvstll], {color: 'red'});
 	    } else {
-	      mk=L.circle(osmll,16,{color: 'orange',fill:true}).addTo(markers);
-	      pl = L.polyline([osmll,fvstll], {color: 'orange'}).addTo(markers);
+	      mk=L.circleMarker(osmll,{color: 'orange',fill:true});
+              mk.setRadius(20);
+	      pl = L.polyline([osmll,fvstll], {color: 'orange'});
 	    }
             mk.bindPopup(poiInfo(i)).addTo(markers);
+            if (pl) {
+              pl.addTo(markers);
+            }
 	  }
         });
     }
