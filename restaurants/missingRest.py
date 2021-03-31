@@ -261,14 +261,15 @@ for smil in smildatafull:
     if (not smil['lat'] or not smil['lon'] or int(smil['lat']) < 54 or int(smil['lat'])> 57 or int(smil['lon'])<8 or int(smil['lon']) > 15):
           print(" missing pos: ", cn,smil['id'], file=mlog )
           isFixed=False;
-          if selected(smil):
+          if (not smil['id'] in fvst and smil["vt"] == 'Detail' and smil["branchekode"] not in ['DD.49.41.00','DD.49.41.00','EE.46.40.99','EB.20.16.99','DD.56.29.00''DE.46.39.99','EE.46.30.99','EE.46.17.00','EE.46.30.88','EE.70.10.10','EB.52.10.99','EB.20.59.99','EB.10.10.99','EB.10.10.13','DD.47.50.99']) or selected(smil):
                 fvsterrlist.append(smil)
     if cn=='':
       print("  no name:",smil['id'], file=mlog )
     else:
           if cn in osminfo:
             # print("tze "+cn+" "+str(smil['lat'])+","+str(smil['lon']))
-            if (smil['lat']==0.0 or smil['lon']==0.0):
+            if smil['lat']==0.0 or smil['lon']==0.0:
+              if selected(smil):
                   print(" zero pos: ", cn,smil['id'], file=mlog )
                   # print("ze "+cn)
                   if (len(osminfo[cn])==1): # there is only one global match, so we go with it

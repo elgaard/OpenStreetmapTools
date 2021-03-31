@@ -10,6 +10,7 @@ from pprint import pprint
 from urllib.parse import urlencode
 from urllib.request import urlopen, Request
 import string
+import urllib3
 import sys
 import re
 import overpass
@@ -17,7 +18,7 @@ from time import sleep
 import os
 api = overpass.API()
 fixcnt=0
-limit=400 # for testing
+limit=500 # for testing
 fixedaddrs={'elements':{},'info':'fvst data, fixed by lookup up addresses with overpass turbo'}
 notfixedaddrs={'elements':[],'info':'fvst data, not fixed by lookup up addresses with overpass turbo'}
 
@@ -48,6 +49,9 @@ def dooverpass(avej,ano,pno):
     except overpass.errors.MultipleRequestsError:
         print("ignore Multiple Requests Error")
         return []
+    except urllib3.exceptions.ProtocolError:
+        print("ignore Multiple proto err")
+        return []
     except overpass.errors.ServerLoadError:
         print("ignore Server Load Error")
         return []
@@ -69,6 +73,8 @@ for adr in alist:
         print("\ncached ",adr["id"])
         fixedaddrs["elements"][str(adr['id'])]=pfixed[str(adr['id'])]
         continue
+    if limit<0:
+        continue
     ano=ano+1
     print("\n")
     altnrs=[];
@@ -85,6 +91,7 @@ for adr in alist:
         anr=ads.group(2).replace(" ","").upper()
         anrn=int(re.split("[a-zA-Z ]",anr)[0])
         avej=ads.group(1).title().replace("Vald ","Valdemar ").replace(" Pl."," Plads").split(",")[0]
+        avej=avej.replace("  "," ").replace(", TV","")
         if avej=="Bernstorffsgade" and anrn==3 and pno=="1557":
             pno="1577"
         if avej=="Refshalevej" and pno=="1422":
@@ -138,41 +145,42 @@ for adr in alist:
                 doaddr(fixedaddrs,ac)
             else:
                 rpls={
-                    "  ":" ",
-                    "é":"e",
-                    ", TV":"",
-                    "Center Vej":"Centervej",
-                    ", st":"",
-                    "Nr ":"Nørre ",
-                    "Hovedgade":"Hovedgaden",
-                    "desvej":"dsvej",
-                    "torv":" Torv",
-                    "toft":" Toft",
-                    "enteret":"entret",
-                    "Skt.":"Sankt",
-                    "Sct.":"Sanct",
-                    "Sdr.":"Sønder",
-                    "Sdr ":"Sønder ",
-                    "Ndr.":"Nordre ",
-                    "Ndr ":"Nordre ",
-                    "Gl.":"Gammel",
-                    "Gl ":"Gammel",
-                    "Sct ":"Sanct ",
-                    "Dr. ":"Doktor ",
-                    "Rafshalevej":"Refshalevej"
+                    r"é":"e",
+                    r"Center Vej":"Centervej",
+                    r", st":"",
+                    r"Nr\.? ":"Nørre ",
+                    r"Nr\. ":"Nr ",
+                    r"Hovedgade$":"Hovedgaden",
+                    r"desvej$":"dsvej",
+                    r"gade$":"sgade",
+                    r"torv$":" Torv",
+                    r"toft$":" Toft",
+                    r"enteret$":"entret",
+                    r"^Skt\.":"Sankt",
+                    r"^Sct\.":"Sanct",
+                    r"^Sdr\.":"Sønder",
+                    r"^Sdr ":"Sønder ",
+                    r"^Ndr.":"Nordre ",
+                    r"^Ndr ":"Nordre ",
+                    r"^Gl\.? ":"Gammel ",
+                    r"^Sct ":"Sanct ",
+                    r"^Dr\. ":"Doktor ",
+                    r"^(.)\.(.) (.*) ":"\1\. \2. \3 ",
+                    r"JF ":"John. F. ",
+                    r"Rafshalevej":"Refshalevej"
                 }
                 for rpk,rpv in rpls.items():
-                    avej=avej.replace(rpk,rpv)
-                osm=dooverpass(avej,anr,pno)
-                if (len(osm)==1):
-                    print ("FINALLY got exactly one postion")
-                    ac=osm[0]
-                    doaddr(fixedaddrs,ac)
+                    tavej=re.sub(rpk,rpv,avej)
+                    if tavej != avej:
+                          osm=dooverpass(tavej,anr,pno)
+                          if (len(osm)==1):
+                                print ("FINALLY got exactly one postion")
+                                ac=osm[0]
+                                doaddr(fixedaddrs,ac)
+                                break
                 else:
                     notfixedaddrs["elements"].append(adr)
     limit=limit -1
-    if limit<0:
-        break
 
 fixed=open('data/fixed.json',mode="w",encoding='utf-8')
 notfixed=open('data/notfixed.json',mode="w",encoding='utf-8')

@@ -6,10 +6,9 @@
 
   <xsl:output method="text" encoding="utf-8"/>
   <xsl:strip-space  elements="*"/>
-  
   <xsl:template match="/">
     {
-    "elements": [ 
+    "elements": [
     <xsl:apply-templates/>
     {"id":"dummy","lat":12,"lon":56,"tags":{}}  ]
     }
@@ -36,7 +35,7 @@
        kantiner 56.29.00.A
        detail behandling 47.29.00.C
        engros 46.39.00.D
-       engros 46.00.00.D 
+       engros 46.00.00.D
        chokolade 47.24.00.A
        born 56.29.00.C
        mobile 47.81.00.B
@@ -69,11 +68,10 @@
        ransportvirksomhed, engros 49.41.00.B
        Engroshandel og oplagring, ikke specialiseret, letfordÃ¦rvelige fÃ¸devarer 46.39.00.B
        Virksomhed, foreløbig: Mobil        00.00.02.C
-       Lagre: Kød og kødprodukter, lagerhoteller  46.32.00.C 
+       Lagre: Kød og kødprodukter, lagerhoteller  46.32.00.C
   -->
-  
 <xsl:template match="/document/row">
-<xsl:if test="not (brancheKode='99.99.99.H' or brancheKode='46.32.00.C' or brancheKode='00.00.02.C' or brancheKode='46.39.00.B' or brancheKode='49.41.00.B' or brancheKode='00.00.03.H' or brancheKode='10.20.20.C' or brancheKode='10.84.00.A' or brancheKode='47.99.00.B' or brancheKode='52.10.00.J' or brancheKode='00.00.04.B'  or  brancheKode='20.00.00.B' or  brancheKode='46.38.10.A' or  brancheKode='56.29.00.D' or  brancheKode='56.29.00.E' or brancheKode='46.39.00.C' or brancheKode='82.92.00.A'  or brancheKode=' 10.20.20.C' or brancheKode='47.81.00.A' or brancheKode='56.21.00' or brancheKode='10.10.00.A' or brancheKode='52.10.00.C' or brancheKode='46.30.00.A' or brancheKode='10.71.10.A' or brancheKode='46.17.90' or brancheKode='46.31.00'  or brancheKode='46.38.00.A' or brancheKode='46.00.00.C' or brancheKode='49.41.00.D' or brancheKode='56.10.00.E' or brancheKode='47.81.00.B'  or brancheKode='56.29.00.C'  or brancheKode='46.00.00.D' or brancheKode='47.24.00.A' or brancheKode='46.39.00.D' or brancheKode='47.29.00.C' or brancheKode='56.29.00.Ax' or brancheKode='47.29.00.E' or brancheKode='47.23.00' or brancheKode='47.22.00.A' or brancheKode='56.10.00.G' or brancheKode='47.29.00.A' or brancheKode='10.71.20' or brancheKode='47.11.00.A' or brancheKode='47.11.00.B' or brancheKode='47.21.00.A' or brancheKode='47.25.00' or brancheKode='46.17.90' ) ">
+<xsl:if test="not (brancheKode='99.99.99.H' or brancheKode='46.32.00.C' or brancheKode='00.00.02.C' or brancheKode='46.39.00.B' or brancheKode='49.41.00.B' or brancheKode='00.00.03.H' or brancheKode='10.20.20.C' or brancheKode='10.84.00.A' or brancheKode='47.99.00.B' or brancheKode='52.10.00.J' or brancheKode='00.00.04.B'  or  brancheKode='20.00.00.B' or  brancheKode='46.38.10.A' or  brancheKode='56.29.00.D' or  brancheKode='56.29.00.E' or brancheKode='46.39.00.C' or brancheKode='82.92.00.A'  or brancheKode=' 10.20.20.C' or brancheKode='47.81.00.A' or brancheKode='56.21.00' or brancheKode='10.10.00.A' or brancheKode='52.10.00.C' or brancheKode='46.30.00.A' or brancheKode='10.71.10.A' or brancheKode='46.17.90' or brancheKode='46.31.00'  or brancheKode='46.38.00.A' or brancheKode='46.00.00.C' or brancheKode='49.41.00.D' or brancheKode='56.10.00.E' or brancheKode='47.81.00.B'  or brancheKode='56.29.00.C'  or brancheKode='46.00.00.D' or brancheKode='47.24.00.A' or brancheKode='46.39.00.D' or brancheKode='47.29.00.C' or brancheKode='56.29.00.Ax' or brancheKode='47.29.00.E' or brancheKode='47.23.00' or brancheKode='47.22.00.A' or brancheKode='56.10.00.G' or brancheKode='47.29.00.A' or brancheKode='10.71.20' or brancheKode='47.11.00.A' or brancheKode='47.11.00.B' or brancheKode='47.21.00.A' or brancheKode='47.25.00' or brancheKode='46.17.90' or brancheKode= '10.71.20') ">
 <xsl:if test="not (contains(navn1,'Ophørt '))"><xsl:if test="seneste_kontrol!='xxx'">
 {"id":<xsl:value-of select="navnelbnr"/>,"lat":<xsl:choose><xsl:when test="Geo_Lat !=''"><xsl:value-of select="Geo_Lat"/></xsl:when> <xsl:otherwise>0.000</xsl:otherwise></xsl:choose>,"lon":<xsl:choose><xsl:when test="Geo_Lng !=''"><xsl:value-of select="Geo_Lng"/></xsl:when> <xsl:otherwise>0.0</xsl:otherwise></xsl:choose>,"operator":"<xsl:value-of select="Kaedenavn"/>",
 "city":"<xsl:value-of select="By"/>","addr":"<xsl:value-of select="translate(normalize-space(adresse1),'&quot;','')"/>","postnr":"<xsl:value-of select="postnr"/>",

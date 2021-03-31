@@ -146,7 +146,7 @@ $(document).ready(function () {
 
         r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
         var
-        jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+josmUri(name.replace("'",""))+'%257Cfvst%3Anavnelbnr='+pi.id+'%257Ccvr='+pi.cvr+"%257Ccvr:pnummer="+pi.pnr;
+        jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+josmUri(name.replace("'",""))+'%257Cfvst%3Anavnelbnr='+pi.id+'%257Cref:DK:cvr='+pi.cvr+"%257Cref:DK:cvr:pnummer="+pi.pnr;
         var js="javascript:void $.get('"+jsurl+"')";
         r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
         r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
@@ -192,8 +192,8 @@ $(document).ready(function () {
 	  r.append($('<tr>').append($('<th>').html('fvst name: '+fvstname)));
         }
 	r.append($('<tr>').append($('<th>').html($('<a>',{ target:'osm', text: 'osm  name:' +osmname, href:'https://www.openstreetmap.org/'+pi['type']+'/'+pi['id']}))));
-	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Ccvr="+pi.cvr;
-        var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+josmUri(fvstname.replace("'",""))+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=%257Ccvr="+(pi.scvr?pi.scvr:"");
+	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cref:DK:cvr="+pi.cvr;
+        var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+josmUri(fvstname.replace("'",""))+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=%257Cref:DK:cvr="+(pi.scvr?pi.scvr:"");
         if (pi['exact']) mergejsurl+='%257Cfvst%3Aname='+josmUri(fvstname);
 
 	var js="javascript:void $.get('"+jsurl+"')";

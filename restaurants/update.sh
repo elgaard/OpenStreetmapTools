@@ -19,6 +19,7 @@ q="[timeout:600] [out:json];\
   nwr["shop"="farm"](area.sa);\
   nwr["shop"="craft"]["craft"="catering"](area.sa);\
   nwr["shop"="butcher"](area.sa);\
+  nwr["shop"="bakery"](area.sa);\
   nwr["shop"="craft"](area.sa);\
   nwr["shop"="kiosk"](area.sa);\
   nwr["amenity"="pub"](area.sa);\
