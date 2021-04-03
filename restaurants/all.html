@@ -87,6 +87,7 @@ $(document).ready(function () {
         }
         var nl=name.toLowerCase();
 	if (nl.match(/pleje|ældrecenter|boenhed|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+        else if (nl.match(/\bbageri?\b|\bbager\b|\bkonditori?\b/)!=null) addtags="shop=bakery";
         else if (nl.match(/\bpub\b|pubben\b|puben\b/)!=null) addtags="amenity=pub";
         else if (nl.match(/\bbillardklub\b|billard klub\b/)!=null) addtags="club=sport%257Csport=billiards";
         else if (nl.match(/jobcenter/)!=null) addtags="office=administrative";

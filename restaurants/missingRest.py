@@ -101,10 +101,7 @@ with open("data/rall.json", 'r') as f:
 
 fvsterrlist=[]
 merge_candidates=[];
-
-
 blacklist=json.loads(open('blacklist.json','r', encoding='utf-8').read())['blacklist']
-
 osmres=open('data/osmres.json',"r",encoding='utf-8').read()
 osmdata = json.loads(osmres)
 osmlbnr=[]
@@ -233,6 +230,7 @@ for smil in smildatafull:
       if smil.get('lat',0)<1 or smil.get('lon',0) < 1:
           if str(smil["id"]) in fixeddata:
 #                print("fix smil",smil["id"])
+                fvsterrlist.append(fixeddata[str(smil["id"])]);
                 smil["lon"]=fixeddata[str(smil["id"])]["lon"]
                 smil["lat"]=fixeddata[str(smil["id"])]["lat"]
 

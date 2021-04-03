@@ -18,7 +18,7 @@ from time import sleep
 import os
 api = overpass.API()
 fixcnt=0
-limit=500 # for testing
+limit=800 # for testing
 fixedaddrs={'elements':{},'info':'fvst data, fixed by lookup up addresses with overpass turbo'}
 notfixedaddrs={'elements':[],'info':'fvst data, not fixed by lookup up addresses with overpass turbo'}
 
@@ -26,9 +26,11 @@ if os.path.isfile("data/fixed.json"):
       try:
             pfixed=json.loads(open("data/fixed.json",'r', encoding='utf-8').read())['elements']
       except json.decoder.JSONDecodeError as e:
+            print("PRE FIXED read eeror")
             pfixed={}
 else:
-     pfixed={}
+      print("NO PRE FIXED")
+      pfixed={}
 
 alist=[]
 fvsterrfile='data/fvsterror.json'
@@ -40,7 +42,7 @@ if os.path.isfile(fvsterrfile):
 
 def dooverpass(avej,ano,pno):
     print(" opass:"+avej+", nr="+ano+", pn="+pno+"#")
-    sleep(2)
+    sleep(3)
     try:
         r = api.Get('node["addr:country"="DK"]["addr:postcode"="'+pno+'"]["addr:street"="'+avej+'"]["addr:housenumber"="'+ano+'"]',responseformat="json")
         osm=r['elements']
@@ -50,10 +52,10 @@ def dooverpass(avej,ano,pno):
         print("ignore Multiple Requests Error")
         return []
     except urllib3.exceptions.ProtocolError:
-        print("ignore Multiple proto err")
+        print("ignore proto err")
         return []
-    except overpass.errors.ServerLoadError:
-        print("ignore Server Load Error")
+    except:
+        print("ignore API Error")
         return []
 
 def doaddr(fixedaddrs,ac):
@@ -68,9 +70,9 @@ def doaddr(fixedaddrs,ac):
 
 ano=0
 for adr in alist:
-    print("check cache for ", adr["id"])
+    #print("check cache for ", adr["id"])
     if str(adr['id']) in pfixed:
-        print("\ncached ",adr["id"])
+        #print("\n  CACHED ",adr["id"])
         fixedaddrs["elements"][str(adr['id'])]=pfixed[str(adr['id'])]
         continue
     if limit<0:
@@ -78,14 +80,14 @@ for adr in alist:
     ano=ano+1
     print("\n")
     altnrs=[];
-    at=adr['addr'].replace("Prof. ","Professor ").replace("(City 2-Staderne)","").replace("Otte Busse","Otto Busse").replace("Chr.","Christian" ).replace("Hesseløgade, Drejøgade ","Drejøgade ").split(',')[0].strip().split('-')
+    at=adr['addr'].replace("Prof. ","Professor ").replace("(City 2-Staderne)","").replace("Otte Busse","Otto Busse").replace("Chr.","Christian" ).replace("Hesseløgade, Drejøgade ","Drejøgade ").replace(" Kvt "," Kvarter ").split(',')[0].strip().split('-')
     a=at[0].strip()
     if len(at)>1:
         altnrs.append(at[1].strip())
         print("altnrs=",altnrs[0])
     street=adr['addr']
     pno=str(adr['postnr'])
-    print("#"+str(ano)+" "+adr["name"]+":  vej="+street)
+    print("#"+str(ano)+" l="+str(limit)+" "+adr["name"]+":  vej="+street)
     ads=re.search(r"(\D*) ([0-9]+[a-zA-Z]*)",a)
     if ads and ("all" in sys.argv  or "senestekontrol" in adr and adr["senestekontrol"]):
         anr=ads.group(2).replace(" ","").upper()
@@ -114,6 +116,8 @@ for adr in alist:
             anr="11A"
         if avej=="Christian Xs Vej":
             avej="Christian X's Vej"
+        if avej=="Alsgde":
+            avej="Alsgade"
         if avej=="Smedebjergvej":
             avej="Smedebjergevej"
         if avej=="Baron Boltens Gaard":
@@ -153,8 +157,10 @@ for adr in alist:
                     r"Hovedgade$":"Hovedgaden",
                     r"desvej$":"dsvej",
                     r"gade$":"sgade",
+                    r"gård ":" gårds ",
                     r"torv$":" Torv",
                     r"toft$":" Toft",
+                    r"vej$":" vejen",
                     r"enteret$":"entret",
                     r"^Skt\.":"Sankt",
                     r"^Sct\.":"Sanct",
@@ -163,10 +169,17 @@ for adr in alist:
                     r"^Ndr.":"Nordre ",
                     r"^Ndr ":"Nordre ",
                     r"^Gl\.? ":"Gammel ",
+                    r"møllevej":" Møllevej",
+                    r"(\w)vej\b":r"\1 vej",
+                    r"(\w)vej\b":r"\1svej",
+                    r"(\w)vej\b":r"\1s vej",
                     r"^Sct ":"Sanct ",
-                    r"^Dr\. ":"Doktor ",
-                    r"^(.)\.(.) (.*) ":"\1\. \2. \3 ",
+                    r"^Dr\. ?":"Doktor ",
+                    r"^Chr\. ":"Christian ",
+                    r"^Chr ":"Chr ",
+                    r"^(.)\.(.) (.*) ":r"\1\. \2. \3 ",
                     r"JF ":"John. F. ",
+                    r"JF Kennedys ":"John. F. Kennedys",
                     r"Rafshalevej":"Refshalevej"
                 }
                 for rpk,rpv in rpls.items():
