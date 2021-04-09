@@ -1,5 +1,4 @@
 #!/bin/bash
-git pull
 #  area["name"="Denmark"]->.sa;\
 # {{geocodeArea:\"Denmark\"}}->.sa;\
 q="[timeout:600] [out:json];\
@@ -11,6 +10,7 @@ q="[timeout:600] [out:json];\
   nwr["amenity"="kitchen"](area.sa);\
   nwr["amenity"="hospital"](area.sa);\
   nwr["amenity"="clinic"](area.sa);\
+  nwr["amenity"="pharmacy"](area.sa);\
   nwr["amenity"="events_venue"](area.sa);\
   nwr["amenity"="cafe"](area.sa);\
   nwr["amenity"="fast_food"](area.sa);\
@@ -22,6 +22,9 @@ q="[timeout:600] [out:json];\
   nwr["shop"="bakery"](area.sa);\
   nwr["shop"="craft"](area.sa);\
   nwr["shop"="kiosk"](area.sa);\
+  nwr["shop"="supermarket"](area.sa);\
+  nwr["shop"="convenience"](area.sa);\
+  nwr["shop"="doityourself"](area.sa);\
   nwr["amenity"="pub"](area.sa);\
   nwr["leisure"="golf_course"](area.sa);\
   nwr["tourism"="hotel"](area.sa);\

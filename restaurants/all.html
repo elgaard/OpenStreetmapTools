@@ -19,6 +19,7 @@ var map;
 var data;
 var poiUrl = 'data/all.json';
 var markers = new L.FeatureGroup();
+var byLbnr={};
 
 var ignores={};
 var ignore=function(id,name) {
@@ -87,7 +88,15 @@ $(document).ready(function () {
         }
         var nl=name.toLowerCase();
 	if (nl.match(/pleje|ældrecenter|boenhed|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+        else if (nl.match(/^rema 1000\b|^meny\b|^netto\b|^aldi\b|^irma\b|^lidl\b|\bkøbmand\b/)!=null) addtags="shop=supermarket";
+        else if (nl.match(/^imerco\b|^kopkande\b|^kopogkande\b|^bahne\b/)!=null) addtags="shop=houseware";
+        else if (nl.match(/\bgårdbutik\b/)!=null) addtags="shop=farm";
+        else if (nl.match(/\bvin\b|\bwine\b/)!=null) addtags="shop=alcohol";
         else if (nl.match(/\bbageri?\b|\bbager\b|\bkonditori?\b/)!=null) addtags="shop=bakery";
+        else if (nl.match(/\bslagteri?\b|slagteren\b/)!=null) addtags="shop=butcher";
+        else if (nl.match(/\bchokolade\b/)!=null) addtags="shop=confectionary";
+        else if (nl.match(/\bsilvan\b/)!=null) addtags="shop=doityourself";
+        else if (nl.match(/\bapotek\b|\bapoteksudsalg/)!=null) addtags="amenity=pharmacy";
         else if (nl.match(/\bpub\b|pubben\b|puben\b/)!=null) addtags="amenity=pub";
         else if (nl.match(/\bbillardklub\b|billard klub\b/)!=null) addtags="club=sport%257Csport=billiards";
         else if (nl.match(/jobcenter/)!=null) addtags="office=administrative";
@@ -114,7 +123,7 @@ $(document).ready(function () {
 	else if (nl.match(/bowling/)!=null) addtags="leisure=bowling_alley";
 	else if (nl.match(/bingo|banko/)!=null) addtags="amenity=gambling";
 	else if (nl.match(/ bank/)!=null) addtags="amenity=bank";
-        else if (nl.match(/selskabslokale|konference/)!=null) addtags="amenity=events_venue";
+        else if (nl.match(/selskabslokale|konference|\bvenue\b/)!=null) addtags="amenity=events_venue";
 	else if (nl.match(/\bspa$/)!=null) addtags="tourism=spa_resort";
        	else if (pi.branchekode=='DD.56.30.99') addtags="amenity=bar";
 
@@ -181,7 +190,7 @@ $(document).ready(function () {
 
     function loadPoi(poiData) {
       var today=new Date().toISOString().split('T')[0];
-      var poiInfo = function(pi) {
+      var poiInfo = function(pi,mk) {
     	var osmname=pi["osm:name"];
         var osmlbnr=pi["osm:navnelbnr"];
 	var id=pi["id"]
@@ -197,9 +206,8 @@ $(document).ready(function () {
         var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+josmUri(fvstname.replace("'",""))+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=%257Cref:DK:cvr="+(pi.scvr?pi.scvr:"");
         if (pi['exact']) mergejsurl+='%257Cfvst%3Aname='+josmUri(fvstname);
 
-	var js="javascript:void $.get('"+jsurl+"')";
+	var js="javascript:void (function (jsurl,fvstid){$.get(jsurl);byLbnr[fvstid].remove()})('"+jsurl+"',"+fvstid+")";
 	var mergejs="javascript:void $.get('"+mergejsurl+"')";
-
         var jsdelurl='http://localhost:8111/load_object?objects='+typeF+id;
 	var jsdel="javascript:void $.get('"+jsdelurl+"')";
         var jscheckurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=check_date='+today;
@@ -348,7 +356,8 @@ $(document).ready(function () {
               mk.setRadius(20);
 	      pl = L.polyline([osmll,fvstll], {color: 'orange'});
 	    }
-            mk.bindPopup(poiInfo(i)).addTo(markers);
+            mk.bindPopup(poiInfo(i,mk)).addTo(markers);
+            byLbnr[i["fvst:navnelbnr"]]=mk;
             if (pl) {
               pl.addTo(markers);
             }

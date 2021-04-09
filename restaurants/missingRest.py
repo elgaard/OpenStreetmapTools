@@ -21,7 +21,7 @@ gpx = gpxpy.gpx.GPX()
 #gpx.tracks.append(gpx_miss)
 
 def selected(smil):
-      if smil["branchekode"] in ["56.29.00.A","99.99.99.H","xDD.56.30.99"] or smil.get("vt",'ingen')!='Detail' or smil.get("pixi","u")!='Restauranter, pizzeriaer, kantiner m.m.' and smil["branchekode"] not in ['56.10.00.A','56.10.00.B','56.10.00.C','DD.56.10.99','00.00.02.H','DD.56.30.99'] and smil["name"].find('Sushi')<0 and smil["name"].find('Brasserie')<0:
+      if smil["branchekode"] in ["56.29.00.A","99.99.99.H","xDD.56.30.99"] or smil.get("vt",'ingen')!='Detail' or smil.get("pixi","u")!='Restauranter, pizzeriaer, kantiner m.m.' and smil["branchekode"] not in ["DD.47.10.99","DD.47.22.00",'56.10.00.A','56.10.00.B','56.10.00.C','DD.56.10.99','00.00.02.H','DD.56.30.99'] and smil["name"].find('Sushi')<0 and smil["name"].find('Brasserie')<0:
             return False
       if re.search(r"\bpop[ -]?(up|op)\b",smil["name"],re.IGNORECASE):
             return False
@@ -34,7 +34,10 @@ def selected(smil):
             return False
 
 def sanes(s):
-      return s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
+      sn=s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
+      sn=re.sub(r"\bbutik \d\d\d\b","",sn)
+      sn=re.sub(r"([^aA]) \d\d\d\d\b",r"\1",sn)
+      return sn
 
 def checked(elm):
       if "tags" in elm:
@@ -158,7 +161,7 @@ def canonicalname(nmi):
       for rpk,rpv in rpls1.items():
             nm=nm.replace(rpk,rpv)
       nm=nm + ' '
-      nm=re.sub('den ',' ',re.sub('(\bog cafe| og bar|\bcafe\b|\bkro|\bS/I\b|\bv/.*|\ba/s\b|\bs/i\b| pizza house|\bog pizza|\bog grillbar|\bpizzeria\b|\brestauranten\b|\brestaurante\b|\btake out\b|\btake away\b|\bristorante\b|\brestaurant\b|\bspisestedet\b|\bbryggeriet\b|\bhouse|\band\b|\bgrill\b|\bog cafe\b|s køkken|\bpizza\b|\bthe\b|\bkafe\b|\bcafeen\b|\bhotel\b|\bspisehus\b|\bog grillbar\b|\bog\b|\bsteakhouse\b|\bkaffebar\b|\bvinbar\b|\bconditori\b|\bproduktionskøkken|\btraktørstedet|\btakeaway|\bi/s\b|\bivs\b|\baps\b)','',nm)).replace('/','')
+      nm=re.sub('den ',' ',re.sub(r'(\bog cafe| og bar|\bcafe\b|\bkro|\bS/I\b|\bv/.*|\ba/s\b|\bs/i\b| pizza house|\bog pizza|\bog grillbar|\bpizzeria\b|\brestauranten\b|\brestaurante\b|\btake out\b|\btake away\b|\bristorante\b|\brestaurant\b|\bspisestedet\b|\bbryggeriet\b|\bhouse|\band\b|\bgrill\b|\bog cafe\b|s køkken|\bpizza\b|\bthe\b|\bkafe\b|\bcafeen\b|\bhotel\b|\bspisehus\b|\bog grillbar\b|\bog\b|\bsteakhouse\b|\bkaffebar\b|\bvinbar\b|\bconditori\b|\bproduktionskøkken|\btraktørstedet|\btakeaway|\bi/s\b|\bivs\b|\baps\b)','',nm)).replace('/','')
       nmc=re.sub(' 2','',nm)
       if nmc=='':
             nmc=nm
