@@ -11,6 +11,7 @@ from time import sleep
 import gpxpy
 import gpxpy.gpx
 from datetime import date
+from collections import defaultdict
 import pprint
 now=datetime.now()
 mlog=open("missing.log",encoding='utf-8',mode="w")
@@ -20,12 +21,17 @@ gpx = gpxpy.gpx.GPX()
 #gpx_miss = gpxpy.gpx.GPXTrack()
 #gpx.tracks.append(gpx_miss)
 
+if os.path.isfile("data/addrcache.json"):
+      addrcache=defaultdict(dict,json.loads(open("data/addrcache.json",'r', encoding='utf-8').read()))
+else:
+      addrcache=defaultdict(dict)
+
 def selected(smil):
       if smil["branchekode"] in ["56.29.00.A","99.99.99.H","xDD.56.30.99"] or smil.get("vt",'ingen')!='Detail' or smil.get("pixi","u")!='Restauranter, pizzeriaer, kantiner m.m.' and smil["branchekode"] not in ["DD.47.10.99","DD.47.22.00",'56.10.00.A','56.10.00.B','56.10.00.C','DD.56.10.99','00.00.02.H','DD.56.30.99'] and smil["name"].find('Sushi')<0 and smil["name"].find('Brasserie')<0:
             return False
       if re.search(r"\bpop[ -]?(up|op)\b",smil["name"],re.IGNORECASE):
             return False
-      nm=re.search(r'\bEUC\b|\bm/s\b|\bturistbåd|færgen\b|båden\b|\bm/f\b|Ophørt|Pølsevogn|julebod|ejerskifte|Festvogn|mobilvogn|Street Food|\bMobil\b|udlejning\b|Seaways|mobile| Detaillager|\bgarage\b|\bcykel|Mobile|Brugsen|Psykia|Truck|Foodtruck|foodtruck|Salgsvogn|grillvogn|pølsevogn|\btruck|\bcykel|Texaco|Kommune|\bafsnit|Kursus|\bvogn|grillvogn|personalekantine|kantine\b|kantinen|fjernlager|shell|\blager|pølsevogn|Catering|hjemmet|klubben|MENY|Statoil\b|Circle K|Vogn |vognen|Produktionskøkken|Q8|køkkenet|\bOK\b|Anretterkøkken|Vaffelvogn|\bcandy|7-Eleven|\bAfd.|\bkantine|medicinsk|Sygehus|Afdeling|hospital|afdeling|Aktivitet|Bofælles|institution|plejehjem|skole\b|skolen\b|Fazer|Onkologisk|Driftsenhed|Danhostel|styrelsen|Psykiatrisk|\bselskabslokale|kirurg',smil["name"],re.IGNORECASE)
+      nm=re.search(r'\bEUC\b|\bm/s\b|^bM/F\b|\bturistbåd|færgen\b|båden\b|^m\/f\b|Ophørt|Pølsevogn|julebod|ejerskifte|Festvogn|mobilvogn|Street Food|\bMobil\b|udlejning\b|Seaways|mobile| Detaillager|\bgarage\b|\bcykel|Mobile|Brugsen|Psykia|Truck|Foodtruck|foodtruck|Salgsvogn|grillvogn|pølsevogn|\btruck|\bcykel|Texaco|Kommune|\bafsnit|Kursus|\bvogn|grillvogn|personalekantine|kantine\b|kantinen|fjernlager|shell|\blager|pølsevogn|Catering|hjemmet|klubben|MENY|Statoil\b|Circle K|Vogn |vognen|Produktionskøkken|Q8|køkkenet|\bOK\b|Anretterkøkken|Vaffelvogn|\bcandy|7-Eleven|\bAfd.|\bkantine|medicinsk|Sygehus|Afdeling|hospital|afdeling|Aktivitet|Bofælles|institution|plejehjem|skole\b|skolen\b|Fazer|Onkologisk|Driftsenhed|Danhostel|styrelsen|Psykiatrisk|\bselskabslokale|kirurg',smil["name"],re.IGNORECASE)
       #print("SELECTED",smil.get("vt",'ingen'),str(not nm),json.dumps(smil,indent=2))
       if nm==None:
             return True
@@ -35,8 +41,9 @@ def selected(smil):
 
 def sanes(s):
       sn=s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
-      sn=re.sub(r"\bbutik \d\d\d\b","",sn)
+      sn=re.sub(r"\b(butik|Butik) \d\d\d\b","",sn)
       sn=re.sub(r"([^aA]) \d\d\d\d\b",r"\1",sn)
+      sn=re.sub(r"\d\d\d\d\d\b",r"",sn)
       return sn
 
 def checked(elm):
@@ -96,8 +103,6 @@ def osmage(s):
       d=s.split("T")[0].split("-")
       return (now-datetime(int(d[0]),int(d[1]),int(d[2]))).days
 
-fvsterrfile='data/fvsterror.json'
-fvsterr=open(fvsterrfile,mode="w",encoding='utf8')
 
 with open("data/rall.json", 'r') as f:
   fvstall = json.load(f)
@@ -152,6 +157,7 @@ def canonicalname(nmi):
             "pizzeria":"pizza",
             "pizzabar":"pizza",
             "pizza bar":"pizza",
+            "sct.":"sankt",
             "é":"e"
       }
       for rpk,rpv in rpls.items():
@@ -161,7 +167,7 @@ def canonicalname(nmi):
       for rpk,rpv in rpls1.items():
             nm=nm.replace(rpk,rpv)
       nm=nm + ' '
-      nm=re.sub('den ',' ',re.sub(r'(\bog cafe| og bar|\bcafe\b|\bkro|\bS/I\b|\bv/.*|\ba/s\b|\bs/i\b| pizza house|\bog pizza|\bog grillbar|\bpizzeria\b|\brestauranten\b|\brestaurante\b|\btake out\b|\btake away\b|\bristorante\b|\brestaurant\b|\bspisestedet\b|\bbryggeriet\b|\bhouse|\band\b|\bgrill\b|\bog cafe\b|s køkken|\bpizza\b|\bthe\b|\bkafe\b|\bcafeen\b|\bhotel\b|\bspisehus\b|\bog grillbar\b|\bog\b|\bsteakhouse\b|\bkaffebar\b|\bvinbar\b|\bconditori\b|\bproduktionskøkken|\btraktørstedet|\btakeaway|\bi/s\b|\bivs\b|\baps\b)','',nm)).replace('/','')
+      nm=re.sub('den ',' ',re.sub(r'(\bog cafe| og bar|\bsupermarked\b|\bdagligvarer\b|butik \d\d\d|\bcafe\b|\bkro|\bS/I\b|\bv/.*|\ba/s\b|\bs/i\b| pizza house|\bog pizza|\bog grillbar|\bpizzeria\b|\brestauranten\b|\brestaurante\b|\btake out\b|\btake away\b|\bristorante\b|\brestaurant\b|\bspisestedet\b|\bbryggeriet\b|\bhouse|\band\b|\bgrill\b|\bog cafe\b|s køkken|\bpizza\b|\bthe\b|\bkafe\b|\bcafeen\b|\bhotel\b|\bspisehus\b|\bog grillbar\b|\bog\b|\bsteakhouse\b|\bkaffebar\b|\bvinbar\b|\bconditori\b|\bproduktionskøkken|\btraktørstedet|\btakeaway|\bi/s\b|\bivs\b|\baps\b)','',nm)).replace('/','')
       nmc=re.sub(' 2','',nm)
       if nmc=='':
             nmc=nm
@@ -220,26 +226,16 @@ print("\n\nOSMINFO ", json.dumps(osminfo,indent=2), file=mlog )
 fvstfullfile='data/rfull.json';
 smilresfull=open(fvstfullfile,"r",encoding='utf-8').read()
 smildatafull = json.loads(smilresfull)['elements']
-fixed='data/fixed.json'
-if os.path.isfile(fixed):
-      try:
-            fixeddata=json.loads(open(fixed,'r', encoding='utf-8').read())['elements']
-      except json.decoder.JSONDecodeError as e:
-            fixeddata={}
-else:
-     fixeddata={}
 
 for smil in smildatafull:
       if smil.get('lat',0)<1 or smil.get('lon',0) < 1:
-          if str(smil["id"]) in fixeddata:
-#                print("fix smil",smil["id"])
-                fvsterrlist.append(fixeddata[str(smil["id"])]);
-                smil["lon"]=fixeddata[str(smil["id"])]["lon"]
-                smil["lat"]=fixeddata[str(smil["id"])]["lat"]
+          cachedadr=addrcache[smil["postnr"]].get(smil['addr'],'')
+          if cachedadr:
+             smil["lat"]=cachedadr["lat"]
+             smil["lon"]=cachedadr["lon"]
 
 #print("\n\nSMILDATAFULL ", pp.pprint(smildatafull), file=mlog )
 
-print(str(len(fixeddata))+" fixed now in smildata: "+ str(len(smildatafull)))
 for smil in smildatafull:
   osmlbnr.append(str(smil['id']))
 for smil in smildatafull:
@@ -284,6 +280,8 @@ for smil in smildatafull:
                                     "fvst:navnelbnr":smil['id'],
                                     "category":"guess_noaddr",
                                     "cvr":smil.get('cvr','cvrmiss'),
+                                    "pnr":smil.get('pnr',''),
+                                    "fa":smil.get('addr',''),
                                     "category":"fvst:no_pos",
                                     "type":ores["type"],
                                     "id":ores["id"],
@@ -314,6 +312,8 @@ for smil in smildatafull:
                           allfix["match"].append({"fvst:navnelbnr":smil['id'],
                                   "type":ores["type"],
                                   "cvr":smil.get('cvr','CVRMISS'),
+                                  "pnr":smil.get('pnr',''),
+                                  "fa":smil.get('addr',''),
                                   "id":ores["id"],
                                   "osm:name":ores["orgname"],
                                   "osm:navnelbnr":olbnr,
@@ -379,13 +379,15 @@ for osmelm in list(osmdata['elements']):
                         osmelm["stalefvst"]=True
                         allfix["match"].append(osmelm)
                         gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"]["amenity"],'Bell','stale'))
-                  elif age>-120 and not checked(osmelm) and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0 and not outofseason(osmelm) and not osmelm["tags"].get('amenity','xxx') in ['events_venue','community_centre','social_facility','clinic','hospital','marketplace','arts_centre']:
+                  elif age>-120 and not checked(osmelm) and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0 and not outofseason(osmelm) and not osmelm["tags"].get('amenity','xxx') in ['events_venue','community_centre','social_facility','clinic','hospital','marketplace','arts_centre','fuel','cinema'] and not osmelm["tags"].get('shop','x') in ['outpost']:
                         osmelm["notinfvst"]=True
                         allfix["gone"].append(osmelm)
                         gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"]["amenity"],'Bell','notinFvst'))
                   #else:
                       #  print("keep",osmelm["osm:name"], "ts=",osmelm["timestamp"], "age: ",age,"days")
 print("there was ",len(allfix["gone"]),"not in fvst")
+fvsterrfile='data/fvsterror.json'
+fvsterr=open(fvsterrfile,mode="w",encoding='utf8')
 print(json.dumps(fvsterrlist,indent=2,ensure_ascii=False),file=fvsterr)
 
 nids=[]

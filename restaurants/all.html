@@ -24,6 +24,7 @@ var byLbnr={};
 var ignores={};
 var ignore=function(id,name) {
   ignores[id]=name;
+  byLbnr[id].remove();
 };
 
 var resIcon;
@@ -83,27 +84,42 @@ $(document).ready(function () {
 	var name=pi.tags["name"].replace(/ ?v\. .*/i,"").replace(/v ?\/.*/i,"").replace("ApS","").replace(" i/s","").replace(" IVS","").replace(" APS","").replace(" a/s","").replace(" IvS","").replace(" Aps","").replace(" A/S","").replace(" I/S","").replace("|",'').replace("'",'').replace("`","").trim();
 	var addtags="amenity=fast_food";
         var operator="";
+        var faddr="";
         if (pi.tags["operator"]) {
           operator=pi.tags["operator"].toLowerCase();
         }
+        if (pi.tags["fa"]) {
+          faddr=pi.tags["fa"]+'<br>';
+        }
         var nl=name.toLowerCase();
-	if (nl.match(/pleje|ældrecenter|boenhed|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
-        else if (nl.match(/^rema 1000\b|^meny\b|^netto\b|^aldi\b|^irma\b|^lidl\b|\bkøbmand\b/)!=null) addtags="shop=supermarket";
-        else if (nl.match(/^imerco\b|^kopkande\b|^kopogkande\b|^bahne\b/)!=null) addtags="shop=houseware";
-        else if (nl.match(/\bgårdbutik\b/)!=null) addtags="shop=farm";
-        else if (nl.match(/\bvin\b|\bwine\b/)!=null) addtags="shop=alcohol";
+	if (nl.match(/pleje|\bsenior|ældrecenter|boenhed|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
+        else if (nl.match(/^rema 1000\b|^meny\b|^netto\b|^spar\b|^let-køb\b|^aldi\b|^irma\b|^lidl\b|\bcoma\b|\bkøbmand\b|\bkøbmands/)!=null) addtags="shop=supermarket";
+        else if (nl.match(/^imerco\b|^kop ?&? ?kande\b|^kopogkande\b|^bahne\b/)!=null) addtags="shop=houseware";
+        else if (nl.match(/\bgård ?butik|g(å|aa)rd(en)?\b|\bfrugtplantage|\bvejbod\b/)!=null) addtags="shop=farm";
+        else if (nl.match(/kiosk|butik|mini ?marked\b/)!=null) addtags="shop=convenience";
+        else if (nl.match(/sport\b/)!=null) addtags="shop=sports";
+        else if (nl.match(/\bmatas\b/)!=null) addtags="shop=chemist";
+        else if (nl.match(/\bost\b|\bostebutik/)!=null) addtags="shop=cheese";
+        else if (nl.match(/\bfitness\b/)!=null) addtags="leisure=fitness_centre";
+        else if (nl.match(/\bvin\b|\bvin(lager|handel|import)|\bwines?\b/)!=null) addtags="shop=alcohol%257Cdrink%3Awine=retail";
+        else if (nl.match(/\bbaby/)!=null) addtags="shop=baby_goods";
         else if (nl.match(/\bbageri?\b|\bbager\b|\bkonditori?\b/)!=null) addtags="shop=bakery";
-        else if (nl.match(/\bslagteri?\b|slagteren\b/)!=null) addtags="shop=butcher";
-        else if (nl.match(/\bchokolade\b/)!=null) addtags="shop=confectionary";
-        else if (nl.match(/\bsilvan\b/)!=null) addtags="shop=doityourself";
+        else if (nl.match(/\bslagteri?|slagteren\b|\bslagtermester|slagter\b|\bslagtehus/)!=null) addtags="shop=butcher";
+        else if (nl.match(/\bdelikatessen?\b/)!=null) addtags="shop=deli";
+        else if (nl.match(/\bslik|\bchokolade/)!=null) addtags="shop=confectionery";
+        else if (nl.match(/\bhavecenter?\b|\bgartner/)!=null) addtags="shop=garden_centre";
+        else if (nl.match(/\bgrønt?\b/)!=null) addtags="shop=greengrocer";
+        else if (nl.match(/\bsilvan|bauhaus|jem & fix\b|\bjem ?& ?fix\b/)!=null) addtags="shop=doityourself";
+        else if (nl.match(/\bkosttilskud/)!=null) addtags="shop=health_food";
         else if (nl.match(/\bapotek\b|\bapoteksudsalg/)!=null) addtags="amenity=pharmacy";
+        else if (nl.match(/\btandlæge/)!=null) addtags="amenity=dentist";
         else if (nl.match(/\bpub\b|pubben\b|puben\b/)!=null) addtags="amenity=pub";
         else if (nl.match(/\bbillardklub\b|billard klub\b/)!=null) addtags="club=sport%257Csport=billiards";
         else if (nl.match(/jobcenter/)!=null) addtags="office=administrative";
         else if (nl.match(/\bvuc\b|skole|gymnasium/)!=null) addtags="amenity=school";
         else if (nl.match(/\bvandpibe|hookah\b/)!=null) addtags="amenity=hookah_lounge";
         else if (nl.match(/\bkino\b/)!=null) addtags="amenity=cinema";
-        else if (nl.match(/\bbed\b .* \bbreakfast\b/)!=null) addtags="tourism=guest_house";
+        else if (nl.match(/\bbed\b .* \bbreakfast\b|B ?& ?B/)!=null) addtags="tourism=guest_house";
         else if (nl.match(/kaffebar|coffee|\biss facility\b|\bjoe.*the juice|baresso\b|\bespresso\b|\bkaffe|cafeen\b/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
         else if (nl.match(/\natklub\b|\bnightclub\b/)!=null) addtags="amenity=pub";
         else if (nl.match(/teatret|\bteater|\bscene\b/)!=null) addtags="amenity=theatre";
@@ -116,19 +132,19 @@ $(document).ready(function () {
         else if (nl.match(/forsamlings|kulturhus/)!=null) addtags="amenity=community_centre";
         else if (nl.match(/idrætsforening|\bIF$/)!=null) addtags="club=sport%257Csport=multi";
         else if (nl.match(/uddannelse/)!=null) addtags="amenity=school";
-        else if (nl.match(/\bis\b|\bisbar|\bishus\b/)!=null) addtags="amenity=ice_cream";
+        else if (nl.match(/\bis\b|\bisbar|\bishus\b|\bismejeri|\brajissimo\b/)!=null) addtags="amenity=ice_cream";
     	else if (nl.match(/\biscafe|gelateria|ice cream/)!=null) addtags="amenity=ice_cream";
         else if (nl.match(/idrætscenter/)!=null) addtags="leisure=sports_centre";
 	else if (nl.match(/feriekoloni/)!=null) addtags="leisure=summer_camp";
 	else if (nl.match(/bowling/)!=null) addtags="leisure=bowling_alley";
 	else if (nl.match(/bingo|banko/)!=null) addtags="amenity=gambling";
 	else if (nl.match(/ bank/)!=null) addtags="amenity=bank";
+        else if (nl.match(/\bcamping/)!=null) addtags="tourism=camp_site";
         else if (nl.match(/selskabslokale|konference|\bvenue\b/)!=null) addtags="amenity=events_venue";
 	else if (nl.match(/\bspa$/)!=null) addtags="tourism=spa_resort";
        	else if (pi.branchekode=='DD.56.30.99') addtags="amenity=bar";
 
         if (nl.match(/revision/)!=null) addtags="office=accountant";
-        else if (nl.match(/kiosk|butik/)!=null) addtags="shop=convenience";
         else if (nl.match(/advokat/)!=null) addtags="office=lawyer";
         else if (nl.match(/\belektronik/)!=null) addtags="man_made=works";
 	else if (nl.match(/sushi/)!=null) addtags+="%257Ccuisine=sushi";
@@ -149,7 +165,7 @@ $(document).ready(function () {
         if (pi.src && pi.src=='addrfix') addtags+="%257Cfvst:fixme=fvst position missing, fixed from overpassturbo/osak";
         if (nl.match(/takeaway|take away/)!=null) addtags+="%257Ctakeaway=yes";
         var r = $('<table>');
-        r.append($('<tr>').append($('<th>').html('New from FVST: '+name+'<br> senest: ' + pi.senestekontrol.split(" ")[0]+"<br>check if it exist. Check amenity type and name on the ground ")));
+        r.append($('<tr>').append($('<th>').html('New from FVST: '+name+'<br>'+faddr+' senest: ' + pi.senestekontrol.split(" ")[0]+"<br>check if it exist. Check amenity type and name on the ground ")));
         if (pi.branchekode=='00.00.02.H') {
           r.append($('<tr>').append($('<th>').html('Maybe not open yet: ')));
         }
@@ -157,7 +173,7 @@ $(document).ready(function () {
         r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
         var
         jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+josmUri(name.replace("'",""))+'%257Cfvst%3Anavnelbnr='+pi.id+'%257Cref:DK:cvr='+pi.cvr+"%257Cref:DK:cvr:pnummer="+pi.pnr;
-        var js="javascript:void $.get('"+jsurl+"')";
+      	var js="javascript:void (function (jsurl,fvstid){$.get(jsurl);byLbnr[fvstid].remove()})('"+jsurl+"',"+pi.id+")";
         r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
         r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
         r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
@@ -168,18 +184,18 @@ $(document).ready(function () {
         return $('<div>').append(r).html();
       };
 	$.each(missData, function(ign, i) {
+	    var osmll=new L.LatLng(i.lat, i.lon);
+            var mk;
 	  if (i.branchekode=='56.10.00.B') {
-	    var osmll=new L.LatLng(i.lat, i.lon);
-	    L.circleMarker(osmll,{color:'red'}).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	    mk=L.circleMarker(osmll,{color:'red'})		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
 	  } else if (i.branchekode=='00.00.02.H') {
-	    var osmll=new L.LatLng(i.lat, i.lon);
-	    L.circleMarker(osmll,{color:'black'}).bindPopup(poiInfo(i)).addTo(map);
+	    mk=L.circleMarker(osmll,{color:'black'});
 	  } else {
-	    L.marker([i.lat, i.lon], {
-	      icon: resIcon,
-	      title: i.tags.name
-	    }).bindPopup(poiInfo(i)).addTo(map);		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	    mk=L.marker([i.lat, i.lon], {icon: resIcon,title: i.tags.name});
+	    // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
 	  }
+          byLbnr[i.id]=mk;
+          mk.bindPopup(poiInfo(i)).addTo(map);
         });
     }
 
@@ -202,7 +218,7 @@ $(document).ready(function () {
 	  r.append($('<tr>').append($('<th>').html('fvst name: '+fvstname)));
         }
 	r.append($('<tr>').append($('<th>').html($('<a>',{ target:'osm', text: 'osm  name:' +osmname, href:'https://www.openstreetmap.org/'+pi['type']+'/'+pi['id']}))));
-	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cref:DK:cvr="+pi.cvr;
+	var jsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cref:DK:cvr="+pi.cvr+"%257Cref:DK:cvr:pnummer="+pi.pnr;
         var mergejsurl='http://localhost:8111/load_object?objects='+typeF+id+'&addtags=fvst%3Anavnelbnr='+fvstid+"%257Cname="+josmUri(fvstname.replace("'",""))+"%257Cphone=%257Cwebsite=%257Ccuisine=%257Coperator=%257Copening_hours=%257Cref:DK:cvr="+(pi.scvr?pi.scvr:"");
         if (pi['exact']) mergejsurl+='%257Cfvst%3Aname='+josmUri(fvstname);
 
@@ -216,7 +232,7 @@ $(document).ready(function () {
         var jssummer="javascript:void $.get('"+'http://localhost:8111/load_object?objects='+typeF+id+'&addtags=seasonal=summer'+"')";
         if (pi["category"]=="fvst:no_pos") {
           jsurl+='%257Cfvst%3Afixme=fvst:no_pos';
-	  var js="javascript:void $.get('"+jsurl+"')";
+          var js="javascript:void (function (jsurl,fvstid){$.get(jsurl);byLbnr[fvstid].remove()})('"+jsurl+"',"+fvstid+")";
 	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'update fvst:navnelbnr. First check address (No pos in FVST)',  href:js }))));
 	  r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+fvstid, href:'http://www.findsmiley.dk/'+fvstid}))));
        	  r.append($('<tr>').append($('<td>').html($('<a>',{text: 'open in JOSM for manual edit/deletion',  href:jsdel }))));
@@ -282,11 +298,11 @@ $(document).ready(function () {
           if (addr != "") {
             r.append($('<tr>').append($('<td>').html(" addr: "+addr)));
           }
-          var staleMsg="food place has stale fvst:navnelbnr tag:<br>";
+          var staleMsg="";
           if (pi["notinfvst"] && ! pi["stalefvst"]){
-            staleMsg += "Check if it exists. If it does then find the fvst:navnelbnr from inspection report";
+            staleMsg += "food place has no fvst:navnelbnr tag:<br>Check if it exists. If it does then find the fvst:navnelbnr from inspection report";
           } else {
-            staleMsg += "Check if it exists. If it does exists add a check_data tag, else delete it";
+            staleMsg += "food place has stale fvst:navnelbnr tag:<br> Check if it exists. If it does exists add a check_data tag, else delete it";
           }
           r.append($('<tr>').append($('<td>').html(staleMsg)));
 

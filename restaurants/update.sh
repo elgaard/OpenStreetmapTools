@@ -1,7 +1,7 @@
 #!/bin/bash
 #  area["name"="Denmark"]->.sa;\
 # {{geocodeArea:\"Denmark\"}}->.sa;\
-q="[timeout:600] [out:json];\
+q="[timeout:1600] [out:json];\
 ( \
   area(3600050046)->.sa;\
   nwr["amenity"="restaurant"](area.sa);\
@@ -16,20 +16,33 @@ q="[timeout:600] [out:json];\
   nwr["amenity"="fast_food"](area.sa);\
   nwr["amenity"="bar"](area.sa);\
   nwr["amenity"="pub"](area.sa);\
+  nwr["amenity"="cinema"](area.sa);\
   nwr["shop"="farm"](area.sa);\
   nwr["shop"="craft"]["craft"="catering"](area.sa);\
   nwr["shop"="butcher"](area.sa);\
   nwr["shop"="bakery"](area.sa);\
   nwr["shop"="craft"](area.sa);\
   nwr["shop"="kiosk"](area.sa);\
+  nwr["shop"="bicycle"](area.sa);\
+  nwr["shop"="clothes"](area.sa);\
   nwr["shop"="supermarket"](area.sa);\
+  nwr["shop"="garden_centre"](area.sa);\
+  nwr["shop"="party"](area.sa);\
+  nwr["shop"="nutrition_supplements"](area.sa);\
   nwr["shop"="convenience"](area.sa);\
+  nwr["shop"="cheese"](area.sa);\
+  nwr["shop"="chemist"](area.sa);\
+  nwr["department"~\".\"](area.sa);\
   nwr["shop"="doityourself"](area.sa);\
   nwr["amenity"="pub"](area.sa);\
+  nwr["amenity"="fuel"](area.sa);\
   nwr["leisure"="golf_course"](area.sa);\
+  nwr["leisure"="fitness_centre"](area.sa);\
   nwr["tourism"="hotel"](area.sa);\
+  nwr["tourism"="zoo"](area.sa);\
   nw["tourism"="museum"](area.sa);\
   nwr["tourism"="guest_house"](area.sa);\
+  nwr["tourism"="camp_site"](area.sa);\
   nwr["tourism"="hostel"](area.sa);\
   node[\"fvst:navnelbnr\" ~ \".\"]( 54.395, 3.853, 57.8321, 16.9097 );\
   way[\"fvst:navnelbnr\" ~ \".\"]( 54.395, 3.853, 57.8321, 16.9097 );\
@@ -38,7 +51,7 @@ q="[timeout:600] [out:json];\
 out center meta;\
 "
 
-#printf "$q"
+#echo "$q"
 
 if [[ x$1 != "xskiposm" && x$2 != "xskiposm" ]] ; then
     echo get osm data

@@ -15,22 +15,18 @@ import sys
 import re
 import overpass
 from time import sleep
+from collections import defaultdict
 import os
 api = overpass.API()
 fixcnt=0
-limit=400 # for testing
+limit=900 # for testing
 fixedaddrs={'elements':{},'info':'fvst data, fixed by lookup up addresses with overpass turbo'}
 notfixedaddrs={'elements':[],'info':'fvst data, not fixed by lookup up addresses with overpass turbo'}
 
-if os.path.isfile("data/fixed.json"):
-      try:
-            pfixed=json.loads(open("data/fixed.json",'r', encoding='utf-8').read())['elements']
-      except json.decoder.JSONDecodeError as e:
-            print("PRE FIXED read eeror")
-            pfixed={}
+if os.path.isfile("data/addrcache.json"):
+      addrcache=defaultdict(dict,json.loads(open("data/addrcache.json",'r', encoding='utf-8').read()))
 else:
-      print("NO PRE FIXED")
-      pfixed={}
+      addrcache=defaultdict(dict)
 
 alist=[]
 fvsterrfile='data/fvsterror.json'
@@ -58,44 +54,52 @@ def dooverpass(avej,ano,pno):
         print("ignore API Error")
         return []
 
-def doaddr(fixedaddrs,ac):
+def doaddr(fixedaddrs,ac,adr):
     global fixcnt
+    global addrcache
     if ac["type"]=="node":
         fixcnt=fixcnt+1
         print ("is node")
-    adr["lon"]=float(ac["lon"])+0.00003 # not right on top of address node
-    adr["lat"]=float(ac["lat"])
-    adr["src"]="addrfix"
-    fixedaddrs["elements"][str(adr["id"])]=adr
+        adr["lon"]=float(ac["lon"])+0.00003 # not right on top of address node
+        adr["lat"]=float(ac["lat"])
+        adr["src"]="addrfix"
+        addrcache[adr["postnr"]][adr['addr']]={"lat":ac["lat"],"lon":ac["lon"]}
+        fixedaddrs["elements"][str(adr["id"])]=adr
 
 ano=0
 for adr in alist:
     #print("check cache for ", adr["id"])
-    if str(adr['id']) in pfixed:
+    cachedadr=addrcache[adr["postnr"]].get(adr['addr'],'')
+    if cachedadr:
         #print("\n  CACHED ",adr["id"])
-        fixedaddrs["elements"][str(adr['id'])]=pfixed[str(adr['id'])]
+        adr["lat"]=cachedadr["lat"]
+        adr["lon"]=cachedadr["lon"]
+        fixedaddrs["elements"][str(adr['id'])]=adr
         continue
     if limit<0:
         continue
     ano=ano+1
-    print("\n")
     altnrs=[];
-    at=adr['addr'].replace("Prof. ","Professor ").replace("Albertlnelund","Albertinelund").replace("(City 2-Staderne)","").replace("Peter Fjelstrupvej","Peter Fjelstrups Vej").replace("Otte Busse","Otto Busse").replace("Chr.","Christian" ).replace("Hesseløgade, Drejøgade ","Drejøgade ").replace(" Kvt "," Kvarter ").split(',')[0].strip().split('-')
+    at=adr['addr'].replace("Prof. ","Professor ").replace("Albertlnelund","Albertinelund").replace("(City 2-Staderne)","").replace("Peter Fjelstrupvej","Peter Fjelstrups Vej").replace("Otte Busse","Otto Busse").replace("Hesseløgade, Drejøgade ","Drejøgade ").replace("Gammelskolevej19 3210 vejby 19","Gammel Skolevej 19 3210 vejby").replace("HC ","H. C. ").replace("Frederik 7,","Frederik 7 Vej,").replace("Tordensskjoldgade","Tordenskjoldsgade").replace("Estruplundevej","Estruplundvej").replace("Tømregade","Tømrergade").replace(" Kvt "," Kvarter ").split(',')[0].strip().split('-')
     a=at[0].strip()
-    if len(at)>1:
-        altnrs.append(at[1].strip())
-        print("altnrs=",altnrs[0])
     street=adr['addr']
     pno=str(adr['postnr'])
-    print("#"+str(ano)+" l="+str(limit)+" "+adr["name"]+":  vej="+street)
-    ads=re.search(r"(\D*) ([0-9]+[a-zA-Z]*)",a)
+    if pno=="1659":
+          pno="1658"
+    ads=re.search(r"(\D*) ([0-9]+ ?[a-zA-Z]*)",a)
     if ads and ("all" in sys.argv  or "senestekontrol" in adr and adr["senestekontrol"]):
+        if len(at)>1:
+           altnrs.append(at[1].strip())
+           print("altnrs=",altnrs[0])
+        print("\n")
+        print("#"+str(ano)+" l="+str(limit)+" "+adr["name"]+":  VEJ="+street)
         limit=limit -1
         anr=ads.group(2).replace(" ","").upper()
         if (len(anr)>1  and anr[0] == "0" ):
               anr=anr[1:]
         anrn=int(re.split("[a-zA-Z ]",anr)[0])
-        avej=ads.group(1).title().replace("Vald ","Valdemar ").replace(" Pl."," Plads").split(",")[0]
+        avej=ads.group(1).title()
+        avej=avej.replace("Vald ","Valdemar ").replace(" Pl."," Plads").split(",")[0]
         avej=avej.replace("  "," ").replace(", TV","")
         if avej=="Bernstorffsgade" and anrn==3 and pno=="1557":
             pno="1577"
@@ -117,6 +121,8 @@ for adr in alist:
             pno="1720"
         if avej=="Over Bølgen" and anrn==15 and pno=="2670":
             anr="11A"
+        if avej=="Vimmelskaftet" and anrn==47 and pno=="1162":
+            pno="1161"
         if avej=="Christian Xs Vej":
             avej="Christian X's Vej"
         if avej=="Alsgde":
@@ -129,116 +135,189 @@ for adr in alist:
             pno="2150"
         if avej=="Dronningens Tværgade" and anrn==22 and pno=="1322":
             pno="1302"
-        print(" vej="+avej+"::"+anr+"~"+str(anrn)+" p="+pno)
+        print(" Vej="+avej+"::"+anr+"~"+str(anrn)+" p="+pno)
         osm=dooverpass(avej,anr,pno)
         if (len(osm)==1):
             print ("got exactly one postion")
             ac=osm[0]
-            doaddr(fixedaddrs,ac)
+            doaddr(fixedaddrs,ac,adr)
         else:
-            print("got "+str(len(osm)) +": anra="+anr)
+            #print("got "+str(len(osm)) +": anra="+anr)
             if (anr[-1] in "ABCDEFGHIJKabcdef"):
                 anra=anr[:-1]
             else:
                 if len(altnrs)>0:
                     anra=altnrs[0]
                 else:
-                    anra=anr+"A"
+                    anra=anr+"D"
                 print(" anra="+anra)
             osm=dooverpass(avej,anra,pno)
             if (len(osm)==1):
                 print ("NOW got exactly one postion")
                 ac=osm[0]
-                doaddr(fixedaddrs,ac)
+                doaddr(fixedaddrs,ac,adr)
             else:
                 rpls={
-                      r"é":"e",
-                      r"Dosseringen":"Dossering",
-                      r"Aalborg":"Ålborg",
-                      r"Ålborg":"Aalborg",
-                      r"Eli ":"E. ",
-                      r"Center Vej":"Centervej",
-                      r", st":"",
-                      r"Nr\.? ":"Nørre ",
-                      r"Nr\. ":"Nr ",
-                      r"Ny ":"Nye ",
-                      r"Gunslevmaglevej\b":"Gundslevmaglevej",
-                      r"^D B U ":"DBU ",
-                      r"^(.) ":r"\1. ",
-                      r"Hovedgade$":"Hovedgaden",
-                      r"desvej$":"dsvej",
-                      r"gade$":"sgade",
-                      r"gård ":"gårds ",
-                      r"torv$":" Torv",
-                      r"skov\b":" Skov",
-                      r"toft$":" Toft",
-                      r"City 2$":"Cityringen",
-                      r"Søndergågade$":"Søndergade",
-                      r"vej$":" Vejen",
-                      r"vej\b":"vejen",
-                      r"enteret$":"entret",
-                      r"^Skt\. ?":"Sankt ",
-                      r"^Skt ":"Sankt ",
-                      r"^Sct\.? ?":"Sanct ",
-                      r"^Sdr\.? ?":"Sønder ",
-                      r"\bSdr\.? ?":"Søndre ",
-                      r"centeret\b":"Centret",
-                      r"centret\b":" Centret",
-                      r"^Ndr\.? ":"Neder ",
-                      r"^Neder ":"Ndr ",
-                      r"^Osvald Helmuts ":"Osvald Helmuths",
-                      r"^Ndr\.?":"Nordre ",
-                      r"^St\. ?":"Store ",
-                      r"^Gl\.? ":"Gammel ",
-                      r"\bmøllevej":" Møllevej",
-                      r"(\w)vej\b":r"\1 Vej",
-                      r" vej\b":r"vej",
-                      r"(\w)vej$":r"\1svej",
-                      r"(^s])vej\b":r"\1s Vej",
-                      r"^Sct ":"Sanct ",
-                      r"^Dr\. ?":"Doktor ",
-                      r"^H P ":"H.P. ",
-                      r"^H P \b":"H. P. ",
-                      r"^Chr\b":"Chr.",
-                      r"^Chr ":"Chr ",
-                      r"^Chr\.? ":"Christian ",
-                      r"^Hf\. ?":"Haveforeningen ",
-                      r"^Saddelmagerporten\b":"Sadelmagerporten",
-                      r"^Mylius Erichsens Vej\b":"Mylius-Erichsensvej",
-                      r"\bWildensskovsvej":"Wildenskovsvej",
-                      r"^(.)\.? ?(.)\.? (.*) ":r"\1. \2. \3 ",
-                      r"J(F|f) ":"John F. ",
-                      r"Jf ":"J. F. ",
-                      r"JF Kennedys ":"John F. Kennedys",
-                      r"Rafshalevej":"Refshalevej",
-                      r"^Paludan Müller":"Paludan-Müller",
-                      r"Taastrup":"Tåstrup",
-                      r"\bAllé\b":"Alle",
-                      r"\bFennevej\b":"Fennvej",
-                      r"\bTove Ditlevsen Vej\b":"Tove Ditlevsens Vej",
-                      r"\bAlle\b":"Allé",
-                      r"^Alholm":"Ålholm",
-                      r"\bLerso\b":"Lersø",
-                      r"\bvinbyholtvej\b":"vindbyholtvej",
-                      r"\bKaj\b":"Kai",
-                      r"\bVilh\. ?\b":"Vilhelm ",
-                      r"\bTordensskjoldgade\b":"Tordenskjoldsgade",
-                      r"gård ":"gårds ",
-                      r"allen$":"alleen",
-                      r"Allee$":"Alle",
-                      r"Bjerggade$":"Bjergegade",
-                      r"Tønsbjerg$":"Tønsberg",
-                      r"husfeldst":"husfeldts",
                       r" Og ":" & ",
+                      r" +vej$":r"vej",
+                      r"(\w)vej$":r"\1svej",
+                      r"(\w)vej\b":r"\1 Vej",
+                      r"evej\b":"vej",
+                      r"bakke\b":" Bakke",
+                      r"centeret\b":"centret",
+                      r"centeret$":" Centret",
+                      r"bjergvej\b":"bjerg",
+                      r"(^s)vej\b":r"\1s Vej",
+                      r", st":"",
+                      r"Aalborg":"Ålborg",
                       r"Alekistevej$":"Ålekistevej",
                       r"Alholm":"Ålholm",
-                      r"Volk Møllevej$":"Alekistevej",
+                      r"Allee$":"Alle",
+                      r"alle$":" Alle",
+                      r"Bogbinder":"Bogbinderi",
+                      r"Bjerggade$":"Bjergegade",
+                      r"Blomsyerlunden":"Blomsterlunden",
+                      r"Center Vej":"Centervej",
+                      r"City 2$":"Cityringen",
+                      r"Dosseringen":"Dossering",
+                      r"Dronning Margrethevej":"Dronning Margrethes Vej",
+                      r"Eli ":"E. ",
+                      r"Eddison":"Edison",
+                      r"^(\w+) Havekoloni":r"Havekolonien \1",
+                      r"\bGd\b":"Gade",
+                      r"Estruplundevej\b":"Estruplundvej",
+                      r"Frederik 7":"Frederik 7 Vej",
+                      r"Frederiks ":"Frederik ",
+                      r"Fuglsang":"Fuglesang",
+                      r"Karen Blixens Vej":"Karen Blixens Plads",
                       r"Gravervenget$":"Gravervænget",
-                      r"gården$":"gård",
-                      r"strædet$":"stræde",
-                      r"aa":"å",
-                      r"\bLykkeholm":"Lykkesholm",
+                      r"Gunslevmaglevej\b":"Gundslevmaglevej",
+                      r"\bGertrude Stenin":"Gertrude Stein",
+                      r"Hovedgade$":"Hovedgaden",
+                      r"Holmstrupgårdsvej":"Holmstrupgårdvej",
+                      r"Holmstrupgård\b":"Holmstrupgårdvej",
+                      r"Holmgaardvej\b":"Holmegårdvej",
+                      r"Islevgård Allé":"Islevgård Alle",
+                      r"J(F|f) ":"John F. ",
+                      r"JF Kennedys ":"John F. Kennedys",
+                      r"Jf ":"J. F. ",
+                      r"J Chr Juliussens Vej":"Jens Christian Juliussens Vej",
+                      r"Kaj Lindbergsgade":"Kai Lindbergs Gade",
+                      r"Lerso Parkalle":"Lersø Parkallé",
+                      r"Langeløbet":"Langløbet",
+                      r"Sct. Laurantii Vej":"Sankt Laurentii Vej",
+                      r"terrasserna$":"terrasserne",
+                      r"Skt. Knuds Allé":"Sanct Knuds Alle",
+                      r"Listved":"Listedvej",
+                      r"Møldrupvej":"Mørdrupvej",
+                      r"Sofiemindes Allé":"Sofiesminde Alle",
+                      r"Nr\. ":"Nr ",
+                      r"Nøreng\b":"Nør-Eng",
+                      r"Nr\.? ":"Nørre ",
+                      r"Ny ":"Nye ",
+                      r"Rafshalevej":"Refshalevej",
+                      r"Søndergågade$":"Søndergade",
+                      r"Taastrup":"Tåstrup",
+                      r"Tønsbjerg":"Tønsberg",
+                      r"Volk Møllevej$":"Volkmøllevej",
+                      r"\bAlle\b":"Allé",
+                      r"\bAllé\b":"Alle",
+                      r"\bFennevej\b":"Fennvej",
+                      r"\bKaj\b":"Kai",
+                      r"\bLerso\b":"Lersø",
+                      r"\bLykkeholmsvej":"Lykkesholms Allé",
+                      r"\bMarkmansgade":"Markmandsgade",
+                      r"\bSdr\.? ?":"Søndre ",
                       r"\bStadion Alle":"Stadionalle",
+                      r"\bTordensskjoldgade\b":"Tordenskjoldsgade",
+                      r"\bTove Ditlevsen Vej\b":"Tove Ditlevsens Vej",
+                      r"Tvillum":"Tvilum",
+                      r"\bVilh\. ?\b":"Vilhelm ",
+                      r"\bWildensskovsvej":"Wildenskovsvej",
+                      r"\bmøllevej":" Møllevej",
+                      r"^Vinbyholtvej\b":"Vindbyholtvej",
+                      r"^(.) ":r"\1. ",
+                      r"^(.)\.? ?(.)\.? (\w+)":r"\1. \2. \3",
+                      r"^(\w)\.(\w)\.":r"\1. \2.",
+                      r"^Alholm":"Ålholm",
+                      r"^Chr ":"Chr ",
+                      r"^Chr\. Kold":"Christen Kold",
+                      r"^Chr\.? ":"Christian ",
+                      r"^Chr\b":"Chr.",
+                      r"Dokkedalsvej":"Dokkedalvej",
+                      r"^D B U ":"DBU ",
+                      r"Jensden":"Jensen",
+                      r"Listvej":"Listedvej",
+                      r"Erikhusfeldstvej":"Erik Husfeldts Vej",
+                      r"Faurgaardsvej":"Favrgaardsvej",
+                      r"^Dr\. ?":"Doktor ",
+                      r"^Gl\.? ":"Gammel ",
+                      r"^Gl\.? ":"Gammel ",
+                      r"^Gl Skolevej\b":"Gl. Skolevej",
+                      r"Hampelandsvej":"Hampelandvej",
+                      r"^H P ":"H.P. ",
+                      r"^H P \b":"H. P. ",
+                      r"Indius Jensensvej":"Indius J. Vej",
+                      r"^Hf\. ?":"Haveforeningen ",
+                      r"Kridthøjtorvet":"Kridthøjvej",
+                      r"Kroppendal":"Kroppedal",
+                      r"Linnesgade":"Linnésgade",
+                      r"L.A.Ringsvej":"L.A. Rings Vej",
+                      r"^Mylius Erichsens Vej\b":"Mylius-Erichsensvej",
+                      r"^Magrethe":"Margrethe",
+                      r"^Markedstræde\b":"Markedsstræde",
+                      r"^Ndr\.? ":"Neder ",
+                      r"^Ndr\.? ?":"Nordre ",
+                      r"^Neder ":"Ndr ",
+                      r"^Niels Borh":"Niels Bohr",
+                      r"^Nørreboulevard":"Nørre Boulevard",
+                      r"^Nørre(\w)":r"Nørre \1",
+                      r"^Osvald Helmutsvej":"Osvald Helmuths Vej",
+                      r"^Paludan Müller":"Paludan-Müller",
+                      r"^Saddelmagerporten\b":"Sadelmagerporten",
+                      r"^Soborg Hodvegade":"Søborg Hovedgade",
+                      r"^Sct\.? ?":"Sanct ",
+                      r"^Sct\. ":"Sankt ",
+                      r"^Sdr\.? ?":"Sønder ",
+                      r"^Skt ":"Sankt ",
+                      r"^Skt\. ?":"Sankt ",
+                      r"^Skt\. ":"Sanct ",
+                      r"^St\. ?":"Store ",
+                      r"aa":"å",
+                      r"([^s])toften":r"\1stoften",
+                      r"Stavnsager":"Stavnager",
+                      r"å":"aa",
+                      r"\bÅ":"Aa",
+                      r"allen$":"alleen",
+                      r"centeret\b":"centret",
+                      r"centret\b":" Centret",
+                      r"desvej$":"dsvej",
+                      r"enteret$":"entret",
+                      r"gade$":"sgade",
+                      r"gade\b":" Gade",
+                      r"gård ":"gårds ",
+                      r"gård ":"gårds ",
+                      r"gården$":"gård",
+                      r"husfeldst":"husfeldts",
+                      r"skov\b":" Skov",
+                      r"strædet$":"stræde",
+                      r"Sigurdesgade$":"Sigurdsgade",
+                      r"Stjerneholmsgade$":"Stjernholmsgade",
+                      r"toft$":" Toft",
+                      r"Tvaervej$":"Tværvej",
+                      r"torv$":" Torv",
+                      r"vej$":" Vejen",
+                      r" vej$":"vej",
+                      r" Vej$":"vej",
+                      r" V$":" Vej",
+                      r"\bVarebro":"Værebro",
+                      r" Plads$":" Vej",
+                      r"vej\b":"vejen",
+                      r"Ålborg":"Aalborg",
+                      r"Ålsgårdecenteret":"Ålsgårdecentret",
+                      r"é":"e",
+                      r"Øster ":"Østre ",
+                      r"Østre\b":"Øster",
                       r"\bVenstrupparken":"Ventrupparken"
                 }
                 for rpk,rpv in rpls.items():
@@ -248,10 +327,13 @@ for adr in alist:
                           if (len(osm)==1):
                                 print ("FINALLY got exactly one postion")
                                 ac=osm[0]
-                                doaddr(fixedaddrs,ac)
+                                doaddr(fixedaddrs,ac,adr)
                                 break
                 else:
                     notfixedaddrs["elements"].append(adr)
+
+adc=open('data/addrcache.json',mode="w",encoding='utf-8')
+print(json.dumps(addrcache,indent=2, ensure_ascii=False),file=adc)
 
 fixed=open('data/fixed.json',mode="w",encoding='utf-8')
 notfixed=open('data/notfixed.json',mode="w",encoding='utf-8')
