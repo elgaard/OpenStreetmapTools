@@ -16,6 +16,7 @@ import pprint
 now=datetime.now()
 mlog=open("missing.log",encoding='utf-8',mode="w")
 pp = pprint.PrettyPrinter(indent=2)
+foodshops=["butcher","bakery","wine","alcohol","cheese"]
 
 gpx = gpxpy.gpx.GPX()
 #gpx_miss = gpxpy.gpx.GPXTrack()
@@ -26,10 +27,12 @@ if os.path.isfile("data/addrcache.json"):
 else:
       addrcache=defaultdict(dict)
 
+# TODO "DD.47.23.00" fisk, 47.29.00.E ost,
 def selected(smil):
-      if smil["branchekode"] in ["56.29.00.A","99.99.99.H","xDD.56.30.99"] or smil.get("vt",'ingen')!='Detail' or smil.get("pixi","u")!='Restauranter, pizzeriaer, kantiner m.m.' and smil["branchekode"] not in ["DD.47.10.99","DD.47.22.00",'56.10.00.A','56.10.00.B','56.10.00.C','DD.56.10.99','00.00.02.H','DD.56.30.99'] and smil["name"].find('Sushi')<0 and smil["name"].find('Brasserie')<0:
+      if not (smil["branchekode"] in ["99.99.99.H","DD.56.30.99","DD.56.10.99","DD.47.10.99","DD.47.22.00","DD.47.20.99","00.00.02.A","00.00.02.L","00.00.02.H","DD.10.71.20","47.29.00.A"] and smil.get("vt",'ingen')=='Detail') and smil["name"].find('Sushi')<0 and smil["name"].find('Brasserie')<0:
             return False
       if re.search(r"\bpop[ -]?(up|op)\b",smil["name"],re.IGNORECASE):
+            print("  nosel popup",smil["name"],file=mlog)
             return False
       nm=re.search(r'\bEUC\b|\bm/s\b|^bM/F\b|\bturistbåd|færgen\b|båden\b|^m\/f\b|Ophørt|Pølsevogn|julebod|ejerskifte|Festvogn|mobilvogn|Street Food|\bMobil\b|udlejning\b|Seaways|mobile| Detaillager|\bgarage\b|\bcykel|Mobile|Brugsen|Psykia|Truck|Foodtruck|foodtruck|Salgsvogn|grillvogn|pølsevogn|\btruck|\bcykel|Texaco|Kommune|\bafsnit|Kursus|\bvogn|grillvogn|personalekantine|kantine\b|kantinen|fjernlager|shell|\blager|pølsevogn|Catering|hjemmet|klubben|MENY|Statoil\b|Circle K|Vogn |vognen|Produktionskøkken|Q8|køkkenet|\bOK\b|Anretterkøkken|Vaffelvogn|\bcandy|7-Eleven|\bAfd.|\bkantine|medicinsk|Sygehus|Afdeling|hospital|afdeling|Aktivitet|Bofælles|institution|plejehjem|skole\b|skolen\b|Fazer|Onkologisk|Driftsenhed|Danhostel|styrelsen|Psykiatrisk|\bselskabslokale|kirurg',smil["name"],re.IGNORECASE)
       #print("SELECTED",smil.get("vt",'ingen'),str(not nm),json.dumps(smil,indent=2))
@@ -42,6 +45,7 @@ def selected(smil):
 def sanes(s):
       sn=s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
       sn=re.sub(r"\b(butik|Butik) \d\d\d\b","",sn)
+      sn=re.sub(r"\b(Aldi B\d\d\b)","Aldi",sn)
       sn=re.sub(r"([^aA]) \d\d\d\d\b",r"\1",sn)
       sn=re.sub(r"\d\d\d\d\d\b",r"",sn)
       return sn
@@ -167,7 +171,8 @@ def canonicalname(nmi):
       for rpk,rpv in rpls1.items():
             nm=nm.replace(rpk,rpv)
       nm=nm + ' '
-      nm=re.sub('den ',' ',re.sub(r'(\bog cafe| og bar|\bsupermarked\b|\bdagligvarer\b|butik \d\d\d|\bcafe\b|\bkro|\bS/I\b|\bv/.*|\ba/s\b|\bs/i\b| pizza house|\bog pizza|\bog grillbar|\bpizzeria\b|\brestauranten\b|\brestaurante\b|\btake out\b|\btake away\b|\bristorante\b|\brestaurant\b|\bspisestedet\b|\bbryggeriet\b|\bhouse|\band\b|\bgrill\b|\bog cafe\b|s køkken|\bpizza\b|\bthe\b|\bkafe\b|\bcafeen\b|\bhotel\b|\bspisehus\b|\bog grillbar\b|\bog\b|\bsteakhouse\b|\bkaffebar\b|\bvinbar\b|\bconditori\b|\bproduktionskøkken|\btraktørstedet|\btakeaway|\bi/s\b|\bivs\b|\baps\b)','',nm)).replace('/','')
+      nm=re.sub('den ',' ',re.sub(r'(\bog cafe| og bar|\bB\d\d\b|\bsupermarked\b|\b(\d\d\d\d )?dagligvarer\b|butik \d\d\d|\bcafe\b|\bkro|\bS/I\b|\bv/.*|\ba/s\b|\bs/i\b| pizza house|\bog pizza|\bog grillbar|\bpizzeria\b|forretning\b|\brestauranten\b|\brestaurante\b|\btake out\b|\btake away\b|\bristorante\b|\brestaurant\b|\bspisestedet\b|\bbryggeriet\b|\bhouse|\band\b|\bdetail\b|\bgrill\b|\bog cafe\b|s køkken|\bkøbmand$|\bpizza\b|\bthe\b|\bkafe\b|\bcafeen\b|\bhotel\b|\bspisehus\b|\bog grillbar\b|\bog\b|\bsteakhouse\b|\bkaffebar\b|\bvinbar\b|\bconditori\b|\bproduktionskøkken|\btraktørstedet|\btakeaway|\bi/s\b|\bivs\b|\baps\b)','',nm)).replace('/','')
+      nm=re.sub('apoteket\b','apotek',nm)
       nmc=re.sub(' 2','',nm)
       if nmc=='':
             nmc=nm
@@ -363,7 +368,7 @@ print("now osm not in fvst")
 #print("merge_candidates: ",json.dumps(merge_candidates,indent=2),file=mlog)
 
 for osmelm in list(osmdata['elements']):
-      if "tags" in osmelm and "amenity" in osmelm["tags"] and not osmelm["id"] in handled:
+      if "tags" in osmelm and ("amenity" in osmelm["tags"] or "shop" in osmelm["tags"]) and not osmelm["id"] in handled:
 #            print("   mck ", json.dumps(osmelm),file=mlog )
             if not "fvst:navnelbnr" in osmelm["tags"] or osmelm["tags"]["fvst:navnelbnr"]=="undefined" or not (osmelm["tags"]["fvst:navnelbnr"].isnumeric() and int(osmelm["tags"]["fvst:navnelbnr"]) in fvstall):
                   age=osmage(osmelm["timestamp"])
@@ -378,11 +383,11 @@ for osmelm in list(osmdata['elements']):
                         print("     MCK STALE ", osmelm["tags"]["fvst:navnelbnr"],file=mlog)
                         osmelm["stalefvst"]=True
                         allfix["match"].append(osmelm)
-                        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"]["amenity"],'Bell','stale'))
-                  elif age>-120 and not checked(osmelm) and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0 and not outofseason(osmelm) and not osmelm["tags"].get('amenity','xxx') in ['events_venue','community_centre','social_facility','clinic','hospital','marketplace','arts_centre','fuel','cinema'] and not osmelm["tags"].get('shop','x') in ['outpost']:
+                        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"].get("amenity","")+osmelm["tags"].get("shop",""),'Bell','stale'))
+                  elif age>-120 and not checked(osmelm) and not future(osmelm) and osmelm["osm:name"].find('Pølsevogn')<0 and not outofseason(osmelm) and not osmelm["tags"].get('amenity','xxx') in ['events_venue','xpharmacy','community_centre','social_facility','clinic','hospital','marketplace','arts_centre','fuel','cinema'] and not osmelm["tags"].get('shop','x') in ['outpost'] and  ("shop" in osmelm["tags"] and osmelm["tags"].get("shop") in foodshops):
                         osmelm["notinfvst"]=True
                         allfix["gone"].append(osmelm)
-                        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"]["amenity"],'Bell','notinFvst'))
+                        gpx.waypoints.append(gpxpy.gpx.GPXWaypoint(osmelm['lat'],osmelm['lon'],None,None,osmelm['osm:name'],osmelm["tags"].get("amenity","")+osmelm["tags"].get("shop","") ,'Bell','notinFvst'))
                   #else:
                       #  print("keep",osmelm["osm:name"], "ts=",osmelm["timestamp"], "age: ",age,"days")
 print("there was ",len(allfix["gone"]),"not in fvst")

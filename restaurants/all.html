@@ -93,33 +93,39 @@ $(document).ready(function () {
         }
         var nl=name.toLowerCase();
 	if (nl.match(/pleje|\bsenior|ældrecenter|boenhed|rehabilitering|behandlingscenter|demenscenter|bocenter|dagcenter|omrÃ¥decenter|omsorg|ældrecentret|botilbud|bosted|ældrebolig|hjemmet|fritidscentret/)!=null) addtags="amenity=social_facility%257Csocial_facility=assisted_living";
-        else if (nl.match(/^rema 1000\b|^meny\b|^netto\b|^spar\b|^let-køb\b|^aldi\b|^irma\b|^lidl\b|\bcoma\b|\bkøbmand\b|\bkøbmands/)!=null) addtags="shop=supermarket";
         else if (nl.match(/^imerco\b|^kop ?&? ?kande\b|^kopogkande\b|^bahne\b/)!=null) addtags="shop=houseware";
-        else if (nl.match(/\bgård ?butik|g(å|aa)rd(en)?\b|\bfrugtplantage|\bvejbod\b/)!=null) addtags="shop=farm";
-        else if (nl.match(/kiosk|butik|mini ?marked\b/)!=null) addtags="shop=convenience";
+        else if (nl.match(/\bslagteri?|slagteren\b|\bslagtermester|slagter\b|\bslagtehus/)!=null) addtags="shop=butcher";
+        else if (nl.match(/\bgård ?butik|g(å|aa)rd(en)?\b|\bfrugtplantage|\bvejbod\b|bonden$/)!=null) addtags="shop=farm";
+        else if (nl.match(/kiosk|butik|\bminimarket\b|mini ?marked\b|\bmarket$|\bkolonial|\bshop$\b/)!=null) addtags="shop=convenience";
+        else if (nl.match(/^rema 1000\b|^meny\b|^netto\b|\bfakta\b|^coop ?365\b|^spar\b|^let-køb\b|^aldi\b|^irma\b|^lidl\b|\bcoma\b|købmand(en)?\b|\bkøbmands|\bkvickly|\bletkøb/)!=null) addtags="shop=supermarket";
         else if (nl.match(/sport\b/)!=null) addtags="shop=sports";
-        else if (nl.match(/\bmatas\b/)!=null) addtags="shop=chemist";
+        else if (nl.match(/\bfrisør\b/)!=null) addtags="shop=hairdresser";
+        else if (nl.match(/\bblomster\b/)!=null) addtags="shop=florist";
+        else if (nl.match(/\bmatas|\bnormal\b/)!=null) addtags="shop=chemist";
+        else if (nl.match(/\belgiganten|\bpower\b/)!=null) addtags="shop=electronics";
         else if (nl.match(/\bost\b|\bostebutik/)!=null) addtags="shop=cheese";
         else if (nl.match(/\bfitness\b/)!=null) addtags="leisure=fitness_centre";
-        else if (nl.match(/\bvin\b|\bvin(lager|handel|import)|\bwines?\b/)!=null) addtags="shop=alcohol%257Cdrink%3Awine=retail";
+        else if (nl.match(/\bsøstrene grene|flying tiger/)!=null) addtags="shop=variety_store";
+        else if (nl.match(/\bvin\b|\bvin(lager|handel|import|e)|wines?\b/)!=null) addtags="shop=wine%257Cdrink%3Awine=retail";
         else if (nl.match(/\bbaby/)!=null) addtags="shop=baby_goods";
-        else if (nl.match(/\bbageri?\b|\bbager\b|\bkonditori?\b/)!=null) addtags="shop=bakery";
-        else if (nl.match(/\bslagteri?|slagteren\b|\bslagtermester|slagter\b|\bslagtehus/)!=null) addtags="shop=butcher";
+        else if (nl.match(/\bbageri?\b|\bbager(udsalg)?\b|\bkonditori?|\bbakery\b|Reinh. van Hauen\b/)!=null) addtags="shop=bakery";
         else if (nl.match(/\bdelikatessen?\b/)!=null) addtags="shop=deli";
-        else if (nl.match(/\bslik|\bchokolade/)!=null) addtags="shop=confectionery";
+        else if (nl.match(/\bslik|\bchokolade|\bchokolat|\bsummerbird|\bpeter beier\b\b/)!=null) addtags="shop=confectionery";
         else if (nl.match(/\bhavecenter?\b|\bgartner/)!=null) addtags="shop=garden_centre";
         else if (nl.match(/\bgrønt?\b/)!=null) addtags="shop=greengrocer";
+        else if (nl.match(/tøj?\b/)!=null) addtags="shop=clothes";
         else if (nl.match(/\bsilvan|bauhaus|jem & fix\b|\bjem ?& ?fix\b/)!=null) addtags="shop=doityourself";
-        else if (nl.match(/\bkosttilskud/)!=null) addtags="shop=health_food";
-        else if (nl.match(/\bapotek\b|\bapoteksudsalg/)!=null) addtags="amenity=pharmacy";
+        else if (nl.match(/\bkosttilskud|\bhelsam\b/)!=null) addtags="shop=health_food";
+        else if (nl.match(/\bapotek(et)?\b|\bapoteksudsalg/)!=null) addtags="amenity=pharmacy";
         else if (nl.match(/\btandlæge/)!=null) addtags="amenity=dentist";
         else if (nl.match(/\bpub\b|pubben\b|puben\b/)!=null) addtags="amenity=pub";
         else if (nl.match(/\bbillardklub\b|billard klub\b/)!=null) addtags="club=sport%257Csport=billiards";
+        else if (nl.match(/\bskytteforening\b/)!=null) addtags="club=sport%257Csport=shooting";
         else if (nl.match(/jobcenter/)!=null) addtags="office=administrative";
         else if (nl.match(/\bvuc\b|skole|gymnasium/)!=null) addtags="amenity=school";
         else if (nl.match(/\bvandpibe|hookah\b/)!=null) addtags="amenity=hookah_lounge";
         else if (nl.match(/\bkino\b/)!=null) addtags="amenity=cinema";
-        else if (nl.match(/\bbed\b .* \bbreakfast\b|B ?& ?B/)!=null) addtags="tourism=guest_house";
+        else if (nl.match(/\bbed\b .* \bbreakfast\b|b ?& ?b\b/)!=null) addtags="tourism=guest_house";
         else if (nl.match(/kaffebar|coffee|\biss facility\b|\bjoe.*the juice|baresso\b|\bespresso\b|\bkaffe|cafeen\b/)!=null) addtags="amenity=cafe%257Ccuisine=coffee_shop";
         else if (nl.match(/\natklub\b|\bnightclub\b/)!=null) addtags="amenity=pub";
         else if (nl.match(/teatret|\bteater|\bscene\b/)!=null) addtags="amenity=theatre";
@@ -132,7 +138,7 @@ $(document).ready(function () {
         else if (nl.match(/forsamlings|kulturhus/)!=null) addtags="amenity=community_centre";
         else if (nl.match(/idrætsforening|\bIF$/)!=null) addtags="club=sport%257Csport=multi";
         else if (nl.match(/uddannelse/)!=null) addtags="amenity=school";
-        else if (nl.match(/\bis\b|\bisbar|\bishus\b|\bismejeri|\brajissimo\b/)!=null) addtags="amenity=ice_cream";
+        else if (nl.match(/\bis\b|\bisbar|\bishus(et)?\b|\bismejeri|\brajissimo\b/)!=null) addtags="amenity=ice_cream";
     	else if (nl.match(/\biscafe|gelateria|ice cream/)!=null) addtags="amenity=ice_cream";
         else if (nl.match(/idrætscenter/)!=null) addtags="leisure=sports_centre";
 	else if (nl.match(/feriekoloni/)!=null) addtags="leisure=summer_camp";
@@ -171,10 +177,10 @@ $(document).ready(function () {
         }
 
         r.append($('<tr>').append($('<th>').html("check: "+pi.addr+', '+pi.postnr+", "+pi.city)));
-        var
-        jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+josmUri(name.replace("'",""))+'%257Cfvst%3Anavnelbnr='+pi.id+'%257Cref:DK:cvr='+pi.cvr+"%257Cref:DK:cvr:pnummer="+pi.pnr;
+        var jsurl='http://localhost:8111/add_node?lon='+pi.lon+'&lat='+pi.lat+'&addtags='+addtags+'%257Cname='+josmUri(name.replace("'",""))+'%257Cfvst%3Anavnelbnr='+pi.id+'%257Cref:DK:cvr='+pi.cvr+"%257Cref:DK:cvr:pnummer="+pi.pnr;
       	var js="javascript:void (function (jsurl,fvstid){$.get(jsurl);byLbnr[fvstid].remove()})('"+jsurl+"',"+pi.id+")";
         r.append($('<tr>').append($('<td>').html($('<a>',{text: 'edit in JOSM/Merkaartor',  href:js }))));
+        r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'open in Mapillary', href:'https://www.mapillary.com/app/?lat='+pi.lat+'&lng='+pi.lon+'&z=17'}))));
         r.append($('<tr>').append($('<td>').html($('<a>',{ target:'_blank', text: 'edit in Id', href:'http://www.openstreetmap.org/edit?lat='+pi.lat+'&lon='+pi.lon+'&zoom=19'}))));
         r.append($('<tr>').append($('<td>').html($('<a>',{ target:'fvst', text: 'FVST: fvst:navnelbnr: '+pi.id, href:'http://www.findsmiley.dk/'+pi.id}))));
         addCvr(r,pi);
@@ -186,10 +192,12 @@ $(document).ready(function () {
 	$.each(missData, function(ign, i) {
 	    var osmll=new L.LatLng(i.lat, i.lon);
             var mk;
-	  if (i.branchekode=='56.10.00.B') {
-	    mk=L.circleMarker(osmll,{color:'red'})		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
+	  if (i.branchekode=='DD.56.30.99') {
+	    mk=L.circleMarker(osmll,{color:'purple'})		  // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
 	  } else if (i.branchekode=='00.00.02.H') {
 	    mk=L.circleMarker(osmll,{color:'black'});
+	  } else if (i.branchekode=='DD.47.20.99') {
+	    mk=L.circleMarker(osmll,{color:'#99FFCC'});
 	  } else {
 	    mk=L.marker([i.lat, i.lon], {icon: resIcon,title: i.tags.name});
 	    // .bindLabel(i.tags.name, { noHide: true,direction: 'auto'}) too slow
@@ -198,7 +206,6 @@ $(document).ready(function () {
           mk.bindPopup(poiInfo(i)).addTo(map);
         });
     }
-
 
    function josmUri(u) {
      return encodeURIComponent(encodeURIComponent(u));
