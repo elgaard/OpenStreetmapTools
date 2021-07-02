@@ -149,7 +149,7 @@ for adr in alist:
                 if len(altnrs)>0:
                     anra=altnrs[0]
                 else:
-                    anra=anr+"D"
+                    anra=anr+"A"
                 print(" anra="+anra)
             osm=dooverpass(avej,anra,pno)
             if (len(osm)==1):
@@ -158,6 +158,7 @@ for adr in alist:
                 doaddr(fixedaddrs,ac,adr)
             else:
                 rpls={
+                      r"Agerup":"Ågerup",
                       r" Og ":" & ",
                       r" +vej$":r"vej",
                       r"(\w)vej$":r"\1svej",
@@ -167,6 +168,7 @@ for adr in alist:
                       r"centeret\b":"centret",
                       r"centeret$":" Centret",
                       r"bjergvej\b":"bjerg",
+                      r"Bentzosvej":"Bentzonsvej",
                       r"(^s)vej\b":r"\1s Vej",
                       r", st":"",
                       r"Aalborg":"Ålborg",
@@ -236,11 +238,12 @@ for adr in alist:
                       r"\bWildensskovsvej":"Wildenskovsvej",
                       r"\bmøllevej":" Møllevej",
                       r"^Vinbyholtvej\b":"Vindbyholtvej",
-                      r"^(.) ":r"\1. ",
-                      r"^(.)\.? ?(.)\.? (\w+)":r"\1. \2. \3",
+                      r"^(\w) ":r"\1. ",
+                      r"^(\w)\.? ?(.)\.? (\w+)":r"\1. \2. \3",
                       r"^(\w)\.(\w)\.":r"\1. \2.",
                       r"^Alholm":"Ålholm",
-                      r"^Chr ":"Chr ",
+                      r"^Chr. d. IXs":"Christian IX's",
+                      r"^Chr. d. Xs":"Christian X's",
                       r"^Chr\. Kold":"Christen Kold",
                       r"^Chr\.? ":"Christian ",
                       r"^Chr\b":"Chr.",
@@ -270,12 +273,14 @@ for adr in alist:
                       r"^Ndr\.? ?":"Nordre ",
                       r"^Neder ":"Ndr ",
                       r"^Niels Borh":"Niels Bohr",
+                      r"Niels W ":"Niels W. ",
                       r"^Nørreboulevard":"Nørre Boulevard",
                       r"^Nørre(\w)":r"Nørre \1",
                       r"^Osvald Helmutsvej":"Osvald Helmuths Vej",
                       r"^Paludan Müller":"Paludan-Müller",
                       r"^Saddelmagerporten\b":"Sadelmagerporten",
                       r"^Soborg Hodvegade":"Søborg Hovedgade",
+                      r"Staegers":"Stægers",
                       r"^Sct\.? ?":"Sanct ",
                       r"^Sct\. ":"Sankt ",
                       r"^Sdr\.? ?":"Sønder ",
@@ -287,6 +292,7 @@ for adr in alist:
                       r"([^s])toften":r"\1stoften",
                       r"Stavnsager":"Stavnager",
                       r"å":"aa",
+                      r"ae":"æ",
                       r"\bÅ":"Aa",
                       r"allen$":"alleen",
                       r"centeret\b":"centret",
@@ -300,13 +306,17 @@ for adr in alist:
                       r"gården$":"gård",
                       r"husfeldst":"husfeldts",
                       r"skov\b":" Skov",
+                      r"Provesten":"Prøvesten",
                       r"strædet$":"stræde",
                       r"Sigurdesgade$":"Sigurdsgade",
                       r"Stjerneholmsgade$":"Stjernholmsgade",
+                      r"Stynø":"Strynø",
                       r"toft$":" Toft",
                       r"Tvaervej$":"Tværvej",
                       r"torv$":" Torv",
                       r"vej$":" Vejen",
+                      r"Vaenge":"Vænge",
+                      r"Slangrup":"Slangerup",
                       r" vej$":"vej",
                       r" Vej$":"vej",
                       r" V$":" Vej",
@@ -318,6 +328,8 @@ for adr in alist:
                       r"é":"e",
                       r"Øster ":"Østre ",
                       r"Østre\b":"Øster",
+                      r"I C\b":"I.C.",
+                      r"Ålhomvej":"Ålholmvej",
                       r"\bVenstrupparken":"Ventrupparken"
                 }
                 for rpk,rpv in rpls.items():

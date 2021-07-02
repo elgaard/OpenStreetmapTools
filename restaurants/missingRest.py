@@ -4,13 +4,12 @@ import re
 import string
 import sys
 import os
-from datetime import datetime
+from datetime import datetime,date
 import urllib.request
 import urllib.error
 from time import sleep
 import gpxpy
 import gpxpy.gpx
-from datetime import date
 from collections import defaultdict
 import pprint
 now=datetime.now()
@@ -27,9 +26,48 @@ if os.path.isfile("data/addrcache.json"):
 else:
       addrcache=defaultdict(dict)
 
-# TODO "DD.47.23.00" fisk, 47.29.00.E ost,
+
+brancher={
+      'servering':'DD.56.30.99',
+      'restaurant':'DD.56.10.99',
+      'vin':'DD.47.25.00',
+      'dagligvarer':'DD.47.10.99',
+      'bager':'DD.10.71.20',
+      'hospital':'DD.56.10.00',
+      'slagter':'DD.47.22.00',
+      'slagterE':'EB.10.10.99',
+      'kødE':'EB.10.10.13',
+      'fiskehandel':'47.23.00',
+      'ost':'47.29.00',
+      'drikE':'EB.11.00.00',
+      'chokolade': '47.24.00',
+      'deli':"DD.47.20.99",
+      'nyRest':'00.00.02.L',
+      'ikketildelt':'00.00.02.E',
+      'ny':'00.00.02.H',
+      'dtransport':'DD.49.41.00',
+      'etransport':'EE.49.41.00',
+      'emballage':'EE.46.40.99',
+      'emb':'EB.20.16.99',
+      'hospk':'DD.56.29.00',
+      'lager':'DE.46.39.99',
+      'lageru':'EE.46.30.99',
+      'lagerg':'EE.46.30.88',
+      'lagergu':'EB.52.10.99',
+      'kontor':'EE.46.17.00',
+      'kæde':'EE.70.10.10',
+      'animE':'EB.20.59.99',
+      'keramik':'DD.47.50.99'
+}
+
 def selected(smil):
-      if not (smil["branchekode"] in ["99.99.99.H","DD.56.30.99","DD.56.10.99","DD.47.10.99","DD.47.22.00","DD.47.20.99","00.00.02.A","00.00.02.L","00.00.02.H","DD.10.71.20","47.29.00.A"] and smil.get("vt",'ingen')=='Detail') and smil["name"].find('Sushi')<0 and smil["name"].find('Brasserie')<0:
+      if not (smil["branchekode"] in [brancher["restaurant"],brancher["servering"],brancher["dagligvarer"],brancher["slagter"],brancher["bager"],brancher["deli"],brancher["nyRest"],brancher["ost"]] and smil.get("vt",'ingen')=='Detail') and smil["name"].find('Sushi')<0 and smil["name"].find('Brasserie')<0:
+            return False
+      if  not smil.get("senestekontrol","") or (datetime.today()-datetime.strptime(smil["senestekontrol"].split(" ")[0],'%d-%m-%Y')).days>365*4:
+            print("  very old senestekontrol",smil["name"],file=mlog)
+            return False
+      if not smil["cvr"] and (not smil.get("senestekontrol","") or (datetime.today()-datetime.strptime(smil["senestekontrol"].split(" ")[0],'%d-%m-%Y')).days>365*2):
+            print("  no cvr and old senestekontrol",smil["name"],file=mlog)
             return False
       if re.search(r"\bpop[ -]?(up|op)\b",smil["name"],re.IGNORECASE):
             print("  nosel popup",smil["name"],file=mlog)
@@ -46,6 +84,9 @@ def sanes(s):
       sn=s.replace("xxx&","og").replace("|","").replace("'","").replace("`","").replace("´","").replace('´',"").replace(",","")
       sn=re.sub(r"\b(butik|Butik) \d\d\d\b","",sn)
       sn=re.sub(r"\b(Aldi B\d\d\b)","Aldi",sn)
+      sn=re.sub(r"\b(Aldi B\d\d\b)","Aldi",sn)
+      sn=re.sub(r"\b(Fakta \d\d\d\b)","Bilka",sn)
+      sn=re.sub(r"\b(ALDI B\d\d\b)","Aldi",sn)
       sn=re.sub(r"([^aA]) \d\d\d\d\b",r"\1",sn)
       sn=re.sub(r"\d\d\d\d\d\b",r"",sn)
       return sn
@@ -83,11 +124,11 @@ def future(elm):
 
 def outofseason(elm):
       month=datetime.now().month
-      if month <9 and month >4:
-            return False
       if "tags" in elm:
             if elm["tags"].get("access:covid19","yes") in ["private","no"]:
                   return True
+            if month <9 and month >4:
+                  return False
             if "opening_hours" in elm["tags"]:
                   hours=elm["tags"]["opening_hours"].split(" ")
                   if len(hours)>0:
@@ -132,13 +173,6 @@ def getname(o):
             return sanes(o['tags']['name'])
       else:
             return ""
-
-def getamenity(o):
-      if 'amenity' in o:
-            return o['amenity']
-      if 'tags' in o and 'amenity' in o['tags']:
-            return o['tags']['amenity']
-      return None
 
 def canonicalname(nmi):
       if not nmi:
@@ -227,7 +261,7 @@ for res in list(osmdata['elements']):
                         osminfo[an].append(cn)
       if 'tags' in res and 'fvst:navnelbnr' in res['tags']:
           fvst[res['tags']['fvst:navnelbnr']]=res
-print("\n\nOSMINFO ", json.dumps(osminfo,indent=2), file=mlog )
+#print("\n\nOSMINFO ", json.dumps(osminfo,indent=2), file=mlog )
 fvstfullfile='data/rfull.json';
 smilresfull=open(fvstfullfile,"r",encoding='utf-8').read()
 smildatafull = json.loads(smilresfull)['elements']
@@ -263,7 +297,7 @@ for smil in smildatafull:
     if (not smil['lat'] or not smil['lon'] or int(smil['lat']) < 54 or int(smil['lat'])> 57 or int(smil['lon'])<8 or int(smil['lon']) > 15):
           print(" missing pos: ", cn,smil['id'], file=mlog )
           isFixed=False;
-          if (not smil['id'] in fvst and smil["vt"] == 'Detail' and smil["branchekode"] not in ['DD.49.41.00','DD.49.41.00','EE.46.40.99','EB.20.16.99','DD.56.29.00''DE.46.39.99','EE.46.30.99','EE.46.17.00','EE.46.30.88','EE.70.10.10','EB.52.10.99','EB.20.59.99','EB.10.10.99','EB.10.10.13','DD.47.50.99']) or selected(smil):
+          if (not smil['id'] in fvst and smil["vt"] == 'Detail' and smil["branchekode"] not in [brancher['dtransport'],brancher['ikketildelt'],brancher['ny'],brancher['etransport'],brancher['emballage'],brancher['emb'],brancher['hospk'],brancher['lager'],brancher['lageru'],brancher['lagerg'],brancher['lagergu'],brancher['kontor'],brancher['kæde'],brancher['animE'],brancher['slagterE'],brancher['kødE'],brancher['keramik']]) or selected(smil):
                 fvsterrlist.append(smil)
     if cn=='':
       print("  no name:",smil['id'], file=mlog )

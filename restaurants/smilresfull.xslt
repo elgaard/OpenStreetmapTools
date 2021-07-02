@@ -76,7 +76,7 @@
 {"id":<xsl:value-of select="navnelbnr"/>,"lat":<xsl:choose><xsl:when test="Geo_Lat !=''"><xsl:value-of select="Geo_Lat"/></xsl:when> <xsl:otherwise>0.000</xsl:otherwise></xsl:choose>,"lon":<xsl:choose><xsl:when test="Geo_Lng !=''"><xsl:value-of select="Geo_Lng"/></xsl:when> <xsl:otherwise>0.0</xsl:otherwise></xsl:choose>,"operator":"<xsl:value-of select="Kaedenavn"/>",
 "city":"<xsl:value-of select="By"/>","addr":"<xsl:value-of select="translate(normalize-space(adresse1),'&quot;','')"/>","postnr":"<xsl:value-of select="postnr"/>",
 "cvr":"<xsl:value-of select="cvrnr"/>","pnr":"<xsl:value-of select="pnr"/>","vt":"<xsl:value-of select="virksomhedstype"/>","pixi":"<xsl:value-of select="Pixibranche"/>","senestekontrol":"<xsl:value-of select="seneste_kontrol_dato"/>","branchekode":"<xsl:value-of select="brancheKode"/>",
-"tags": {"amenity":"restaurant","name":"<xsl:value-of select="translate(normalize-space(navn1),'&quot;','')"/>"}},</xsl:if>
+"tags": {"name":"<xsl:value-of select="translate(normalize-space(navn1),'&quot;','')"/>"}},</xsl:if>
 </xsl:if>
 </xsl:if>
 </xsl:template>
